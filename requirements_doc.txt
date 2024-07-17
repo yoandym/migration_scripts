@@ -1,0 +1,3 @@
+Sphinx
+sphinxawesome-theme
+doc8

@@ -1,0 +1,16 @@
+.DS_Store
+.env
+
+*.pyc
+*.egg
+*.so
+*.swp
+
+env/
+build/
+_build/
+dist/
+docker/
+Sphinx.egg-info/
+doc/_build/
+doc/locale/
