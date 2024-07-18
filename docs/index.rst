@@ -1,12 +1,12 @@
 
-Documentación del modulo para migracion de datos
-================================================
+Documentación
+=============
 
-Modulo para migracion de datos entre instancias Odoo.
+Modulo para migracion parcial de datos entre instancias Odoo.
 
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents:
 
    tutorial
