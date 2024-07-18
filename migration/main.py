@@ -12,9 +12,9 @@ def account_payment_term_line_ids_transformer(executor: Executor, data: dict) ->
     """
     This function format the data dict, only the line_ids field, according to odoo v17 account.payment.term.line_ids model.
     Changes to make:
-        * We want only the fields: value, value_amount, days as nb_days, sequence
-        * Rename the key 'days' to 'nb_days'
-        * payment_term_lines values can be only fixed or in percentage, if %, it should have a total value_amount = 100.0
+    * We want only the fields: value, value_amount, days as nb_days, sequence
+    * Rename the key 'days' to 'nb_days'
+    * payment_term_lines values can be only fixed or in percentage, if %, it should have a total value_amount = 100.0
 
     Args:
         executor (Executor): The executor instance.
@@ -72,26 +72,9 @@ def account_payment_term_line_ids_transformer(executor: Executor, data: dict) ->
 
 
 if __name__ == "__main__":
-
-    load_dotenv()
-
-    source = {
-        "host": os.environ["SOURCE_HOST"],
-        "port": os.environ["SOURCE_PORT"],
-        "bd": os.environ["SOURCE_DB"],
-        "user": os.environ["SOURCE_DB_USER"],
-        "password": os.environ["SOURCE_DB_PASSWORD"],
-    }
-
-    target = {
-        "host": os.environ["TARGET_HOST"],
-        "port": os.environ["TARGET_PORT"],
-        "bd": os.environ["TARGET_DB"],
-        "user": os.environ["TARGET_DB_USER"],
-        "password": os.environ["TARGET_DB_PASSWORD"],
-    }
-
-    ex = Executor(source=source, target=target)
+    
+    # connection data is loaded from .env file
+    ex = Executor()
 
     # teams
     # =================================================================================================
@@ -320,9 +303,6 @@ if __name__ == "__main__":
 
     # ex.migrate(source, target, model, fields)
 
-    source_fields = ex.get_fields(source, model)
-    target_fields = ex.get_fields(target, model)
-
-    res = ex.make_fields_map(source_fields, target_fields)
+    res = ex.make_fields_map(model_name=model)
 
     PrettyPrint(res)

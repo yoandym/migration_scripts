@@ -4,6 +4,9 @@
 Este modulo provee las clases y metodos necesarios para la migracion de datos entre instancias via XMLRPC
 """
 
+import os
+from dotenv import load_dotenv
+
 from colorama import Fore, Back, Style
 from unidecode import unidecode
 
@@ -28,7 +31,7 @@ class Executor(object):
     
     fields_map = None
 
-    def __init__(self, source: dict, target: dict) -> None:
+    def __init__(self, source: dict=None, target: dict=None) -> None:
         """
         Initializes a new instance of the Migrate class.
 
@@ -36,6 +39,26 @@ class Executor(object):
             source (dict): A dictionary containing the connection details for the source server.
             target (dict): A dictionary containing the connection details for the target server.
         """
+        
+        load_dotenv()
+
+        if source is None:
+            source = {
+                "host": os.environ["SOURCE_HOST"],
+                "port": os.environ["SOURCE_PORT"],
+                "bd": os.environ["SOURCE_DB"],
+                "user": os.environ["SOURCE_DB_USER"],
+                "password": os.environ["SOURCE_DB_PASSWORD"],
+            }
+
+        if target is None:
+            target = {
+                "host": os.environ["TARGET_HOST"],
+                "port": os.environ["TARGET_PORT"],
+                "bd": os.environ["TARGET_DB"],
+                "user": os.environ["TARGET_DB_USER"],
+                "password": os.environ["TARGET_DB_PASSWORD"],
+            }
         
         # gets a logged in connection to the source server
         self.source_odoo = self.get_connection(source)
@@ -127,12 +150,12 @@ class Executor(object):
         
         return True
     
-    def get_fields(self, instance: dict, model_name: str, required_only=False, summary_only=True) -> list:
+    def get_fields(self, instance: int, model_name: str, required_only=False, summary_only=True) -> list:
         """
         Get all or required fields for the model
 
         Args:
-            instance (dict): A dictionary with the connection parameters for the instance
+            instance (int): An int representing the instance to get the fields from (1: source, 2: target).
             model_name (str): The model to get the required fields.
             only_required (bool): If True, only the required fields are returned.
 
@@ -140,7 +163,12 @@ class Executor(object):
             list: The fields for the model.
         """
         # gets a loggued in connection to the server
-        odoo = self.get_connection(instance)
+        if instance == 1:
+            odoo = self.source_odoo
+        elif instance == 2:
+            odoo = self.target_odoo
+        else:
+            print('Invalid instance value. Use 1 for source and 2 for target.')
         
         # gets the model
         model = odoo.env[model_name]
@@ -357,18 +385,24 @@ class Executor(object):
                 
         return True
     
-    def make_fields_map(self, source_fields: list, target_fields: list) -> dict:
+    def make_fields_map(self, model_name:str = None) -> dict:
         """
         Make a fields map from a list of source and target fields.
         Intended to be feed to other migration methods / tools.
-
+        
         Args:
-            source_fields (list): The fields list from the source instance.
-            target_fields (list): The fields list from the target istance.
+            model_name (str): The model name to make the fields map.
 
         Returns:
             dict: A dict with: map, removed and new fields.
         """
+        
+        if model_name is None:
+            model_name = self.model_name
+        
+        source_fields = self.get_fields(instance=1, model_name=model_name)
+        target_fields = self.get_fields(instance=2, model_name=model_name)
+
         
         map = []
         removed_fields = source_fields.copy()
