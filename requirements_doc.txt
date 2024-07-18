@@ -1,3 +1,4 @@
 Sphinx
 sphinxawesome-theme
+sphinx-copybutton
 doc8
