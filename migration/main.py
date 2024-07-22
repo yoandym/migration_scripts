@@ -3,17 +3,17 @@
 import os
 from dotenv import load_dotenv
 
-from tools import PrettyPrint
+from tools import Pretty
 
 from migrate import Executor
 
 
-def account_payment_term_line_ids_transformer(executor: Executor, data: dict) -> dict:
+def account_payment_term_line_value_transformer(executor: Executor, data: dict) -> dict:
     """
-    This function format the data dict, only the line_ids field, according to odoo v17 account.payment.term.line_ids model.
+    This function format the data dict, one record at a time.
+    Made for odoo v17 account.payment.term.line_ids model.
+    
     Changes to make:
-    * We want only the fields: value, value_amount, days as nb_days, sequence
-    * Rename the key 'days' to 'nb_days'
     * payment_term_lines values can be only fixed or in percentage, if %, it should have a total value_amount = 100.0
 
     Args:
@@ -24,68 +24,49 @@ def account_payment_term_line_ids_transformer(executor: Executor, data: dict) ->
         dict: The formatted data for the target instance.
     """
 
-    desired_keys = {"value", "value_amount", "days"}  # Define the keys you want to keep
+    line_ids = data.copy()
+    new_line_ids = []
 
-    _d = data.copy()
+    # to fix percentages
+    keep_percent = False
+    remaining_percent = 100.0
 
-    for record in _d:
-        line_ids = record.get(
-            "line_ids", []
-        )  # line_ids is [(0, 0, {dict}), (0, 0, {dict}), ...]
-        new_line_ids = []
+    for idx, element in enumerate(line_ids):
 
-        # to fix percentages
-        keep_percent = False
-        remaining_percent = 100.0
+        # if first element is a percent, then all elements should be in percent
+        if idx == 0 and element.get("value") in ["percent", "balance"]:
+            keep_percent = True
 
-        for idx, element in enumerate(line_ids):
-            cmd, id, line_ids_dict = element  # Get the components
+        if keep_percent:
+            element["value"] = "percent"
+            if element["value_amount"] == 0.0 or element.get("value") in ["balance", "fixed"]:
+                element["value_amount"] = remaining_percent
+        remaining_percent -= element.get("value_amount")
 
-            # Filter each line dict to keep only the desired keys
-            filtered_line = {
-                k: v for k, v in line_ids_dict.items() if k in desired_keys
-            }
+        new_line_ids.append(element)
 
-            # Rename the key 'days' to 'nb_days'
-            if "days" in filtered_line:
-                filtered_line["nb_days"] = filtered_line.pop("days")
+    return new_line_ids
 
-            # if first element is a percent, then all elements should be in percent
-            if idx == 0 and filtered_line.get("value") in ["percent", "balance"]:
-                keep_percent = True
 
-            if keep_percent:
-                filtered_line["value"] = "percent"
-                if filtered_line["value_amount"] == 0.0 or filtered_line.get(
-                    "value"
-                ) in ["balance", "fixed"]:
-                    filtered_line["value_amount"] = remaining_percent
-            remaining_percent -= filtered_line.get("value_amount")
-
-            new_line_ids.append(
-                (cmd, id, filtered_line)
-            )  # Update the record with filtered line
-
-        record["line_ids"] = new_line_ids  # Update the record with the new line_ids
-
-    return _d
+def crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
+    pass
 
 
 if __name__ == "__main__":
-    
+
     # connection data is loaded from .env file
     ex = Executor()
 
     # teams
     # =================================================================================================
-    # model = 'crm.team'
+    model = 'crm.team'
     # fields = ['name', 'sequence', 'active', 'is_favorite', 'color', 'alias_name', 'alias_contact', 'invoiced_target']
 
     # ex.migrate(source, target, model, fields)
 
     # payment terms
     # =================================================================================================
-    # model = 'account.payment.term'
+    model = 'account.payment.term'
     # fields = ['name', 'active', 'note', {'line_ids': account_payment_term_line_ids_transformer}]
 
     # ex.migrate(source, target, model, fields)
@@ -150,159 +131,23 @@ if __name__ == "__main__":
     # ]
 
     # ex.migrate(model, fields, batch_size=100)
-
+   
     # leads
     # =================================================================================================
-    model = "crm.lead"
-    fields = [
-        {"name": "name"},
-        {"user_id": "user_id"},
-        {"company_id": "company_id"},
-        {"referred": "referred"},
-        {"description": "description"},
-        {"active": "active"},
-        {"type": "type"},
-        {"priority": "priority"},
-        {"team_id": "team_id"},
-        {"stage_id": "stage_id"},
-        {"kanban_state": "kanban_state"},
-        {"tag_ids": "tag_ids"},
-        {"color": "color"},
-        {"expected_revenue": "expected_revenue"},
-        {"prorated_revenue": "prorated_revenue"},
-        {"company_currency": "company_currency"},
-        {"date_closed": "date_closed"},
-        {"date_open": "date_open"},
-        {"day_open": "day_open"},
-        {"day_close": "day_close"},
-        {"date_last_stage_update": "date_last_stage_update"},
-        {"date_conversion": "date_conversion"},
-        {"date_deadline": "date_deadline"},
-        {"partner_id": "partner_id"},
-        {"partner_is_blacklisted": "partner_is_blacklisted"},
-        {"contact_name": "contact_name"},
-        {"partner_name": "partner_name"},
-        {"function": "function"},
-        {"title": "title"},
-        {"email_from": "email_from"},
-        {"phone": "phone"},
-        {"mobile": "mobile"},
-        {"phone_mobile_search": "phone_mobile_search"},
-        {"phone_state": "phone_state"},
-        {"email_state": "email_state"},
-        {"website": "website"},
-        {"lang_id": "lang_id"},
-        {"street": "street"},
-        {"street2": "street2"},
-        {"zip": "zip"},
-        {"city": "city"},
-        {"state_id": "state_id"},
-        {"country_id": "country_id"},
-        {"probability": "probability"},
-        {"automated_probability": "automated_probability"},
-        {"is_automated_probability": "is_automated_probability"},
-        {"reveal_id": "reveal_id"},
-        {"lead_mining_request_id": "lead_mining_request_id"},
-        {"iap_enrich_done": "iap_enrich_done"},
-        {"show_enrich_button": "show_enrich_button"},
-        {"visitor_ids": "visitor_ids"},
-        {"visitor_page_count": "visitor_page_count"},
-        {"sale_amount_total": "sale_amount_total"},
-        {"quotation_count": "quotation_count"},
-        {"sale_order_count": "sale_order_count"},
-        {"order_ids": "order_ids"},
-        {"campaign_id": "campaign_id"},
-        {"source_id": "source_id"},
-        {"medium_id": "medium_id"},
-        {"activity_ids": "activity_ids"},
-        {"activity_state": "activity_state"},
-        {"activity_date_deadline": "activity_date_deadline"},
-        {"my_activity_date_deadline": "my_activity_date_deadline"},
-        {"activity_exception_decoration": "activity_exception_decoration"},
-        {"activity_exception_icon": "activity_exception_icon"},
-        {"email_normalized": "email_normalized"},
-        {"is_blacklisted": "is_blacklisted"},
-        {"message_bounce": "message_bounce"},
-        {"email_cc": "email_cc"},
-        {"message_is_follower": "message_is_follower"},
-        {"message_follower_ids": "message_follower_ids"},
-        {"message_partner_ids": "message_partner_ids"},
-        {"message_ids": "message_ids"},
-        {"message_needaction": "message_needaction"},
-        {"message_needaction_counter": "message_needaction_counter"},
-        {"message_has_error": "message_has_error"},
-        {"message_has_error_counter": "message_has_error_counter"},
-        {"message_attachment_count": "message_attachment_count"},
-        {"website_message_ids": "website_message_ids"},
-        {"message_has_sms_error": "message_has_sms_error"},
-        {"phone_sanitized": "phone_sanitized"},
-        {"phone_sanitized_blacklisted": "phone_sanitized_blacklisted"},
-        {"phone_blacklisted": "phone_blacklisted"},
-        {"mobile_blacklisted": "mobile_blacklisted"},
-        {"activity_user_id": "activity_user_id"},
-        {"activity_type_id": "activity_type_id"},
-        {"activity_type_icon": "activity_type_icon"},
-        {"activity_summary": "activity_summary"},
-        {"id": "id"},
-        {"display_name": "display_name"},
-        {"create_uid": "create_uid"},
-        {"create_date": "create_date"},
-        {"write_uid": "write_uid"},
-        {"write_date": "write_date"},
-    ]
-    removed = [
-        "user_email",
-        "user_login",
-        "activity_date_deadline_my",
-        "date_action_last",
-        "meeting_count",
-        "lost_reason",
-        "ribbon_message",
-        "won_status",
-        "days_to_convert",
-        "days_exceeding_closing",
-        "reveal_ip",
-        "reveal_iap_credits",
-        "reveal_rule_id",
-        "message_channel_ids",
-        "message_unread",
-        "message_unread_counter",
-        "message_main_attachment_id",
-        "__last_update",
-        "x_studio_categorizacin",
-    ]
-    new = [
-        "duration_tracking",
-        "activity_calendar_event_id",
-        "has_message",
-        "rating_ids",
-        "user_company_ids",
-        "lead_properties",
-        "recurring_revenue",
-        "recurring_plan",
-        "recurring_revenue_monthly",
-        "recurring_revenue_monthly_prorated",
-        "recurring_revenue_prorated",
-        "date_automation_last",
-        "email_domain_criterion",
-        "lang_code",
-        "lang_active_count",
-        "lost_reason_id",
-        "calendar_event_ids",
-        "duplicate_lead_ids",
-        "duplicate_lead_count",
-        "meeting_display_date",
-        "meeting_display_label",
-        "partner_email_update",
-        "partner_phone_update",
-        "is_partner_visible",
-        "interest_selection_ids",
-        "product_selection_ids",
-        "allowed_questions_ids",
-    ]
+    # model = "crm.lead"
 
-    # ex.migrate(source, target, model, fields)
+    recursion = 1
 
-    res = ex.make_fields_map(model_name=model)
-
-    PrettyPrint(res)
+    res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    file_path = "./" + model + ".txt"
+    Pretty.log(res, file_path=file_path)
+    
+    # ex.add_transformer(model=model, 
+    #                    field="x_studio_categorizacin", transformer=crm_lead_categorizacin_transformer)
+    # ex.add_transformer(model="account.payment.term", 
+    #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
+    
+    _map = ex.load_fields_map(file_path=file_path)
+    
+    ex.migrate(model, _map, batch_size=5, recursion_level=recursion)
+    
