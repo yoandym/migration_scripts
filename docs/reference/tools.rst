@@ -6,7 +6,7 @@ Module: migration.tools
    :caption: Contents:
 
 .. automodule:: migration.tools
-.. autoclass:: PrettyPrint
+.. autoclass:: Pretty
    :show-inheritance:
    :members:
 
