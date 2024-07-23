@@ -62,7 +62,8 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # 
 html_permalinks_icon = '<span>#</span>'
 # html_theme = 'haiku'
-html_theme = 'agogo'
+# html_theme = 'agogo'
+html_theme = 'furo'
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
