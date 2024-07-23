@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Migrar datos entre instancias Odoo &#8212; XMLRPC Data Migration  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/agogo.css?v=8513425a" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HowTo" href="../howto.html" />
+    <link rel="prev" title="Instalación" href="tutorial_install.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">XMLRPC Data Migration  documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="tutorial_install.html" title="Instalación"
+             accesskey="P">previous</a> |
+          <a href="../howto.html" title="HowTo"
+             accesskey="N">next</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="migrar-datos-entre-instancias-odoo">
+<h1>Migrar datos entre instancias Odoo<a class="headerlink" href="#migrar-datos-entre-instancias-odoo" title="Link to this heading"><span>#</span></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Si la migracion a hacer es simple, esto es: los campos del modelo de origen y
+destino son iguales, puede usar el metodo migrate de la clase Executor casi
+directamente.</p>
+<p>En cambio si la migracion tiene alguna complejidad, como por ejemplo, los
+campos del modelo de origen y destino no son de igual tipo de datos, o
+cambian de nombre o se dividen / fusionan, entonces debe crear un mapeo de
+campos y posiblemente una funcion de transformacion.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>En cualquier caso, tenga presente que para hacer uso del modulo debe crear
+su propio script de migracion, el cual debe importar las clases y funciones
+necesarias del modulo.</p>
+</div>
+<section id="una-migracion-de-datos-simple">
+<h2>Una migracion de datos simple<a class="headerlink" href="#una-migracion-de-datos-simple" title="Link to this heading"><span>#</span></a></h2>
+<p>A continuacion se muestra un ejemplo de migración de datos entre instancias
+Odoo:</p>
+<ol class="arabic">
+<li><p>Defina los datos de autenticacion para la instancia de origen y destino.</p>
+<p>Para ello puede:
+- Pasar los datos directamente al instanciar la clase <em>Executor</em>
+- Definirlos en un archivo de configuracion .env
+- Definirlos en variables de entorno</p>
+</li>
+</ol>
+<p>Para pasarlos directamente al instanciar la clase <em>Executor</em>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host1,</span>
+   <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
+   <span class="s2">&quot;bd&quot;</span><span class="p">:</span> <span class="s2">&quot;v14_db_1&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;password&quot;</span><span class="p">:</span>  <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">target</span> <span class="o">=</span> <span class="p">{</span>
+   <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host2,</span>
+   <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
+   <span class="s2">&quot;bd&quot;</span><span class="p">:</span> <span class="s2">&quot;v17_db_2&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+   <span class="s2">&quot;password&quot;</span><span class="p">:</span>  <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="kn">from</span> <span class="nn">migration.migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Para definirlos en un archivo de configuracion .env o en variables de entorno
+estas son las variables que debe definir:</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SOURCE_HOST</span><span class="o">=</span><span class="s2">&quot;host1&quot;</span>
+<span class="nv">SOURCE_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
+<span class="nv">SOURCE_DB</span><span class="o">=</span><span class="s2">&quot;v14_db_1&quot;</span>
+<span class="nv">SOURCE_DB_USER</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+<span class="nv">SOURCE_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+
+<span class="nv">TARGET_HOST</span><span class="o">=</span><span class="s2">&quot;host2&quot;</span>
+<span class="nv">TARGET_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
+<span class="nv">TARGET_DB</span><span class="o">=</span><span class="s2">&quot;v17_db_2&quot;</span>
+<span class="nv">TARGET_DB_USER</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+<span class="nv">TARGET_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
+</pre></div>
+</div>
+<ol class="arabic simple">
+<li><p>Seleccione el modelo y los campos que desea migrar. Ejemplo</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.team&#39;</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_favorite&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span>
+           <span class="s1">&#39;alias_name&#39;</span><span class="p">,</span> <span class="s1">&#39;alias_contact&#39;</span><span class="p">,</span> <span class="s1">&#39;invoiced_target&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p>Ejecute el proceso de migración.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># importe la clase Executor</span>
+<span class="kn">from</span> <span class="nn">migration.migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
+
+<span class="c1"># instancie la clase Executor pasando los datos de autenticacion</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+
+<span class="c1"># instancie la clase Executor sin pasar los datos de autenticacion si estos</span>
+<span class="c1"># fueron definidos en variables de entorno o en un archivo .env</span>
+<span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">()</span>
+
+<span class="c1"># Ejecute la migracion</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="una-migracion-de-datos-intermedia">
+<h2>Una migracion de datos intermedia<a class="headerlink" href="#una-migracion-de-datos-intermedia" title="Link to this heading"><span>#</span></a></h2>
+<p>Para el caso donde la migracion no sea tan simple porque algunos campos cambian
+de nombre solo debe hacer un mapeo de campos.</p>
+<ol class="arabic simple">
+<li><p>Siga las instrucciones iniciales de la migracion simple.</p></li>
+<li><p>Cree el mapeo de campos entre las instancias de origen y destino. Esto es
+una lista de cadenas o diccionarios. Ejemplo:</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;account.payment.term&#39;</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;description&#39;</span><span class="p">}]</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt>De esta forma, estariamos indicando que:</dt><dd><ul class="simple">
+<li><p>El campo ‘name’ de la instancia de origen no tuvo ningun cambio y se
+corresponde directmente al campo ‘name’ de la instancia de destino.</p></li>
+<li><p>El campo ‘active’ de la instancia de origen no tuvo ningun cambio y se
+corresponde directmente al campo ‘active’ de la instancia de destino.</p></li>
+<li><p>El campo ‘note’ de la instancia de origen cambio de nombre a ‘description’
+en la instancia de destino.</p></li>
+</ul>
+</dd>
+</dl>
+<ol class="arabic simple">
+<li><p>Ejecute el proceso de migración.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ejecute la migracion</span>
+<span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="una-migracion-de-datos-avanzada">
+<h2>Una migracion de datos avanzada<a class="headerlink" href="#una-migracion-de-datos-avanzada" title="Link to this heading"><span>#</span></a></h2>
+<p>Una migracion avanzada seria el caso donde es encesario hacer una o varias
+transformaciones a los datos de origen para que estos pueda ser correctamente
+migrados a la instancia de destino.</p>
+<p>A continuacion se muestra un ejemplo:</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="tutorial.html">Tutorial</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tutorial_install.html">Instalación</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Migrar datos entre instancias Odoo</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../howto.html">HowTo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation.html">Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/reference.html">Reference</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigation">
+            <a href="tutorial_install.html" title="Instalación"
+              >previous</a> |
+            <a href="../howto.html" title="HowTo"
+              >next</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/tutorial/tutorial_migrate.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Yoandy M.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

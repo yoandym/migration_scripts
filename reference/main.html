@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Module: migration.main &#8212; XMLRPC Data Migration  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/agogo.css?v=8513425a" />
+    <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="Module mirgation.migrate" href="migrate.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../index.html">XMLRPC Data Migration  documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="migrate.html" title="Module mirgation.migrate"
+             accesskey="P">previous</a> |
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="module-migration-main">
+<h1>Module: migration.main<a class="headerlink" href="#module-migration-main" title="Link to this heading"><span>#</span></a></h1>
+<div class="toctree-wrapper compound">
+</div>
+<p>Esto es un ejemplo de migracion de datos entre instancias Odoo</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Instancia de origen: Odoo v14</p></li>
+<li><p>Instancia de destino: Odoo v17</p></li>
+</ul>
+</div></blockquote>
+<dl class="py function" id="module-migration.main">
+<dt class="sig sig-object py" id="migration.main.account_payment_term_line_value_transformer">
+<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">account_payment_term_line_value_transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><span class="pre">Executor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/main.html#account_payment_term_line_value_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.account_payment_term_line_value_transformer" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>To migrate account/payment.term.lines from odoo v14 to v17.</p>
+<dl class="simple">
+<dt>Changes to make:</dt><dd><ul class="simple">
+<li><p>Field value can be only fixed or in percentage.</p></li>
+<li><p>if value == percentage, then value_amount should have a total / sum of 100.0</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> (<a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><em>Executor</em></a>) – The executor instance.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – The data to format. All model records at once.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The formatted data for the target instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migration.main.crm_lead_categorizacin_transformer">
+<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">crm_lead_categorizacin_transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><span class="pre">Executor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/main.html#crm_lead_categorizacin_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.crm_lead_categorizacin_transformer" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>To migrate a custom crm.lead model from odoo v14 to v17.</p>
+<dl class="simple">
+<dt>Changes to make:</dt><dd><ul class="simple">
+<li><p>Custom Field x_studio_categorizacin merges with field description.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>executor</strong> (<a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><em>Executor</em></a>) – The executor instance.</p></li>
+<li><p><strong>data</strong> (<em>dict</em>) – The data to format. All model records at once.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The formatted data for the target instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../howto.html">HowTo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../explanation.html">Explanation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="reference.html">Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Module: migration.tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="migrate.html">Module mirgation.migrate</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Module: migration.main</a></li>
+</ul>
+</li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigation">
+            <a href="migrate.html" title="Module mirgation.migrate"
+              >previous</a> |
+            <a href="../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+              <br/>
+              <a href="../_sources/reference/main.rst.txt"
+                rel="nofollow">Show Source</a>
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Yoandy M.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>migration.tools &#8212; XMLRPC Data Migration  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/agogo.css?v=8513425a" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+  </head><body>
+    <div class="header-wrapper" role="banner">
+      <div class="header">
+        <div class="headertitle"><a
+          href="../../index.html">XMLRPC Data Migration  documentation</a></div>
+        <div class="rel" role="navigation" aria-label="related navigation">
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a>
+        </div>
+       </div>
+    </div>
+
+    <div class="content-wrapper">
+      <div class="content">
+        <div class="document">
+            
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for migration.tools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">colorama</span> <span class="kn">import</span> <span class="n">Fore</span><span class="p">,</span> <span class="n">Back</span><span class="p">,</span> <span class="n">Style</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Union</span>
+
+<div class="viewcode-block" id="Pretty">
+<a class="viewcode-back" href="../../reference/tools.html#migration.tools.Pretty">[docs]</a>
+<span class="k">class</span> <span class="nc">Pretty</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A utility class for pretty printing dictionaries and lists.</span>
+
+<span class="sd">    Example usage:</span>
+<span class="sd">    ```</span>
+<span class="sd">    data = {&#39;a&#39;: 1, &#39;b&#39;: 2}</span>
+<span class="sd">    PrettyPrint(data)</span>
+<span class="sd">    ```</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">OK_COLOR</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">GREEN</span>
+    <span class="n">FAILED_COLOR</span> <span class="o">=</span> <span class="n">Fore</span><span class="o">.</span><span class="n">RED</span>
+
+<div class="viewcode-block" id="Pretty.log">
+<a class="viewcode-back" href="../../reference/tools.html#migration.tools.Pretty.log">[docs]</a>
+    <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">file_path</span><span class="o">=</span><span class="s1">&#39;./log.txt&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log data to a file with format.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Union[dict, list]): The data to log.</span>
+<span class="sd">            file_path (str): The path to the file where the log should be written.</span>
+<span class="sd">            overwrite (bool): Whether to overwrite the file or not. Defaults to False.</span>
+<span class="sd">            mode (str): The file mode (e.g., &#39;w&#39; for write, &#39;a&#39; for append). Defaults to &#39;w&#39;.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">overwrite</span> <span class="ow">and</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;File </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s1"> already exists. Set overwrite=True to overwrite it.&#39;</span><span class="p">)</span>
+            <span class="k">return</span>
+        
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            
+            <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Pretty.print">
+<a class="viewcode-back" href="../../reference/tools.html#migration.tools.Pretty.print">[docs]</a>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">state</span><span class="o">=</span><span class="n">OK_COLOR</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print the data.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Union[dict, list]): The data to print.</span>
+<span class="sd">            state (str): The state color to use for printing. Defaults to OK_COLOR.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="n">Pretty</span><span class="o">.</span><span class="n">_print_dict</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+            <span class="n">Pretty</span><span class="o">.</span><span class="n">_print_list</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">data</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="n">data</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_print_dict</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty print a dictionary.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Union[dict, list]): The dictionary to print.</span>
+<span class="sd">            state (str): The state color to use for printing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;: &#39;</span> <span class="o">+</span> <span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_print_list</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">state</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Pretty print a list of dictionaries.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (Union[dict, list]): The list to print.</span>
+<span class="sd">            state (str): The state color to use for printing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">Pretty</span><span class="o">.</span><span class="n">_print_dict</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="n">data</span><span class="p">)</span>
+            
+            <span class="nb">print</span><span class="p">(</span><span class="n">Style</span><span class="o">.</span><span class="n">RESET_ALL</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span></div>
+
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+        </div>
+        <div class="sidebar">
+          
+          <h3>Table of Contents</h3>
+          <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../howto.html">HowTo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../explanation.html">Explanation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference/reference.html">Reference</a></li>
+</ul>
+
+          <search role="search">
+            <h3 style="margin-top: 1.5em;">Search</h3>
+            <form class="search" action="../../search.html" method="get">
+                <input type="text" name="q" />
+                <input type="submit" value="Go" />
+            </form>
+          </search>
+
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+    <div class="footer-wrapper">
+      <div class="footer">
+        <div class="left">
+          <div role="navigation" aria-label="related navigation">
+            <a href="../../py-modindex.html" title="Python Module Index"
+              >modules</a> |
+            <a href="../../genindex.html" title="General Index"
+              >index</a>
+          </div>
+          <div role="note" aria-label="source link">
+          </div>
+        </div>
+
+        <div class="right">
+          
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Yoandy M.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.3.7.
+    </div>
+        </div>
+        <div class="clearer"></div>
+      </div>
+    </div>
+
+  </body>
+</html>
