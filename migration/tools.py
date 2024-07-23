@@ -3,7 +3,7 @@
 import os
 import json
 from colorama import Fore, Back, Style
-from pydantic import Union
+from typing import Union
 
 class Pretty:
     """

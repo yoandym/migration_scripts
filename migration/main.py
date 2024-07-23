@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+from typing import Union
 from dotenv import load_dotenv
 
 from tools import Pretty
@@ -10,15 +11,15 @@ from migrate import Executor
 
 def account_payment_term_line_value_transformer(executor: Executor, data: dict) -> dict:
     """
-    This function format the data dict, one record at a time.
-    Made for odoo v17 account.payment.term.line_ids model.
+    To migrate account/payment.term.lines from odoo v14 to v17.
     
     Changes to make:
-    * payment_term_lines values can be only fixed or in percentage, if %, it should have a total value_amount = 100.0
+        - Field value can be only fixed or in percentage.
+        - if value == percentage, then value_amount should have a total / sum of 100.0
 
     Args:
         executor (Executor): The executor instance.
-        data (dict): The data to format.
+        data (dict): The data to format. All model records at once.
 
     Returns:
         dict: The formatted data for the target instance.
@@ -49,6 +50,19 @@ def account_payment_term_line_value_transformer(executor: Executor, data: dict) 
 
 
 def crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
+    """
+    To migrate a custom crm.lead model from odoo v14 to v17.
+    
+    Changes to make:
+        - Custom Field x_studio_categorizacin merges with field description.
+
+    Args:
+        executor (Executor): The executor instance.
+        data (dict): The data to format. All model records at once.
+
+    Returns:
+        dict: The formatted data for the target instance.
+    """
     pass
 
 
