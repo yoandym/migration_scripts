@@ -255,11 +255,23 @@ class Executor(object):
         # process relational fields
         for idx, record in enumerate(data):
             for column_name in list(record.keys()):
+                
+                # drop unwanted fields
                 if column_name not in model_field_list:
                     record.pop(column_name)
                     continue
                 
                 field_type = model_fields_metadata[column_name]["type"]
+                
+                # drop empty fields. Case 1: A relation without data
+                if field_type in self.relation_types and record[column_name] in [False, None, '', []]:
+                    record.pop(column_name)
+                    continue
+                
+                # drop empty fields. Case 2: A non boolean field with False value
+                if field_type != "bool" and record[column_name] != 0 and record[column_name] in [False, None, '', []]:
+                    record.pop(column_name)
+                    continue
                                 
                 # test for and process relational fields
                 try:
@@ -373,12 +385,9 @@ class Executor(object):
                 
                 # if still not found, create it
                 if not _found:
-                    # get the data
-                    recordset = source_model.browse(related_source_id)
-                    new_source_data = recordset.read(model_field_list)
-                    
+                                        
                     # data may contain new relations, so we have to format them
-                    new_source_data = self._format_data(model_name=model_name, data=new_source_data, recursion_level=recursion_level - 1)
+                    new_source_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
 
                     # crete the record in target instance/model
                     _id, _displayname = target_model.create(new_source_data)[0]
