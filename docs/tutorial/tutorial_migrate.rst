@@ -135,8 +135,14 @@ De esta forma, estariamos indicando que:
 Una migracion de datos avanzada
 --------------------------------------
 
-Una migracion avanzada seria el caso donde es encesario hacer una o varias
-transformaciones a los datos de origen para que estos pueda ser correctamente
-migrados a la instancia de destino.
+Una migracion avanzada seria cuando:
+   - Es encesario hacer una o varias transformaciones a los datos de origen
+     para que estos puedan ser correctamente importados en la instancia De
+     destino.
+   - Es necesario hacer un mapa completo de los campos debido a cambios en los
+     nombres tanto de campos como modelos.
+   - Cuando es necesario hacer un mapa completo de los campos para especificar
+     llaves de busqueda en el modelo de destino y de esta forma evitar
+     duplicados.
 
-A continuacion se muestra un ejemplo:
+Pueder algunos de estos en la documentacion de referencia del modulo main.

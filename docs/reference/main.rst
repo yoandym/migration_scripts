@@ -12,5 +12,3 @@ Esto es un ejemplo de migracion de datos entre instancias Odoo
 
 .. automodule:: migration.main
    :members:
-
-
