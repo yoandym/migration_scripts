@@ -279,56 +279,23 @@
 </ul>
 </div></blockquote>
 <dl class="py function" id="module-migration.main">
-<dt class="sig sig-object py" id="migration.main.account_payment_term_line_value_transformer">
-<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">account_payment_term_line_value_transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><span class="pre">Executor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/main.html#account_payment_term_line_value_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.account_payment_term_line_value_transformer" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>To migrate account/payment.term.lines from odoo v14 to v17.</p>
-<dl class="simple">
-<dt>Changes to make:</dt><dd><ul class="simple">
-<li><p>Field value can be only fixed or in percentage.</p></li>
-<li><p>if value == percentage, then value_amount should have a total / sum of 100.0</p></li>
-</ul>
-</dd>
-</dl>
+<dt class="sig sig-object py" id="migration.main.migrate_crm_lead">
+<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">migrate_crm_lead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dry</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/main.html#migrate_crm_lead"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.migrate_crm_lead" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Migrate crm.lead model from odoo v14 to v17.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>executor</strong> (<a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><em>Executor</em></a>) – The executor instance.</p></li>
-<li><p><strong>data</strong> (<em>dict</em>) – The data to format. All model records at once.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The formatted data for the target instance.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
+<dd class="field-odd"><p><strong>dry</strong> (<em>bool</em>) – If True, only show the migration plan without executing it.</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="migration.main.crm_lead_categorizacin_transformer">
-<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">crm_lead_categorizacin_transformer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">executor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><span class="pre">Executor</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/main.html#crm_lead_categorizacin_transformer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.crm_lead_categorizacin_transformer" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>To migrate a custom crm.lead model from odoo v14 to v17.</p>
-<dl class="simple">
-<dt>Changes to make:</dt><dd><ul class="simple">
-<li><p>Custom Field x_studio_categorizacin merges with field description.</p></li>
+<p>This is a more advanced migration case. Here we use:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>An auto generated fields map to simplify the process.</p></li>
+<li><p>Recursion to migrate also related models.</p></li>
+<li><p>A transformer function to merge custom field x_studio_categorizacin with field description.
+See _crm_lead_categorizacin_transformer function.</p></li>
 </ul>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>executor</strong> (<a class="reference internal" href="migrate.html#migration.migrate.Executor" title="migration.migrate.Executor"><em>Executor</em></a>) – The executor instance.</p></li>
-<li><p><strong>data</strong> (<em>dict</em>) – The data to format. All model records at once.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The formatted data for the target instance.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>dict</p>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py function">
@@ -341,6 +308,12 @@
 <dt class="sig sig-object py" id="migration.main.migrate_payment_terms">
 <span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">migrate_payment_terms</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/main.html#migrate_payment_terms"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.migrate_payment_terms" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Migrate account.payment.term model from odoo v14 to v17.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="migration.main.migrate_res_partner">
+<span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">migrate_res_partner</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/main.html#migrate_res_partner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.migrate_res_partner" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Migrate res.partner model from odoo v14 to v17.</p>
 </dd></dl>
 
 </section>
@@ -393,10 +366,10 @@
           <div class="toc-tree">
             <ul>
 <li><a class="reference internal" href="#">Module: migration.main</a><ul>
-<li><a class="reference internal" href="#migration.main.account_payment_term_line_value_transformer"><code class="docutils literal notranslate"><span class="pre">account_payment_term_line_value_transformer()</span></code></a></li>
-<li><a class="reference internal" href="#migration.main.crm_lead_categorizacin_transformer"><code class="docutils literal notranslate"><span class="pre">crm_lead_categorizacin_transformer()</span></code></a></li>
+<li><a class="reference internal" href="#migration.main.migrate_crm_lead"><code class="docutils literal notranslate"><span class="pre">migrate_crm_lead()</span></code></a></li>
 <li><a class="reference internal" href="#migration.main.migrate_crm_team"><code class="docutils literal notranslate"><span class="pre">migrate_crm_team()</span></code></a></li>
 <li><a class="reference internal" href="#migration.main.migrate_payment_terms"><code class="docutils literal notranslate"><span class="pre">migrate_payment_terms()</span></code></a></li>
+<li><a class="reference internal" href="#migration.main.migrate_res_partner"><code class="docutils literal notranslate"><span class="pre">migrate_res_partner()</span></code></a></li>
 </ul>
 </li>
 </ul>

@@ -274,13 +274,13 @@
 <p id="module-migration.migrate">This module provides the necessary classes and methods for data migration between instances via XMLRPC.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="migration.migrate.Executor">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migration.migrate.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/migrate.html#Executor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.migrate.Executor" title="Link to this definition"><span>#</span></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migration.migrate.</span></span><span class="sig-name descname"><span class="pre">Executor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/migrate.html#Executor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.migrate.Executor" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The Executor class is responsible for executing the migration process from a source instance to a target instance.
 It provides methods to establish connections to the source and target servers, migrate data, and perform other related operations.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="migration.migrate.Executor.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/migration/migrate.html#Executor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.migrate.Executor.__init__" title="Link to this definition"><span>#</span></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/migration/migrate.html#Executor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.migrate.Executor.__init__" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Initializes a new instance of the Migrate class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -313,6 +313,24 @@ If no fields_map is provided, or the model / fields is not in the map, the trans
 <dd class="field-odd"><p>dict</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migration.migrate.Executor.dry_mode">
+<span class="sig-name descname"><span class="pre">dry_mode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#migration.migrate.Executor.dry_mode" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Set to True to run the migration in dry mode
+In dry mode, the migration plan is shown but not executed
+Useful to check the migration plan before running it</p>
+<div class="admonition danger">
+<p class="admonition-title">Danger</p>
+<p>related models are actually migrated no matter the dry mode</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migration.migrate.Executor.fields_map">
+<span class="sig-name descname"><span class="pre">fields_map</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#migration.migrate.Executor.fields_map" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Set the full fields mapping for the migration</p>
 </dd></dl>
 
 <dl class="py method">
@@ -391,6 +409,7 @@ The output is intended to be feed to other migration methods / tools.</p>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
 <dt>A dict with the folling format: {modelname: {target_model, search_keys, fields, removed, new}, …} where:</dt><dd><ul class="simple">
+<li><p>modelname is the source model name.</p></li>
 <li><p>target_model is the target model name. You can modify it if you want to migrate to a different model name</p></li>
 <li><p>search_keys is a <strong>dict</strong> with the keys to search for the records in the target model. Default is {‘id’: ‘id’, ‘name’: ‘name’}. This is useful to avoid data dups.</p></li>
 <li><p>fields is a <strong>dict</strong> with the fields mapping: {‘source_field1’: ‘target_field1’, ‘source_field2’: ‘target_field2’, …}</p></li>
@@ -421,6 +440,12 @@ The output is intended to be feed to other migration methods / tools.</p>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migration.migrate.Executor.relation_types">
+<span class="sig-name descname"><span class="pre">relation_types</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['one2many',</span> <span class="pre">'many2one',</span> <span class="pre">'many2many']</span></em><a class="headerlink" href="#migration.migrate.Executor.relation_types" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Set the relation types to traverse</p>
 </dd></dl>
 
 <dl class="py method">
@@ -503,11 +528,14 @@ The output is intended to be feed to other migration methods / tools.</p>
 <li><a class="reference internal" href="#migration.migrate.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
 <li><a class="reference internal" href="#migration.migrate.Executor.__init__"><code class="docutils literal notranslate"><span class="pre">Executor.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.add_transformer"><code class="docutils literal notranslate"><span class="pre">Executor.add_transformer()</span></code></a></li>
+<li><a class="reference internal" href="#migration.migrate.Executor.dry_mode"><code class="docutils literal notranslate"><span class="pre">Executor.dry_mode</span></code></a></li>
+<li><a class="reference internal" href="#migration.migrate.Executor.fields_map"><code class="docutils literal notranslate"><span class="pre">Executor.fields_map</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.get_connection"><code class="docutils literal notranslate"><span class="pre">Executor.get_connection()</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.get_fields"><code class="docutils literal notranslate"><span class="pre">Executor.get_fields()</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.load_fields_map"><code class="docutils literal notranslate"><span class="pre">Executor.load_fields_map()</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.make_fields_map"><code class="docutils literal notranslate"><span class="pre">Executor.make_fields_map()</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.migrate"><code class="docutils literal notranslate"><span class="pre">Executor.migrate()</span></code></a></li>
+<li><a class="reference internal" href="#migration.migrate.Executor.relation_types"><code class="docutils literal notranslate"><span class="pre">Executor.relation_types</span></code></a></li>
 <li><a class="reference internal" href="#migration.migrate.Executor.test_login"><code class="docutils literal notranslate"><span class="pre">Executor.test_login()</span></code></a></li>
 </ul>
 </li>
