@@ -1,0 +1,60 @@
+{
+    "account.payment.term.line": {
+        "target_model": "account.payment.term.line",
+        "search_keys": {
+            "id": "id",
+            "name": "name"
+        },
+        "fields": {
+            "value": "@_account_payment_term_line_value_transformer",
+            "value_amount": "value_amount",
+            "create_date": "create_date",
+            "days": "nb_days"
+        },
+        "removed": [
+            "days",
+            "day_of_the_month",
+            "option",
+            "sequence",
+            "__last_update"
+        ],
+        "new": [
+            "delay_type",
+            "nb_days",
+            "display_days_next_month",
+            "days_next_month"
+        ]
+    },
+    "account.payment.term": {
+        "target_model": "account.payment.term",
+        "search_keys": {
+            "id": "id",
+            "name": "name"
+        },
+        "fields": {
+            "name": "name",
+            "active": "active",
+            "note": "note",
+            "line_ids": "line_ids",
+            "sequence": "sequence",
+            "create_date": "create_date"
+        },
+        "removed": [
+            "__last_update"
+        ],
+        "new": [
+            "fiscal_country_codes",
+            "currency_id",
+            "display_on_invoice",
+            "example_amount",
+            "example_date",
+            "example_invalid",
+            "example_preview",
+            "example_preview_discount",
+            "discount_percentage",
+            "discount_days",
+            "early_pay_discount_computation",
+            "early_discount"
+        ]
+    }
+}

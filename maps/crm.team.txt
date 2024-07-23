@@ -1,0 +1,49 @@
+{
+    "crm.team": {
+        "fields": {
+            "name": "name",
+            "sequence": "sequence",
+            "active": "active",
+            "color": "color",
+            "is_favorite": "is_favorite",
+            "use_leads": "use_leads",
+            "use_opportunities": "use_opportunities",
+            "display_name": "display_name",
+            "create_date": "create_date",
+            "alias_name": "alias_name",
+            "alias_domain": "alias_domain"
+        },
+        "removed": [
+            "use_quotations",
+            "message_channel_ids",
+            "message_unread",
+            "message_unread_counter",
+            "message_main_attachment_id",
+            "__last_update",
+            "alias_user_id"
+        ],
+        "new": [
+            "has_message",
+            "rating_ids",
+            "is_membership_multi",
+            "member_company_ids",
+            "member_warning",
+            "crm_team_member_ids",
+            "crm_team_member_all_ids",
+            "alias_domain_id",
+            "alias_email",
+            "assignment_enabled",
+            "assignment_auto_enabled",
+            "assignment_optout",
+            "assignment_max",
+            "assignment_domain",
+            "lead_all_assigned_month_exceeded",
+            "lead_properties_definition",
+            "sale_order_count",
+            "category_commission_ids",
+            "alias_full_name",
+            "alias_incoming_local",
+            "alias_status"
+        ]
+    }
+}

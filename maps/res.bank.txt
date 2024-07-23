@@ -1,0 +1,28 @@
+{
+    "res.bank": {
+        "fields": {
+            "name": "name",
+            "street": "street",
+            "street2": "street2",
+            "zip": "zip",
+            "city": "city",
+            "state": "state",
+            "country": "country",
+            "email": "email",
+            "phone": "phone",
+            "active": "active",
+            "bic": "bic",
+            "id": "id",
+            "display_name": "display_name",
+            "create_uid": "create_uid",
+            "create_date": "create_date",
+            "write_uid": "write_uid",
+            "write_date": "write_date",
+            "l10n_mx_edi_code": "l10n_mx_edi_code"
+        },
+        "removed": [
+            "__last_update"
+        ],
+        "new": []
+    }
+}
