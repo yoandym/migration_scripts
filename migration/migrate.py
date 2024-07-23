@@ -4,7 +4,7 @@
 This module provides the necessary classes and methods for data migration between instances via XMLRPC.
 """
 
-import os
+import os, sys
 import json
 from dotenv import load_dotenv
 
@@ -33,13 +33,25 @@ class Executor(object):
     source_model = None
     target_model = None
     
+    #: Set the full fields mapping for the migration
     fields_map = None
     
     transformers = {}
     
+    #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
+    
+    dry_mode = False
+    """
+    Set to True to run the migration in dry mode
+    In dry mode, the migration plan is shown but not executed
+    Useful to check the migration plan before running it
+    
+    .. danger :: related models are actually migrated no matter the dry mode
 
-    def __init__(self, source: dict=None, target: dict=None) -> None:
+    """
+
+    def __init__(self, source: dict=None, target: dict=None, dry: bool=False) -> None:
         """
         Initializes a new instance of the Migrate class.
 
@@ -49,6 +61,10 @@ class Executor(object):
         """
         
         load_dotenv()
+        
+        self.dry_mode = dry
+        
+        sys.tracebacklimit = 0
 
         if source is None:
             source = {
@@ -161,14 +177,14 @@ class Executor(object):
             
             data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
                                 
-            # TODO: remove this code
-            print("new data")
-            Pretty.print(data)
-            
-            # creates the records at target instance
-            res = self.target_model.create(data)
-                    
-            print('%s %s records migrated successfully' % (len(res), model_name))
+            if self.dry_mode:
+                print("new data")
+                Pretty.print(data)
+            else:
+                # creates the records at target instance
+                res = self.target_model.create(data)
+                        
+                print('%s %s records migrated successfully' % (len(res), model_name))
         
         return True
     
@@ -246,14 +262,20 @@ class Executor(object):
                 field_type = model_fields_metadata[column_name]["type"]
                                 
                 # test for and process relational fields
-                if field_type in self.relation_types:
-                    new_source_model_name = model_fields_metadata[column_name]['relation']
-                    col_value = self._process_relation(model_name=new_source_model_name, 
-                                                    relation_type=field_type, 
-                                                    field_name=column_name,
-                                                    data=record[column_name], 
-                                                    recursion_level=recursion_level)
-                    record[column_name] = col_value
+                try:
+                    if field_type in self.relation_types:
+                        new_source_model_name = model_fields_metadata[column_name]['relation']
+                        col_value = self._process_relation(model_name=new_source_model_name, 
+                                                        relation_type=field_type, 
+                                                        field_name=column_name,
+                                                        data=record[column_name], 
+                                                        recursion_level=recursion_level)
+                        record[column_name] = col_value
+                except Exception as e:
+                    print('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name))
+                    print("Data Record")
+                    Pretty.print(record)
+                    raise e
                 
                 # test for and do field name changes
                 field_mapping_value = model_fields_map[column_name]
@@ -364,7 +386,7 @@ class Executor(object):
                     data = _id
         
         else:
-            print('Relational field %s to model %s, not processed because is deeper than recursion level' % (field_name, model_name))
+            raise Exception('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (field_name, model_name))
                  
         return data
     
@@ -528,6 +550,7 @@ class Executor(object):
 
         Returns:
             dict: A dict with the folling format: {modelname: {target_model, search_keys, fields, removed, new}, ...} where:
+                - modelname is the source model name.
                 - target_model is the target model name. You can modify it if you want to migrate to a different model name
                 - search_keys is a **dict** with the keys to search for the records in the target model. Default is {'id': 'id', 'name': 'name'}. This is useful to avoid data dups.
                 - fields is a **dict** with the fields mapping: {'source_field1': 'target_field1', 'source_field2': 'target_field2', ...}

@@ -102,13 +102,13 @@ def migrate_payment_terms():
     #: Do the migration
     ex.migrate(model, fields)
 
-def migrate_res_partner():
+def migrate_res_partner(dry):
     """
     Migrate res.partner model from odoo v14 to v17.
     """
     
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor()
+    ex = Executor(dry=dry)
 
     #: Model name to migrate
     model = 'res.partner'
@@ -136,9 +136,12 @@ def migrate_res_partner():
     #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
     ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
 
-def migrate_crm_lead():
+def migrate_crm_lead(dry):
     """
     Migrate crm.lead model from odoo v14 to v17.
+    
+    Args:
+        dry (bool): If True, only show the migration plan without executing it.
 
     This is a more advanced migration case. Here we use:
     
@@ -150,14 +153,14 @@ def migrate_crm_lead():
     """
 
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor()
+    ex = Executor(dry=dry)
 
     #: Model name to migrate
     model = 'crm.lead'
     
     
-    #: Recursion set to 1 to migrate upto one layer of related models.
-    recursion = 1
+    #: Migrate upto 2 layers of related models.
+    recursion = 2
 
     #: Generate the field map 
     res = ex.make_fields_map(model_name=model, recursion_level=recursion)
@@ -176,13 +179,18 @@ def migrate_crm_lead():
     _map = ex.load_fields_map(file_path=file_path)
     
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
-    ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
+    ex.migrate(model, _map, batch_size=5, recursion_level=recursion)
     
 
 
 if __name__ == "__main__":
     
-    # set current path to the migration_scripts folder
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    # gwt current path 
+    current_path = os.path.dirname(os.path.abspath(__file__))
+    # up one level to the migration_scripts folder
+    os.chdir(os.path.dirname(current_path))
+    # and then enter de maps folder
+    os.chdir("maps")
 
-    migrate_crm_lead()
+    migrate_crm_lead(dry=True)
+    # migrate_res_partner(dry=True)   
