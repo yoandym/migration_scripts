@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import os
-from typing import Union
-from dotenv import load_dotenv
 
 from tools import Pretty
 
 from migrate import Executor
 
 
-def account_payment_term_line_value_transformer(executor: Executor, data: dict) -> dict:
+def _account_payment_term_line_value_transformer(executor: Executor, data: dict) -> dict:
     """
     To migrate account/payment.term.lines from odoo v14 to v17.
     
@@ -49,7 +47,7 @@ def account_payment_term_line_value_transformer(executor: Executor, data: dict) 
     return new_line_ids
 
 
-def crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
+def _crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
     """
     To migrate a custom crm.lead model from odoo v14 to v17.
     
@@ -66,93 +64,63 @@ def crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
     pass
 
 
-if __name__ == "__main__":
-
-    # connection data is loaded from .env file
+def migrate_crm_team():
+    """
+    Migrate crm.team model from odoo v14 to v17.
+    """
+    
+    #: No parameter given to Executor so connection data is loaded from .env file
     ex = Executor()
 
-    # teams
-    # =================================================================================================
+    #: Model name to migrate
     model = 'crm.team'
-    # fields = ['name', 'sequence', 'active', 'is_favorite', 'color', 'alias_name', 'alias_contact', 'invoiced_target']
+    
+    #: This is a simple migration so no need to make a full fields map, a simple list will do.
+    fields = ['name', 'sequence', 'active', 'is_favorite', 'color', 'alias_name', 'alias_contact', 'invoiced_target']
 
-    # ex.migrate(source, target, model, fields)
+    #: Do the migration
+    ex.migrate(model, fields)
 
-    # payment terms
-    # =================================================================================================
+def migrate_payment_terms():
+    """
+    Migrate account.payment.term model from odoo v14 to v17.
+    """
+    
+    #: No parameter given to Executor so connection data is loaded from .env file
+    ex = Executor()
+
+    #: Model name to migrate
     model = 'account.payment.term'
-    # fields = ['name', 'active', 'note', {'line_ids': account_payment_term_line_ids_transformer}]
+    
+    #: This is a more advanced migration case so we use a full fields map.
+    #: The model account.payment.term.lines needs some work: 
+    #:  - field value can be only fixed or in percentage. We use a transformer function to fix this.
+    #:    See account_payment_term_line_value_transformer function.
+    #:  - field days renamed to nb_days. We use a field mapping to rename it.
+    fields = ['name', 'active', 'note', {'line_ids': _account_payment_term_line_value_transformer}]
 
-    # ex.migrate(source, target, model, fields)
+    #: Do the migration
+    ex.migrate(model, fields)
 
-    # partners
-    # =================================================================================================
-    # model = "res.partner"
-    # fields = [
-    #     {"name": "name"},
-    #     {"date": "date"},
-    #     {"title": "title"}, # this field is a Many2one relation
-    #     # {"parent_id": "parent_id"},  # this field is a Many2one relation
-    #     {"ref": "ref"},
-    #     {"lang": "lang"},
-    #     {"tz": "tz"},
-    #     {"vat": "vat"},
-    #     {"website": "website"},
-    #     {"comment": "comment"},
-    #     {"credit_limit": "credit_limit"},
-    #     {"active": "active"},
-    #     {"employee": "employee"},
-    #     {"function": "function"},
-    #     {"type": "type"},
-    #     {"street": "street"},
-    #     {"street2": "street2"},
-    #     {"zip": "zip"},
-    #     {"city": "city"},
-    #     {"state_id": "state_id"}, # this field is a Many2one relation
-    #     {"country_id": "country_id"}, # this field is a Many2one relation
-    #     {"partner_latitude": "partner_latitude"},
-    #     {"partner_longitude": "partner_longitude"},
-    #     {"mobile": "mobile"},
-    #     {"is_company": "is_company"},
-    #     {"industry_id": "industry_id"}, # this field is a Many2one relation
-    #     {"company_type": "company_type"},
-    #     {"color": "color"},
-    #     {"partner_share": "partner_share"},
-    #     {"company_name": "company_name"},
-    #     {"barcode": "barcode"},
-    #     {"email": "email"},
-    #     {"phone": "phone"},
-    #     {"signup_token": "signup_token"},
-    #     {"signup_type": "signup_type"},
-    #     {"signup_expiration": "signup_expiration"},
-    #     {"signup_valid": "signup_valid"},
-    #     {"signup_url": "signup_url"},
-    #     {"additional_info": "additional_info"},
-    #     {"credit": "credit"},
-    #     {"debit": "debit"},
-    #     {"debit_limit": "debit_limit"},
-    #     {"currency_id": "currency_id"}, # this field is a Many2one relation
-    #     {"invoice_warn": "invoice_warn"},
-    #     {"invoice_warn_msg": "invoice_warn_msg"},
-    #     {"supplier_rank": "supplier_rank"},
-    #     {"customer_rank": "customer_rank"},
-    #     {"sale_warn": "sale_warn"},
-    #     {"sale_warn_msg": "sale_warn_msg"},
-    #     {"is_blacklisted": "is_blacklisted"},
-    #     {"phone_blacklisted": "phone_blacklisted"},
-    #     {"mobile_blacklisted": "mobile_blacklisted"},
-    #     {"create_date": "create_date"},
-    # ]
+def migrate_res_partner():
+    """
+    Migrate res.partner model from odoo v14 to v17.
+    """
+    
+    #: No parameter given to Executor so connection data is loaded from .env file
+    ex = Executor()
 
-    # ex.migrate(model, fields, batch_size=100)
-   
-    # leads
-    # =================================================================================================
-    # model = "crm.lead"
-
+    #: Model name to migrate
+    model = 'res.partner'
+    
+    #: The model has some relations so we use **Recursion** set to 1 to migrate upto one layer of related models.
     recursion = 1
 
+    #: Generate the field map 
     res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    
+    #: Save the field map to a file for customization.
+    #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
     file_path = "./" + model + ".txt"
     Pretty.log(res, file_path=file_path)
     
@@ -161,7 +129,60 @@ if __name__ == "__main__":
     # ex.add_transformer(model="account.payment.term", 
     #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
     
+    #: Load the customized field map from the file
+    _map = ex.load_fields_map(file_path=file_path)
+
+    
+    #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
+    ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
+
+def migrate_crm_lead():
+    """
+    Migrate crm.lead model from odoo v14 to v17.
+
+    This is a more advanced migration case. Here we use:
+    
+        - An auto generated fields map to simplify the process.
+        - Recursion to migrate also related models.
+        - A transformer function to merge custom field x_studio_categorizacin with field description.
+          See _crm_lead_categorizacin_transformer function.
+
+    """
+
+    #: No parameter given to Executor so connection data is loaded from .env file
+    ex = Executor()
+
+    #: Model name to migrate
+    model = 'crm.lead'
+    
+    
+    #: Recursion set to 1 to migrate upto one layer of related models.
+    recursion = 1
+
+    #: Generate the field map 
+    res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    
+    #: Save the field map to a file for customization.
+    #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
+    file_path = "./" + model + ".txt"
+    Pretty.log(res, file_path=file_path)
+    
+    # ex.add_transformer(model=model, 
+    #                    field="x_studio_categorizacin", transformer=crm_lead_categorizacin_transformer)
+    # ex.add_transformer(model="account.payment.term", 
+    #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
+    
+    #: Load the customized field map from the file
     _map = ex.load_fields_map(file_path=file_path)
     
-    ex.migrate(model, _map, batch_size=5, recursion_level=recursion)
+    #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
+    ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
     
+
+
+if __name__ == "__main__":
+    
+    # set current path to the migration_scripts folder
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    migrate_crm_lead()
