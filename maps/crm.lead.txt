@@ -535,7 +535,6 @@
             "bank_ids": "bank_ids",
             "website": "website",
             "comment": "comment",
-            "category_id": "category_id",
             "credit_limit": "credit_limit",
             "active": "active",
             "employee": "employee",
