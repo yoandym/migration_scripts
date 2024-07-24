@@ -16,6 +16,7 @@ from unidecode import unidecode
 import odoorpc
 
 from tools import Pretty
+from exceptions import TooDeepException, UnsupportedRelationException
 
 
 class Executor(object):
@@ -40,7 +41,7 @@ class Executor(object):
     
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
-    
+        
     dry_mode = False
     """
     Set to True to run the migration in dry mode
@@ -50,22 +51,31 @@ class Executor(object):
     .. danger :: related models are actually migrated no matter the dry mode
 
     """
+    
+    default_search_keys = {"name": "name"}
 
-    def __init__(self, source: dict=None, target: dict=None, dry: bool=False) -> None:
+    def __init__(self, source: dict=None, target: dict=None, dry: bool=False, debug: bool=False, recursion_mode: str="w") -> None:
         """
         Initializes a new instance of the Migrate class.
 
         Args:
             source (dict): A dictionary containing the connection details for the source server.
             target (dict): A dictionary containing the connection details for the target server.
+            dry (bool): If True, the migration will be run in dry mode. Defaults to False.
+            debug (bool): If True, the debug mode will be enabled. Defaults to False.
+            recursion_mode (str): The recursion mode to apply. Defaults to "w".
+                - h: Halt, if cant traverse a relation because of recursion level
+                - w: Warn, and wipe the field from map, if cant traverse a relation because of recursion level
         """
         
         load_dotenv()
         
         self.dry_mode = dry
         
-        sys.tracebacklimit = 0
-
+        self.debug = debug
+        
+        self.recursion_mode = recursion_mode
+        
         if source is None:
             source = {
                 "host": os.environ["SOURCE_HOST"],
@@ -89,6 +99,30 @@ class Executor(object):
         
         # gets a logged in connection to the target server
         self.target_odoo = self.get_connection(target)
+
+    @property
+    def debug(self):
+        """
+        Get the debug mode.
+
+        Returns:
+            bool: True if debug mode is enabled, False otherwise.
+        """
+        return self._debug
+
+    @debug.setter
+    def debug(self, value: bool):
+        """
+        Set the debug mode = True to print stack traces on error
+
+        Args:
+            value (bool): True to enable debug mode, False to disable it.
+        """
+        self._debug = value
+        if self._debug:
+            sys.tracebacklimit = 0
+        else:
+            sys.tracebacklimit = 1000
 
     def get_connection(self, instance):
         """
@@ -135,7 +169,7 @@ class Executor(object):
             
             return False
         
-    def migrate(self, model_name: str, migration_map: Union[dict, list], recursion_level: int=0, batch_size=100):
+    def migrate(self, model_name: str, migration_map: Union[dict, list], recursion_level: int=0, batch_size=50):
         """
         Migrate data from source to target
 
@@ -253,6 +287,8 @@ class Executor(object):
         model_fields_metadata = source_model.fields_get(model_field_list)
         
         # process relational fields
+        if isinstance(data, dict):
+            data = [data]
         for idx, record in enumerate(data):
             for column_name in list(record.keys()):
                 
@@ -283,6 +319,15 @@ class Executor(object):
                                                         data=record[column_name], 
                                                         recursion_level=recursion_level)
                         record[column_name] = col_value
+                except (TooDeepException, UnsupportedRelationException) as e:
+                    print('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name))
+                    print("Data Record")
+                    Pretty.print(record)
+                    if self.recursion_mode == 'w':
+                        record.pop(column_name)
+                        continue
+                    else:
+                        raise e
                 except Exception as e:
                     print('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name))
                     print("Data Record")
@@ -318,6 +363,12 @@ class Executor(object):
         
         Returns:
             data (dict): The data with the relational fields ready to be created in the target instance.
+        
+        Exceptions:
+            TooDeepException: If the recursion level is not enough to process the relational field, and recursion_mode is set to Halt.
+            UnsupportedRelationException: If the relation type is not supported, and recursion_mode is set to Halt.
+            
+            .. important:: If recursion_mode is set to ``Warn``, no exception is throw and the field is removed from data
         """
                                         
         # dont process fields deeper than recursion_level
@@ -338,23 +389,38 @@ class Executor(object):
             target_model = self.target_odoo.env[target_model_name]
             target_field_list = list(self.migration_map[model_name]['fields'].values())
             
-            # get the search keys. Default is id and name
-            search_keys = self.migration_map[model_name].get("search_keys", {"id": "id", "name": "name"})
+            # get the search keys
+            search_keys = self.migration_map[model_name].get("search_keys", 
+                                                             self.default_search_keys)
 
-            if relation_type == 'one2many':
+            if relation_type == 'one2many' or relation_type == 'many2many':
                 
                 # get the source data
-                related_source_ids = data # Ex: [33, 34, 35]      
+                related_source_ids = data # Ex: [33, 34, 35] 
                 related_source_recordset = source_model.browse(related_source_ids)
                 related_source_data = related_source_recordset.read(model_field_list)
-                                
-                # data may contain new relations, so we have to format them
-                data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
+                        
+                        
+                target_ids = []
+                for record in related_source_data:
+                    record_id = record['id']
+                    # search it by every search key
+                    _found = self.search_in_target(model_name=model_name, 
+                                                    source_id=record_id, 
+                                                    search_keys=search_keys, 
+                                                    target_model_name=target_model_name)
+                    if _found:
+                        target_ids.append(_found)
+                    else:
+                        # data may contain new relations, so we have to format them
+                        data = self._format_data(model_name=model_name, 
+                                                data=record, 
+                                                recursion_level=recursion_level - 1)
+                        _id = target_model.create(data)
+                        target_ids.append(_id)
                 
                 # final format
-                data = [(0, 0, e) for e in data]
-
-
+                data = [(0, 0, e) for e in target_ids]
 
             elif relation_type == 'many2one':
                 
@@ -363,41 +429,86 @@ class Executor(object):
                 related_source_recordset = source_model.browse(related_source_id)
                 related_source_data = related_source_recordset.read(model_field_list)[0]
                 
-                # try to find it by every search key
-                _found = False
-                for s_key, t_key in search_keys.items():
-                    if t_key == 'id':
-                        _found = target_model.search_count([['id', '=', related_source_id]])
-                        if _found:
-                            recordset = target_model.browse([related_source_id])
-                            _found = unidecode(recordset.display_name) == unidecode(related_source_display_name)
-                            
-                            if _found:
-                                data = related_source_id
-                                break
-                    else:
-                        source_key_value = related_source_data[s_key]
-                        _found = target_model.search([[t_key, '=', source_key_value]])
-                        if _found:
-                            _id = _found[0]
-                            data = _id
-                            break
+                # search it by every search key
+                _found = self.search_in_target(model_name=model_name, 
+                                               source_id=related_source_id, 
+                                               search_keys=search_keys, 
+                                               target_model_name=target_model_name)
                 
                 # if still not found, create it
                 if not _found:
                                         
                     # data may contain new relations, so we have to format them
-                    new_source_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
+                    new_target_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
 
-                    # crete the record in target instance/model
-                    _id, _displayname = target_model.create(new_source_data)[0]
+                    # create the record in target instance/model
+                    _found = target_model.create(new_target_data)
+                    if isinstance(_found, list):
+                        _found = _found[0]
 
-                    data = _id
+                data = _found
+            
+            else:
+                raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
         
         else:
-            raise Exception('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (field_name, model_name))
+            raise TooDeepException('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (field_name, model_name))
                  
         return data
+    
+    def search_in_target(self, model_name: str, source_id: int, target_model_name: str=None, search_keys: dict=None) -> list:
+        """ 
+        Search for records in the target model using ``search keys``
+        
+        Args:
+            model_name (str): The souce model name where data came from.
+            source_id (int): The record id, from source, whose ``search_keys`` are going to be searched in the target model.
+            target_model_name (str, optional): The target model name to search in. Defaults to None.
+                If no target_model_name is provided, look for in migration_map, else the same ``model_name`` is used.
+            search_keys (dict, optional): The search keys to use. Defaults to None.
+                If no search_keys is provided, look for in migration_map, else the ``default_search_keys`` are used.
+
+        Returns:
+            list: The list of ids found in the target model.
+        """
+        if target_model_name is None:
+            target_model_name = self.migration_map[model_name].get("target_model", model_name)
+        
+        if search_keys is None:
+            search_keys = self.migration_map[model_name].get("search_keys", self.default_search_keys)
+        
+        source_model = self.source_model.env[model_name]
+        target_model = self.target_odoo.env[target_model_name]
+        
+        source_fields_to_read = list(search_keys.keys())
+        target_fields_to_read = list(search_keys.values())
+        
+        source_recordset = source_model.browse(source_id)
+        source_data = source_recordset.read(source_fields_to_read)[0]
+        
+        _found = False
+        _data = False
+        
+        # search in target model by every search key
+        for s_key, t_key in search_keys.items():
+            if t_key == 'id':
+                _found = target_model.search_count([['id', '=', source_id]])
+                if _found:
+                    recordset = target_model.browse(source_id)
+                    _found = unidecode(recordset.display_name) == unidecode(source_data.display_name)
+                    
+                    if _found:
+                        _data = source_id
+                        break
+            
+            else:
+                source_key_value = source_data[s_key]
+                _found = target_model.search([[t_key, '=', source_key_value]])
+                if _found:
+                    _data = _found[0]
+                    break
+        
+        return _data
     
     def _remove_implicit_fields(self, fields):
         """
@@ -523,7 +634,7 @@ class Executor(object):
         with open(file_path, 'r') as file:
             _d = json.load(file)
         
-        # if _d references a callable try to get a pointer to it
+        # if _d references a callable get a pointer to it
         # _d is expected to contain {model_name: {fields:{field1:field1, field2:@callable_name, ...}, removed:[], new:[]}, ...
         for _model_name, _data in _d.items():
             for _field, _value in _data['fields'].items():
@@ -587,29 +698,43 @@ class Executor(object):
 
         for field in field_list:
             if field in target_fields:
+                include_field_in_map = True
                 
+                # test for and process relational fields
                 field_type = source_fields[field]['type']
-                if field_type in self.relation_types and recursion_level > 0:
-                    # get source and target related model names
-                    related_source_model_name = source_fields[field]['relation']
-                    related_target_model_name = target_fields[field]['relation']
-                    
-                    # build a new map for the related models
-                    new_map = self.make_fields_map(model_name=related_source_model_name, target_model_name=related_target_model_name, 
-                                                       recursion_level=recursion_level - 1)
-                    submap[field] = field
-                    removed_fields.remove(field)
-                    new_fields.remove(field)
-                    
-                    map.update(new_map)
-                else:
+                if field_type in self.relation_types:
+                    if recursion_level > 0:
+                        # get source and target related model names
+                        related_source_model_name = source_fields[field]['relation']
+                        try:
+                            related_target_model_name = target_fields[field]['relation']
+                        except KeyError:
+                            related_target_model_name = related_source_model_name
+                            print('Warning: Source Field %s.%s poiting to %s is not a relation in target instance.' % (model_name, field, related_source_model_name))
+                            print('You have to adjust the fields map with a transformer function or remove the field from the map.')
+                        else: # if no errors
+                            # build a new map for the related models
+                            new_map = self.make_fields_map(model_name=related_source_model_name, target_model_name=related_target_model_name, 
+                                                            recursion_level=recursion_level - 1)                        
+                            map.update(new_map)
+                    elif self.recursion_mode == 'w':
+                        include_field_in_map = False
+                        print('Warning: Field %s.%s is a relation and current recursion level is not enougth. Skipping it from map/migration.' % (model_name, field))
+                    elif self.recursion_mode == 'h':
+                        include_field_in_map = False
+                        raise Exception('Error: Field %s.%s is a relation and current recursion level is not enougth. Cant traverse it. Aborting.' % (model_name, field))
+                    else:
+                        raise Exception('Error: Invalid recursion mode %s. Use "h" for halt or "w" for warn.' % self.recursion_mode)
+                
+                # should i include the field in the map?
+                if include_field_in_map:
                     submap[field] = field
                     removed_fields.remove(field)
                     new_fields.remove(field)
                 
         map[source_model_name] = {
             "target_model": target_model_name,
-            "search_keys": {"id": "id", "name": "name"}, # default search keys
+            "search_keys": self.default_search_keys, # default search keys
             "fields": submap, "removed": removed_fields, "new": new_fields}
         
         return map
@@ -628,7 +753,7 @@ class Executor(object):
         Returns:
             dict: The updated fields map.
         """
-        # if we got a fields_map, try add the transformer to it
+        # if we got a fields_map, add the transformer to it
         # if the provided model and field does not exist, return the fields_map as is and add the trasnformer to the locals()
         if fields_map and model in fields_map and field in fields_map[model]['fields']:
             fields_map[model]['fields'][field] = transformer
