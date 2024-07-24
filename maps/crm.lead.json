@@ -408,6 +408,7 @@
     },
     "crm.tag": {
         "target_model": "crm.tag",
+        "search_keys": {"name": "name"},
         "fields": {
             "name": "name",
             "color": "color",
@@ -497,16 +498,12 @@
             "activity_exception_icon",
             "activity_calendar_event_id",
             "message_is_follower",
-            "message_follower_ids",
-            "message_partner_ids",
-            "message_ids",
             "has_message",
             "message_needaction",
             "message_needaction_counter",
             "message_has_error",
             "message_has_error_counter",
             "message_attachment_count",
-            "rating_ids",
             "website_message_ids",
             "message_has_sms_error",
             "allow_out_payment",
@@ -522,6 +519,7 @@
         ]
     },
     "res.partner": {
+        "search_keys": {"name": "name"},
         "fields": {
             "name": "name",
             "date": "date",
@@ -579,16 +577,7 @@
             "image_1920": "image_1920",
             "email_normalized": "email_normalized",
             "is_blacklisted": "is_blacklisted",
-            "message_bounce": "message_bounce",
-            "message_is_follower": "message_is_follower",
-            "message_follower_ids": "message_follower_ids",
-            "message_partner_ids": "message_partner_ids",
             "message_ids": "message_ids",
-            "message_needaction": "message_needaction",
-            "message_needaction_counter": "message_needaction_counter",
-            "message_has_error": "message_has_error",
-            "message_has_error_counter": "message_has_error_counter",
-            "message_attachment_count": "message_attachment_count",
             "website_message_ids": "website_message_ids",
             "message_has_sms_error": "message_has_sms_error",
             "phone_sanitized": "phone_sanitized",
@@ -728,10 +717,7 @@
     },
     "res.partner.industry": {
         "target_model": "res.partner.industry",
-        "search_keys": {
-            "id": "id",
-            "name": "name"
-        },
+        "search_keys": {"display_name": "display_name"},
         "fields": {
             "name": "name",
             "full_name": "full_name",
@@ -924,24 +910,8 @@
             "active"
         ]
     },
-    "mail.followers": {
-        "fields": {
-            "res_model": "res_model",
-            "res_id": "res_id",
-            "partner_id": "partner_id",
-            "subtype_ids": "subtype_ids",
-            "name": "name",
-            "email": "email",
-            "is_active": "is_active",
-            "display_name": "display_name"
-        },
-        "removed": [
-            "channel_id",
-            "__last_update"
-        ],
-        "new": []
-    },
     "mail.message": {
+        "search_keys": {"display_name": "display_name"},
         "fields": {
             "subject": "subject",
             "date": "date",
@@ -953,27 +923,20 @@
             "model": "model",
             "res_id": "res_id",
             "record_name": "record_name",
-            "subtype_id": "subtype_id",
             "mail_activity_type_id": "mail_activity_type_id",
             "is_internal": "is_internal",
             "email_from": "email_from",
-            "author_id": "author_id",
             "author_avatar": "author_avatar",
             "partner_ids": "partner_ids",
             "notified_partner_ids": "notified_partner_ids",
             "needaction": "needaction",
             "has_error": "has_error",
             "notification_ids": "notification_ids",
-            "starred_partner_ids": "starred_partner_ids",
             "starred": "starred",
-            "tracking_value_ids": "tracking_value_ids",
             "message_id": "message_id",
             "reply_to": "reply_to",
-            "mail_server_id": "mail_server_id",
             "email_layout_xmlid": "email_layout_xmlid",
             "mail_ids": "mail_ids",
-            "rating_ids": "rating_ids",
-            "rating_value": "rating_value",
             "has_sms_error": "has_sms_error",
             "snailmail_error": "snailmail_error",
             "letter_ids": "letter_ids",
