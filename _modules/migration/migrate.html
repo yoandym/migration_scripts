@@ -200,10 +200,10 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../tutorial/tutorial.html">Tutorial</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/tutorial_install.html">Instalación</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Instalación</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/tutorial_install.html">Installation</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Installation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/tutorial_migrate.html">Migrar datos entre instancias Odoo</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrar datos entre instancias Odoo</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../tutorial/tutorial_migrate.html">Migrate data between Odoo instances</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrate data between Odoo instances</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -215,13 +215,16 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../reference/reference.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/migrate.html">Module mirgation.migrate</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.migrate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -267,7 +270,7 @@
 <span class="sd">This module provides the necessary classes and methods for data migration between instances via XMLRPC.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os</span><span class="o">,</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">json</span>
 <span class="kn">from</span> <span class="nn">dotenv</span> <span class="kn">import</span> <span class="n">load_dotenv</span>
 
@@ -279,6 +282,7 @@
 <span class="kn">import</span> <span class="nn">odoorpc</span>
 
 <span class="kn">from</span> <span class="nn">tools</span> <span class="kn">import</span> <span class="n">Pretty</span>
+<span class="kn">from</span> <span class="nn">exceptions</span> <span class="kn">import</span> <span class="n">TooDeepException</span><span class="p">,</span> <span class="n">UnsupportedRelationException</span>
 
 
 <div class="viewcode-block" id="Executor">
@@ -305,7 +309,7 @@
     
     <span class="c1">#: Set the relation types to traverse</span>
     <span class="n">relation_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;one2many&#39;</span><span class="p">,</span> <span class="s1">&#39;many2one&#39;</span><span class="p">,</span> <span class="s1">&#39;many2many&#39;</span><span class="p">]</span>
-    
+        
     <span class="n">dry_mode</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set to True to run the migration in dry mode</span>
@@ -315,22 +319,33 @@
 <span class="sd">    .. danger :: related models are actually migrated no matter the dry mode</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">default_search_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">}</span>
 
 <div class="viewcode-block" id="Executor.__init__">
 <a class="viewcode-back" href="../../reference/migrate.html#migration.migrate.Executor.__init__">[docs]</a>
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">dry</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursion_mode</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initializes a new instance of the Migrate class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            source (dict): A dictionary containing the connection details for the source server.</span>
 <span class="sd">            target (dict): A dictionary containing the connection details for the target server.</span>
+<span class="sd">            dry (bool): If True, the migration will be run in dry mode. Defaults to False.</span>
+<span class="sd">            debug (bool): If True, the debug mode will be enabled. Defaults to False.</span>
+<span class="sd">            recursion_mode (str): The recursion mode to apply. Defaults to &quot;w&quot;.</span>
+<span class="sd">                - h: Halt, if cant traverse a relation because of recursion level</span>
+<span class="sd">                - w: Warn, and wipe the field from map, if cant traverse a relation because of recursion level</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="n">load_dotenv</span><span class="p">()</span>
         
         <span class="bp">self</span><span class="o">.</span><span class="n">dry_mode</span> <span class="o">=</span> <span class="n">dry</span>
-
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">=</span> <span class="n">recursion_mode</span>
+        
         <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">source</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;SOURCE_HOST&quot;</span><span class="p">],</span>
@@ -355,6 +370,30 @@
         <span class="c1"># gets a logged in connection to the target server</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="n">target</span><span class="p">)</span></div>
 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the debug mode.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if debug mode is enabled, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span>
+
+    <span class="nd">@debug</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">debug</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">bool</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set the debug mode = True to print stack traces on error</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            value (bool): True to enable debug mode, False to disable it.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">tracebacklimit</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">tracebacklimit</span> <span class="o">=</span> <span class="mi">1000</span>
 
 <div class="viewcode-block" id="Executor.get_connection">
 <a class="viewcode-back" href="../../reference/migrate.html#migration.migrate.Executor.get_connection">[docs]</a>
@@ -409,7 +448,7 @@
         
 <div class="viewcode-block" id="Executor.migrate">
 <a class="viewcode-back" href="../../reference/migrate.html#migration.migrate.Executor.migrate">[docs]</a>
-    <span class="k">def</span> <span class="nf">migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">migration_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">recursion_level</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">migration_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">recursion_level</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Migrate data from source to target</span>
 
@@ -531,23 +570,52 @@
         <span class="n">model_fields_metadata</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">fields_get</span><span class="p">(</span><span class="n">model_field_list</span><span class="p">)</span>
         
         <span class="c1"># process relational fields</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">data</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">record</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
             <span class="k">for</span> <span class="n">column_name</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">record</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                
+                <span class="c1"># drop unwanted fields</span>
                 <span class="k">if</span> <span class="n">column_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">model_field_list</span><span class="p">:</span>
                     <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
                     <span class="k">continue</span>
                 
                 <span class="n">field_type</span> <span class="o">=</span> <span class="n">model_fields_metadata</span><span class="p">[</span><span class="n">column_name</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
+                
+                <span class="c1"># drop empty fields. Case 1: A relation without data</span>
+                <span class="k">if</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_types</span> <span class="ow">and</span> <span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">[]]:</span>
+                    <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+                    <span class="k">continue</span>
+                
+                <span class="c1"># drop empty fields. Case 2: A non boolean field with False value</span>
+                <span class="k">if</span> <span class="n">field_type</span> <span class="o">!=</span> <span class="s2">&quot;bool&quot;</span> <span class="ow">and</span> <span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="p">[]]:</span>
+                    <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+                    <span class="k">continue</span>
                                 
                 <span class="c1"># test for and process relational fields</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_types</span><span class="p">:</span>
-                    <span class="n">new_source_model_name</span> <span class="o">=</span> <span class="n">model_fields_metadata</span><span class="p">[</span><span class="n">column_name</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
-                    <span class="n">col_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_relation</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">new_source_model_name</span><span class="p">,</span> 
-                                                    <span class="n">relation_type</span><span class="o">=</span><span class="n">field_type</span><span class="p">,</span> 
-                                                    <span class="n">field_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span>
-                                                    <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">],</span> 
-                                                    <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span><span class="p">)</span>
-                    <span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_value</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_types</span><span class="p">:</span>
+                        <span class="n">new_source_model_name</span> <span class="o">=</span> <span class="n">model_fields_metadata</span><span class="p">[</span><span class="n">column_name</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
+                        <span class="n">col_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_process_relation</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">new_source_model_name</span><span class="p">,</span> 
+                                                        <span class="n">relation_type</span><span class="o">=</span><span class="n">field_type</span><span class="p">,</span> 
+                                                        <span class="n">field_name</span><span class="o">=</span><span class="n">column_name</span><span class="p">,</span>
+                                                        <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">],</span> 
+                                                        <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span><span class="p">)</span>
+                        <span class="n">record</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_value</span>
+                <span class="k">except</span> <span class="p">(</span><span class="n">TooDeepException</span><span class="p">,</span> <span class="n">UnsupportedRelationException</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error processing </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> --&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">new_source_model_name</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data Record&quot;</span><span class="p">)</span>
+                    <span class="n">Pretty</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+                        <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">column_name</span><span class="p">)</span>
+                        <span class="k">continue</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="n">e</span>
+                <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Error processing </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> --&gt; </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">column_name</span><span class="p">,</span> <span class="n">new_source_model_name</span><span class="p">))</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Data Record&quot;</span><span class="p">)</span>
+                    <span class="n">Pretty</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="n">record</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="n">e</span>
                 
                 <span class="c1"># test for and do field name changes</span>
                 <span class="n">field_mapping_value</span> <span class="o">=</span> <span class="n">model_fields_map</span><span class="p">[</span><span class="n">column_name</span><span class="p">]</span>
@@ -578,6 +646,12 @@
 <span class="sd">        </span>
 <span class="sd">        Returns:</span>
 <span class="sd">            data (dict): The data with the relational fields ready to be created in the target instance.</span>
+<span class="sd">        </span>
+<span class="sd">        Exceptions:</span>
+<span class="sd">            TooDeepException: If the recursion level is not enough to process the relational field, and recursion_mode is set to Halt.</span>
+<span class="sd">            UnsupportedRelationException: If the relation type is not supported, and recursion_mode is set to Halt.</span>
+<span class="sd">            </span>
+<span class="sd">            .. important:: If recursion_mode is set to ``Warn``, no exception is throw and the field is removed from data</span>
 <span class="sd">        &quot;&quot;&quot;</span>
                                         
         <span class="c1"># dont process fields deeper than recursion_level</span>
@@ -598,23 +672,38 @@
             <span class="n">target_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">target_model_name</span><span class="p">]</span>
             <span class="n">target_field_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             
-            <span class="c1"># get the search keys. Default is id and name</span>
-            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">})</span>
+            <span class="c1"># get the search keys</span>
+            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> 
+                                                             <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;one2many&#39;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;one2many&#39;</span> <span class="ow">or</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;many2many&#39;</span><span class="p">:</span>
                 
                 <span class="c1"># get the source data</span>
-                <span class="n">related_source_ids</span> <span class="o">=</span> <span class="n">data</span> <span class="c1"># Ex: [33, 34, 35]      </span>
+                <span class="n">related_source_ids</span> <span class="o">=</span> <span class="n">data</span> <span class="c1"># Ex: [33, 34, 35] </span>
                 <span class="n">related_source_recordset</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">related_source_ids</span><span class="p">)</span>
                 <span class="n">related_source_data</span> <span class="o">=</span> <span class="n">related_source_recordset</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">model_field_list</span><span class="p">)</span>
-                                
-                <span class="c1"># data may contain new relations, so we have to format them</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">related_source_data</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        
+                        
+                <span class="n">target_ids</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">related_source_data</span><span class="p">:</span>
+                    <span class="n">record_id</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+                    <span class="c1"># search it by every search key</span>
+                    <span class="n">_found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_in_target</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> 
+                                                    <span class="n">source_id</span><span class="o">=</span><span class="n">record_id</span><span class="p">,</span> 
+                                                    <span class="n">search_keys</span><span class="o">=</span><span class="n">search_keys</span><span class="p">,</span> 
+                                                    <span class="n">target_model_name</span><span class="o">=</span><span class="n">target_model_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
+                        <span class="n">target_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_found</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># data may contain new relations, so we have to format them</span>
+                        <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> 
+                                                <span class="n">data</span><span class="o">=</span><span class="n">record</span><span class="p">,</span> 
+                                                <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">_id</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                        <span class="n">target_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_id</span><span class="p">)</span>
                 
                 <span class="c1"># final format</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
-
-
+                <span class="n">data</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">target_ids</span><span class="p">]</span>
 
             <span class="k">elif</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;many2one&#39;</span><span class="p">:</span>
                 
@@ -623,44 +712,89 @@
                 <span class="n">related_source_recordset</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">related_source_id</span><span class="p">)</span>
                 <span class="n">related_source_data</span> <span class="o">=</span> <span class="n">related_source_recordset</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">model_field_list</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
                 
-                <span class="c1"># try to find it by every search key</span>
-                <span class="n">_found</span> <span class="o">=</span> <span class="kc">False</span>
-                <span class="k">for</span> <span class="n">s_key</span><span class="p">,</span> <span class="n">t_key</span> <span class="ow">in</span> <span class="n">search_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">t_key</span> <span class="o">==</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span>
-                        <span class="n">_found</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">search_count</span><span class="p">([[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">related_source_id</span><span class="p">]])</span>
-                        <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
-                            <span class="n">recordset</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">browse</span><span class="p">([</span><span class="n">related_source_id</span><span class="p">])</span>
-                            <span class="n">_found</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">recordset</span><span class="o">.</span><span class="n">display_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">related_source_display_name</span><span class="p">)</span>
-                            
-                            <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
-                                <span class="n">data</span> <span class="o">=</span> <span class="n">related_source_id</span>
-                                <span class="k">break</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">source_key_value</span> <span class="o">=</span> <span class="n">related_source_data</span><span class="p">[</span><span class="n">s_key</span><span class="p">]</span>
-                        <span class="n">_found</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">search</span><span class="p">([[</span><span class="n">t_key</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">source_key_value</span><span class="p">]])</span>
-                        <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
-                            <span class="n">_id</span> <span class="o">=</span> <span class="n">_found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                            <span class="n">data</span> <span class="o">=</span> <span class="n">_id</span>
-                            <span class="k">break</span>
+                <span class="c1"># search it by every search key</span>
+                <span class="n">_found</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">search_in_target</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> 
+                                               <span class="n">source_id</span><span class="o">=</span><span class="n">related_source_id</span><span class="p">,</span> 
+                                               <span class="n">search_keys</span><span class="o">=</span><span class="n">search_keys</span><span class="p">,</span> 
+                                               <span class="n">target_model_name</span><span class="o">=</span><span class="n">target_model_name</span><span class="p">)</span>
                 
                 <span class="c1"># if still not found, create it</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">_found</span><span class="p">:</span>
-                    <span class="c1"># get the data</span>
-                    <span class="n">recordset</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">related_source_id</span><span class="p">)</span>
-                    <span class="n">new_source_data</span> <span class="o">=</span> <span class="n">recordset</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">model_field_list</span><span class="p">)</span>
-                    
+                                        
                     <span class="c1"># data may contain new relations, so we have to format them</span>
-                    <span class="n">new_source_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">new_source_data</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">new_target_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_format_data</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model_name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">related_source_data</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
 
-                    <span class="c1"># crete the record in target instance/model</span>
-                    <span class="n">_id</span><span class="p">,</span> <span class="n">_displayname</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">new_source_data</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="c1"># create the record in target instance/model</span>
+                    <span class="n">_found</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">new_target_data</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_found</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                        <span class="n">_found</span> <span class="o">=</span> <span class="n">_found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-                    <span class="n">data</span> <span class="o">=</span> <span class="n">_id</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">_found</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">UnsupportedRelationException</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> relations are not supported yet&#39;</span><span class="p">,</span> <span class="n">relation_type</span><span class="p">)</span>
         
         <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Relational field </span><span class="si">%s</span><span class="s1"> to model </span><span class="si">%s</span><span class="s1">, not processed because is deeper than recursion level&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">TooDeepException</span><span class="p">(</span><span class="s1">&#39;Can´t traverse relational field </span><span class="si">%s</span><span class="s1"> to model </span><span class="si">%s</span><span class="s1">, either remove it from map or increase recursion level&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">field_name</span><span class="p">,</span> <span class="n">model_name</span><span class="p">))</span>
                  
         <span class="k">return</span> <span class="n">data</span>
+    
+<div class="viewcode-block" id="Executor.search_in_target">
+<a class="viewcode-back" href="../../reference/migrate.html#migration.migrate.Executor.search_in_target">[docs]</a>
+    <span class="k">def</span> <span class="nf">search_in_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">source_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">target_model_name</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">search_keys</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Search for records in the target model using ``search keys``</span>
+<span class="sd">        </span>
+<span class="sd">        Args:</span>
+<span class="sd">            model_name (str): The souce model name where data came from.</span>
+<span class="sd">            source_id (int): The record id, from source, whose ``search_keys`` are going to be searched in the target model.</span>
+<span class="sd">            target_model_name (str, optional): The target model name to search in. Defaults to None.</span>
+<span class="sd">                If no target_model_name is provided, look for in migration_map, else the same ``model_name`` is used.</span>
+<span class="sd">            search_keys (dict, optional): The search keys to use. Defaults to None.</span>
+<span class="sd">                If no search_keys is provided, look for in migration_map, else the ``default_search_keys`` are used.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list: The list of ids found in the target model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">target_model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_model&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">search_keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">)</span>
+        
+        <span class="n">source_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_model</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
+        <span class="n">target_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">target_model_name</span><span class="p">]</span>
+        
+        <span class="n">source_fields_to_read</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">search_keys</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">target_fields_to_read</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">search_keys</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        
+        <span class="n">source_recordset</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+        <span class="n">source_data</span> <span class="o">=</span> <span class="n">source_recordset</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">source_fields_to_read</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">_found</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">_data</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="c1"># search in target model by every search key</span>
+        <span class="k">for</span> <span class="n">s_key</span><span class="p">,</span> <span class="n">t_key</span> <span class="ow">in</span> <span class="n">search_keys</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">t_key</span> <span class="o">==</span> <span class="s1">&#39;id&#39;</span><span class="p">:</span>
+                <span class="n">_found</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">search_count</span><span class="p">([[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">source_id</span><span class="p">]])</span>
+                <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
+                    <span class="n">recordset</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">browse</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+                    <span class="n">_found</span> <span class="o">=</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">recordset</span><span class="o">.</span><span class="n">display_name</span><span class="p">)</span> <span class="o">==</span> <span class="n">unidecode</span><span class="p">(</span><span class="n">source_data</span><span class="o">.</span><span class="n">display_name</span><span class="p">)</span>
+                    
+                    <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
+                        <span class="n">_data</span> <span class="o">=</span> <span class="n">source_id</span>
+                        <span class="k">break</span>
+            
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">source_key_value</span> <span class="o">=</span> <span class="n">source_data</span><span class="p">[</span><span class="n">s_key</span><span class="p">]</span>
+                <span class="n">_found</span> <span class="o">=</span> <span class="n">target_model</span><span class="o">.</span><span class="n">search</span><span class="p">([[</span><span class="n">t_key</span><span class="p">,</span> <span class="s1">&#39;=&#39;</span><span class="p">,</span> <span class="n">source_key_value</span><span class="p">]])</span>
+                <span class="k">if</span> <span class="n">_found</span><span class="p">:</span>
+                    <span class="n">_data</span> <span class="o">=</span> <span class="n">_found</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">break</span>
+        
+        <span class="k">return</span> <span class="n">_data</span></div>
+
     
     <span class="k">def</span> <span class="nf">_remove_implicit_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -788,7 +922,7 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">_d</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
         
-        <span class="c1"># if _d references a callable try to get a pointer to it</span>
+        <span class="c1"># if _d references a callable get a pointer to it</span>
         <span class="c1"># _d is expected to contain {model_name: {fields:{field1:field1, field2:@callable_name, ...}, removed:[], new:[]}, ...</span>
         <span class="k">for</span> <span class="n">_model_name</span><span class="p">,</span> <span class="n">_data</span> <span class="ow">in</span> <span class="n">_d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">_field</span><span class="p">,</span> <span class="n">_value</span> <span class="ow">in</span> <span class="n">_data</span><span class="p">[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -855,29 +989,43 @@
 
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">field_list</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">target_fields</span><span class="p">:</span>
+                <span class="n">include_field_in_map</span> <span class="o">=</span> <span class="kc">True</span>
                 
+                <span class="c1"># test for and process relational fields</span>
                 <span class="n">field_type</span> <span class="o">=</span> <span class="n">source_fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_types</span> <span class="ow">and</span> <span class="n">recursion_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="c1"># get source and target related model names</span>
-                    <span class="n">related_source_model_name</span> <span class="o">=</span> <span class="n">source_fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
-                    <span class="n">related_target_model_name</span> <span class="o">=</span> <span class="n">target_fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
-                    
-                    <span class="c1"># build a new map for the related models</span>
-                    <span class="n">new_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_fields_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">related_source_model_name</span><span class="p">,</span> <span class="n">target_model_name</span><span class="o">=</span><span class="n">related_target_model_name</span><span class="p">,</span> 
-                                                       <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="n">submap</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
-                    <span class="n">removed_fields</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-                    <span class="n">new_fields</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
-                    
-                    <span class="nb">map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_map</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">field_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">relation_types</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">recursion_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># get source and target related model names</span>
+                        <span class="n">related_source_model_name</span> <span class="o">=</span> <span class="n">source_fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">related_target_model_name</span> <span class="o">=</span> <span class="n">target_fields</span><span class="p">[</span><span class="n">field</span><span class="p">][</span><span class="s1">&#39;relation&#39;</span><span class="p">]</span>
+                        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                            <span class="n">related_target_model_name</span> <span class="o">=</span> <span class="n">related_source_model_name</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Source Field </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> poiting to </span><span class="si">%s</span><span class="s1"> is not a relation in target instance.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">related_source_model_name</span><span class="p">))</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You have to adjust the fields map with a transformer function or remove the field from the map.&#39;</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span> <span class="c1"># if no errors</span>
+                            <span class="c1"># build a new map for the related models</span>
+                            <span class="n">new_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_fields_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">related_source_model_name</span><span class="p">,</span> <span class="n">target_model_name</span><span class="o">=</span><span class="n">related_target_model_name</span><span class="p">,</span> 
+                                                            <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>                        
+                            <span class="nb">map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_map</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
+                        <span class="n">include_field_in_map</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Warning: Field </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> is a relation and current recursion level is not enougth. Skipping it from map/migration.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+                    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>
+                        <span class="n">include_field_in_map</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error: Field </span><span class="si">%s</span><span class="s1">.</span><span class="si">%s</span><span class="s1"> is a relation and current recursion level is not enougth. Cant traverse it. Aborting.&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">model_name</span><span class="p">,</span> <span class="n">field</span><span class="p">))</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s1">&#39;Error: Invalid recursion mode </span><span class="si">%s</span><span class="s1">. Use &quot;h&quot; for halt or &quot;w&quot; for warn.&#39;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span><span class="p">)</span>
+                
+                <span class="c1"># should i include the field in the map?</span>
+                <span class="k">if</span> <span class="n">include_field_in_map</span><span class="p">:</span>
                     <span class="n">submap</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span>
                     <span class="n">removed_fields</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
                     <span class="n">new_fields</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
                 
         <span class="nb">map</span><span class="p">[</span><span class="n">source_model_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;target_model&quot;</span><span class="p">:</span> <span class="n">target_model_name</span><span class="p">,</span>
-            <span class="s2">&quot;search_keys&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">},</span> <span class="c1"># default search keys</span>
+            <span class="s2">&quot;search_keys&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">,</span> <span class="c1"># default search keys</span>
             <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">submap</span><span class="p">,</span> <span class="s2">&quot;removed&quot;</span><span class="p">:</span> <span class="n">removed_fields</span><span class="p">,</span> <span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="n">new_fields</span><span class="p">}</span>
         
         <span class="k">return</span> <span class="nb">map</span></div>
@@ -899,7 +1047,7 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            dict: The updated fields map.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># if we got a fields_map, try add the transformer to it</span>
+        <span class="c1"># if we got a fields_map, add the transformer to it</span>
         <span class="c1"># if the provided model and field does not exist, return the fields_map as is and add the trasnformer to the locals()</span>
         <span class="k">if</span> <span class="n">fields_map</span> <span class="ow">and</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">fields_map</span> <span class="ow">and</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">fields_map</span><span class="p">[</span><span class="n">model</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]:</span>
             <span class="n">fields_map</span><span class="p">[</span><span class="n">model</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">][</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">transformer</span>

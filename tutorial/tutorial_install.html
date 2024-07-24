@@ -6,7 +6,7 @@
 <link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Migrar datos entre instancias Odoo" href="tutorial_migrate.html" /><link rel="prev" title="Tutorial" href="tutorial.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.07.18 -->
-        <title>Instalación - XMLRPC Data Migration documentation</title>
+        <title>Installation - XMLRPC Data Migration documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -201,7 +201,7 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="tutorial.html">Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Instalación</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Instalación</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Installation</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Installation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_migrate.html">Migrar datos entre instancias Odoo</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrar datos entre instancias Odoo</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
@@ -267,35 +267,37 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="instalacion">
-<h1>Instalación<a class="headerlink" href="#instalacion" title="Link to this heading"><span>#</span></a></h1>
+          <section id="installation">
+<h1>Installation<a class="headerlink" href="#installation" title="Link to this heading"><span>#</span></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<section id="instalacion-manual">
-<h2>Instalacion manual<a class="headerlink" href="#instalacion-manual" title="Link to this heading"><span>#</span></a></h2>
-<p>Puede usar el modulo descargando el codigo fuente desde github, para ello
-siga los siguientes pasos:</p>
+<section id="manual-installation">
+<h2>Manual Installation<a class="headerlink" href="#manual-installation" title="Link to this heading"><span>#</span></a></h2>
+<p>You can use the module by downloading the source code from GitHub, to do this
+follow these steps:</p>
 <ol class="arabic simple">
-<li><p>Descargue el modulo desde el repositorio de Github con un cliente git.</p></li>
+<li><p>Download the module from the GitHub repository with a git client.</p></li>
 </ol>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yoandym/migration_scripts.git<span class="w"> </span>./migration_scripts
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p>Instale las dependencias del modulo. Es recomendable usar un ambiente
-virtual para instalar las dependencias.</p></li>
+<li><p>Install the module dependencies. It is recommended to use a
+<a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environment</a>
+to install the dependencies.</p></li>
 </ol>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>migration_scripts/requirements.txt
 </pre></div>
 </div>
 </section>
-<section id="instalacion-con-pip">
-<h2>Instalacion con pip<a class="headerlink" href="#instalacion-con-pip" title="Link to this heading"><span>#</span></a></h2>
+<section id="installation-with-pip">
+<h2>Installation with pip<a class="headerlink" href="#installation-with-pip" title="Link to this heading"><span>#</span></a></h2>
 <ol class="arabic simple">
-<li><p>Instale directamente el modulo usando pip. Es recomendable usar un ambiente
-virtual.</p></li>
+<li><p>Install the module directly using pip. It is recommended to use a
+<a class="reference external" href="https://docs.python.org/3/library/venv.html">virtual environment</a>
+environment.</p></li>
 </ol>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>https://github.com/yoandym/migration_scripts/archive/refs/heads/main.zip
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>https://github.com/yoandym/migration_scripts/archive/refs/heads/main.zip
 </pre></div>
 </div>
 </section>
@@ -356,9 +358,9 @@ virtual.</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Instalación</a><ul>
-<li><a class="reference internal" href="#instalacion-manual">Instalacion manual</a></li>
-<li><a class="reference internal" href="#instalacion-con-pip">Instalacion con pip</a></li>
+<li><a class="reference internal" href="#">Installation</a><ul>
+<li><a class="reference internal" href="#manual-installation">Manual Installation</a></li>
+<li><a class="reference internal" href="#installation-with-pip">Installation with pip</a></li>
 </ul>
 </li>
 </ul>

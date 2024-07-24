@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HowTo" href="../howto.html" /><link rel="prev" title="Instalación" href="tutorial_install.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HowTo" href="../howto.html" /><link rel="prev" title="Installation" href="tutorial_install.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.07.18 -->
-        <title>Migrar datos entre instancias Odoo - XMLRPC Data Migration documentation</title>
+        <title>Migrate data between Odoo instances - XMLRPC Data Migration documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -201,10 +201,10 @@
   <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current">
 <li class="toctree-l1 current has-children"><a class="reference internal" href="tutorial.html">Tutorial</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Tutorial</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_install.html">Instalación</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Instalación</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_install.html">Installation</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Installation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Migrar datos entre instancias Odoo</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrar datos entre instancias Odoo</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Migrate data between Odoo instances</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrate data between Odoo instances</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -267,36 +267,35 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="migrar-datos-entre-instancias-odoo">
-<h1>Migrar datos entre instancias Odoo<a class="headerlink" href="#migrar-datos-entre-instancias-odoo" title="Link to this heading"><span>#</span></a></h1>
+          <section id="migrate-data-between-odoo-instances">
+<h1>Migrate data between Odoo instances<a class="headerlink" href="#migrate-data-between-odoo-instances" title="Link to this heading"><span>#</span></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>Si la migracion a hacer es simple, esto es: los campos del modelo de origen y
-destino son iguales, puede usar el metodo migrate de la clase Executor casi
-directamente.</p>
-<p>En cambio si la migracion tiene alguna complejidad, como por ejemplo, los
-campos del modelo de origen y destino no son de igual tipo de datos, o
-cambian de nombre o se dividen / fusionan, entonces debe crear un mapeo de
-campos y posiblemente una funcion de transformacion.</p>
+<p>If the migration to be done is simple, that is: the fields of the source and
+destination model are the same, you can use the migrate method of the Executor
+class almost directly.</p>
+<p>However, if the migration has some complexity, such as, the
+fields of the source and destination model are not of the same data type, or
+they change names or are split / merged, then you must create a field mapping
+and possibly a transformation function.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>En cualquier caso, tenga presente que para hacer uso del modulo debe crear
-su propio script de migracion, el cual debe importar las clases y funciones
-necesarias del modulo.</p>
+<p>In any case, keep in mind that to use the module you must create
+your own migration script, which must import the necessary classes and
+functions from the module.</p>
 </div>
-<section id="una-migracion-de-datos-simple">
-<h2>Una migracion de datos simple<a class="headerlink" href="#una-migracion-de-datos-simple" title="Link to this heading"><span>#</span></a></h2>
-<p>A continuacion se muestra un ejemplo de migración de datos entre instancias
-Odoo:</p>
+<section id="a-simple-data-migration">
+<h2>A simple data migration<a class="headerlink" href="#a-simple-data-migration" title="Link to this heading"><span>#</span></a></h2>
+<p>Below is an example of data migration between Odoo instances:</p>
 <ol class="arabic">
-<li><p>Defina los datos de autenticacion para la instancia de origen y destino.</p>
-<p>Para ello puede:
-- Pasar los datos directamente al instanciar la clase <em>Executor</em>
-- Definirlos en un archivo de configuracion .env
-- Definirlos en variables de entorno</p>
+<li><p>Define the authentication data for the source and destination instances.</p>
+<p>To do this, you can:
+- Pass the data directly when instantiating the <em>Executor</em> class
+- Define them in a .env configuration file
+- Define them in environment variables</p>
 </li>
 </ol>
-<p>Para pasarlos directamente al instanciar la clase <em>Executor</em>:</p>
+<p>To pass them directly when instantiating the <em>Executor</em> class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">{</span>
    <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host1,</span>
    <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
@@ -317,8 +316,8 @@ Odoo:</p>
 <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Para definirlos en un archivo de configuracion .env o en variables de entorno
-estas son las variables que debe definir:</p>
+<p>To define them in a .env configuration file or in environment variables these
+are the variables you must define:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SOURCE_HOST</span><span class="o">=</span><span class="s2">&quot;host1&quot;</span>
 <span class="nv">SOURCE_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
 <span class="nv">SOURCE_DB</span><span class="o">=</span><span class="s2">&quot;v14_db_1&quot;</span>
@@ -332,8 +331,8 @@ estas son las variables que debe definir:</p>
 <span class="nv">TARGET_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
 </pre></div>
 </div>
-<ol class="arabic simple">
-<li><p>Seleccione el modelo y los campos que desea migrar. Ejemplo</p></li>
+<ol class="arabic simple" start="2">
+<li><p>Select the model and fields you want to migrate. Example</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.team&#39;</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_favorite&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span>
@@ -341,7 +340,7 @@ estas son las variables que debe definir:</p>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Ejecute el proceso de migración.</p></li>
+<li><p>Execute the migration process.</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># importe la clase Executor</span>
 <span class="kn">from</span> <span class="nn">migration.migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
@@ -358,54 +357,53 @@ estas son las variables que debe definir:</p>
 </pre></div>
 </div>
 </section>
-<section id="una-migracion-de-datos-intermedia">
-<h2>Una migracion de datos intermedia<a class="headerlink" href="#una-migracion-de-datos-intermedia" title="Link to this heading"><span>#</span></a></h2>
-<p>Para el caso donde la migracion no sea tan simple porque algunos campos cambian
-de nombre solo debe hacer un mapeo de campos.</p>
+<section id="an-intermediate-data-migration">
+<h2>An intermediate data migration<a class="headerlink" href="#an-intermediate-data-migration" title="Link to this heading"><span>#</span></a></h2>
+<p>For cases where the migration is not so simple because some fields change
+names, you only need to create a field mapping.</p>
 <ol class="arabic simple">
-<li><p>Siga las instrucciones iniciales de la migracion simple.</p></li>
-<li><p>Cree el mapeo de campos entre las instancias de origen y destino. Esto es
-una lista de cadenas o diccionarios. Ejemplo:</p></li>
+<li><p>Follow the initial instructions for a simple migration.</p></li>
+<li><p>Create the field mapping between the source and destination instances.
+This is a list of strings or dictionaries. Example:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;account.payment.term&#39;</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;description&#39;</span><span class="p">}]</span>
 </pre></div>
 </div>
 <dl class="simple">
-<dt>De esta forma, estariamos indicando que:</dt><dd><ul class="simple">
-<li><p>El campo ‘name’ de la instancia de origen no tuvo ningun cambio y se
-corresponde directmente al campo ‘name’ de la instancia de destino.</p></li>
-<li><p>El campo ‘active’ de la instancia de origen no tuvo ningun cambio y se
-corresponde directmente al campo ‘active’ de la instancia de destino.</p></li>
-<li><p>El campo ‘note’ de la instancia de origen cambio de nombre a ‘description’
-en la instancia de destino.</p></li>
+<dt>In this way, we would be indicating that:</dt><dd><ul class="simple">
+<li><p>The ‘name’ field from the source instance did not have any changes and
+corresponds directly to the ‘name’ field of the destination instance.</p></li>
+<li><p>The ‘active’ field from the source instance did not have any changes and
+corresponds directly to the ‘active’ field of the destination instance.</p></li>
+<li><p>The ‘note’ field from the source instance was renamed to ‘description’
+in the destination instance.</p></li>
 </ul>
 </dd>
 </dl>
-<ol class="arabic simple">
-<li><p>Ejecute el proceso de migración.</p></li>
+<ol class="arabic simple" start="3">
+<li><p>Execute the migration process.</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ejecute la migracion</span>
 <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="una-migracion-de-datos-avanzada">
-<h2>Una migracion de datos avanzada<a class="headerlink" href="#una-migracion-de-datos-avanzada" title="Link to this heading"><span>#</span></a></h2>
+<section id="an-advanced-data-migration">
+<h2>An advanced data migration<a class="headerlink" href="#an-advanced-data-migration" title="Link to this heading"><span>#</span></a></h2>
 <dl class="simple">
-<dt>Una migracion avanzada seria cuando:</dt><dd><ul class="simple">
-<li><p>Es encesario hacer una o varias transformaciones a los datos de origen
-para que estos puedan ser correctamente importados en la instancia De
-destino.</p></li>
-<li><p>Es necesario hacer un mapa completo de los campos debido a cambios en los
-nombres tanto de campos como modelos.</p></li>
-<li><p>Cuando es necesario hacer un mapa completo de los campos para especificar
-llaves de busqueda en el modelo de destino y de esta forma evitar
-duplicados.</p></li>
+<dt>An advanced migration would be when:</dt><dd><ul class="simple">
+<li><p>It is necessary to perform one or several transformations to the source
+data so that they can be correctly imported into the destination instance.</p></li>
+<li><p>It is necessary to create a complete map of the fields due to changes in
+the names of both fields and models.</p></li>
+<li><p>When it is necessary to create a complete map of the fields to specify
+search keys in the destination model and thus avoid
+duplicates.</p></li>
 </ul>
 </dd>
 </dl>
-<p>Pueder algunos de estos en la documentacion de referencia del modulo main.</p>
+<p>You can find some of these in the reference documentation of the main module.</p>
 </section>
 </section>
 
@@ -430,7 +428,7 @@ duplicados.</p></li>
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Instalación</div>
+                <div class="title">Installation</div>
                 
               </div>
             </a>
@@ -464,10 +462,10 @@ duplicados.</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Migrar datos entre instancias Odoo</a><ul>
-<li><a class="reference internal" href="#una-migracion-de-datos-simple">Una migracion de datos simple</a></li>
-<li><a class="reference internal" href="#una-migracion-de-datos-intermedia">Una migracion de datos intermedia</a></li>
-<li><a class="reference internal" href="#una-migracion-de-datos-avanzada">Una migracion de datos avanzada</a></li>
+<li><a class="reference internal" href="#">Migrate data between Odoo instances</a><ul>
+<li><a class="reference internal" href="#a-simple-data-migration">A simple data migration</a></li>
+<li><a class="reference internal" href="#an-intermediate-data-migration">An intermediate data migration</a></li>
+<li><a class="reference internal" href="#an-advanced-data-migration">An advanced data migration</a></li>
 </ul>
 </li>
 </ul>

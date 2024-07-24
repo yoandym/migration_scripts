@@ -1,5 +1,5 @@
 ============
-Instalación
+Installation
 ============
 
 .. toctree::
@@ -7,33 +7,35 @@ Instalación
    :caption: Contents:
 
 
-Instalacion manual
+Manual Installation
 -------------------
 
-Puede usar el modulo descargando el codigo fuente desde github, para ello
-siga los siguientes pasos:
+You can use the module by downloading the source code from GitHub, to do this
+follow these steps:
 
-1. Descargue el modulo desde el repositorio de Github con un cliente git.
+1. Download the module from the GitHub repository with a git client.
 
 .. code:: sh
 
    git clone https://github.com/yoandym/migration_scripts.git ./migration_scripts
 
 
-2. Instale las dependencias del modulo. Es recomendable usar un ambiente
-   virtual para instalar las dependencias.
+2. Install the module dependencies. It is recommended to use a
+   `virtual environment <https://docs.python.org/3/library/venv.html>`_
+   to install the dependencies.
 
 .. code:: sh
 
       pip install -r migration_scripts/requirements.txt
 
 
-Instalacion con pip
--------------------
+Installation with pip
+-----------------------
 
-1. Instale directamente el modulo usando pip. Es recomendable usar un ambiente
-   virtual.
+1. Install the module directly using pip. It is recommended to use a
+   `virtual environment <https://docs.python.org/3/library/venv.html>`_
+   environment.
 
 .. code:: sh
 
-      pip https://github.com/yoandym/migration_scripts/archive/refs/heads/main.zip
+      pip install https://github.com/yoandym/migration_scripts/archive/refs/heads/main.zip
