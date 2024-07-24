@@ -121,7 +121,7 @@ def migrate_res_partner(dry):
     
     #: Save the field map to a file for customization.
     #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
-    file_path = "./" + model + ".txt"
+    file_path = "./" + model + ".json"
     Pretty.log(res, file_path=file_path)
     
     # ex.add_transformer(model=model, 
@@ -136,7 +136,7 @@ def migrate_res_partner(dry):
     #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
     ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
 
-def migrate_crm_lead(dry):
+def migrate_crm_lead(**kwargs):
     """
     Migrate crm.lead model from odoo v14 to v17.
     
@@ -153,22 +153,23 @@ def migrate_crm_lead(dry):
     """
 
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor(dry=dry)
+    ex = Executor(**kwargs)
 
     #: Model name to migrate
     model = 'crm.lead'
     
     
-    #: Migrate upto 2 layers of related models.
-    recursion = 2
+    #: Migrate upto 3 layers of related models.
+    #: lead -> partner -> mail.message -> partner
+    recursion = 3
 
     #: Generate the field map 
-    res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    # res = ex.make_fields_map(model_name=model, recursion_level=recursion)
     
     #: Save the field map to a file for customization.
     #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
-    file_path = "./" + model + ".txt"
-    Pretty.log(res, file_path=file_path)
+    file_path = "./" + model + ".json"
+    # Pretty.log(res, file_path=file_path)
     
     # ex.add_transformer(model=model, 
     #                    field="x_studio_categorizacin", transformer=crm_lead_categorizacin_transformer)
@@ -179,7 +180,7 @@ def migrate_crm_lead(dry):
     _map = ex.load_fields_map(file_path=file_path)
     
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
-    ex.migrate(model, _map, batch_size=5, recursion_level=recursion)
+    ex.migrate(model, _map, batch_size=1, recursion_level=recursion)
     
 
 
@@ -192,5 +193,5 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_crm_lead(dry=True)
+    migrate_crm_lead(dry=True, debug=False)
     # migrate_res_partner(dry=True)   
