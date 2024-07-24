@@ -1,5 +1,5 @@
 ========================================
-Migrar datos entre instancias Odoo
+Migrate data between Odoo instances
 ========================================
 
 .. toctree::
@@ -7,34 +7,33 @@ Migrar datos entre instancias Odoo
    :caption: Contents:
 
 
-Si la migracion a hacer es simple, esto es: los campos del modelo de origen y
-destino son iguales, puede usar el metodo migrate de la clase Executor casi
-directamente.
+If the migration to be done is simple, that is: the fields of the source and
+destination model are the same, you can use the migrate method of the Executor
+class almost directly.
 
-En cambio si la migracion tiene alguna complejidad, como por ejemplo, los
-campos del modelo de origen y destino no son de igual tipo de datos, o
-cambian de nombre o se dividen / fusionan, entonces debe crear un mapeo de
-campos y posiblemente una funcion de transformacion.
+However, if the migration has some complexity, such as, the
+fields of the source and destination model are not of the same data type, or
+they change names or are split / merged, then you must create a field mapping
+and possibly a transformation function.
 
 .. Note::
-   En cualquier caso, tenga presente que para hacer uso del modulo debe crear
-   su propio script de migracion, el cual debe importar las clases y funciones
-   necesarias del modulo.
+   In any case, keep in mind that to use the module you must create
+   your own migration script, which must import the necessary classes and
+   functions from the module.
 
-Una migracion de datos simple
+A simple data migration
 --------------------------------------
 
-A continuacion se muestra un ejemplo de migración de datos entre instancias
-Odoo:
+Below is an example of data migration between Odoo instances:
 
-1. Defina los datos de autenticacion para la instancia de origen y destino.
+1. Define the authentication data for the source and destination instances.
 
-   Para ello puede:
-   - Pasar los datos directamente al instanciar la clase *Executor*
-   - Definirlos en un archivo de configuracion .env
-   - Definirlos en variables de entorno
+   To do this, you can:
+   - Pass the data directly when instantiating the *Executor* class
+   - Define them in a .env configuration file
+   - Define them in environment variables
 
-Para pasarlos directamente al instanciar la clase *Executor*:
+To pass them directly when instantiating the *Executor* class:
 
 .. code:: python
 
@@ -58,8 +57,8 @@ Para pasarlos directamente al instanciar la clase *Executor*:
          ex = Executor(source=source, target=target)
 
 
-Para definirlos en un archivo de configuracion .env o en variables de entorno
-estas son las variables que debe definir:
+To define them in a .env configuration file or in environment variables these
+are the variables you must define:
 
 .. code:: sh
 
@@ -75,7 +74,7 @@ estas son las variables que debe definir:
       TARGET_DB_USER="admin"
       TARGET_DB_PASSWORD="admin"
 
-1. Seleccione el modelo y los campos que desea migrar. Ejemplo
+2. Select the model and fields you want to migrate. Example
 
 .. code:: python
 
@@ -85,8 +84,8 @@ estas son las variables que debe definir:
 
 
 
-3. Ejecute el proceso de migración.
-
+3. Execute the migration process.
+   
 .. code:: python
 
    # importe la clase Executor
@@ -102,47 +101,47 @@ estas son las variables que debe definir:
    # Ejecute la migracion
    ex.migrate(model, fields)
 
-Una migracion de datos intermedia
-----------------------------------
 
-Para el caso donde la migracion no sea tan simple porque algunos campos cambian
-de nombre solo debe hacer un mapeo de campos.
+An intermediate data migration
+-------------------------------
 
-1. Siga las instrucciones iniciales de la migracion simple.
-2. Cree el mapeo de campos entre las instancias de origen y destino. Esto es
-   una lista de cadenas o diccionarios. Ejemplo:
+For cases where the migration is not so simple because some fields change
+names, you only need to create a field mapping.
+
+1. Follow the initial instructions for a simple migration.
+2. Create the field mapping between the source and destination instances.
+   This is a list of strings or dictionaries. Example:
 
 .. code:: python
 
     model = 'account.payment.term'
     fields = ['name', 'active', {'note': 'description'}]
 
-De esta forma, estariamos indicando que:
-   - El campo 'name' de la instancia de origen no tuvo ningun cambio y se
-     corresponde directmente al campo 'name' de la instancia de destino.
-   - El campo 'active' de la instancia de origen no tuvo ningun cambio y se
-     corresponde directmente al campo 'active' de la instancia de destino.
-   - El campo 'note' de la instancia de origen cambio de nombre a 'description'
-     en la instancia de destino.
+In this way, we would be indicating that:
+   - The 'name' field from the source instance did not have any changes and
+     corresponds directly to the 'name' field of the destination instance.
+   - The 'active' field from the source instance did not have any changes and
+     corresponds directly to the 'active' field of the destination instance.
+   - The 'note' field from the source instance was renamed to 'description'
+     in the destination instance.
 
-1. Ejecute el proceso de migración.
+3. Execute the migration process.
 
 .. code:: python
 
    # Ejecute la migracion
    ex.migrate(model, fields)
 
-Una migracion de datos avanzada
+An advanced data migration
 --------------------------------------
 
-Una migracion avanzada seria cuando:
-   - Es encesario hacer una o varias transformaciones a los datos de origen
-     para que estos puedan ser correctamente importados en la instancia De
-     destino.
-   - Es necesario hacer un mapa completo de los campos debido a cambios en los
-     nombres tanto de campos como modelos.
-   - Cuando es necesario hacer un mapa completo de los campos para especificar
-     llaves de busqueda en el modelo de destino y de esta forma evitar
-     duplicados.
+An advanced migration would be when:
+   - It is necessary to perform one or several transformations to the source
+     data so that they can be correctly imported into the destination instance.
+   - It is necessary to create a complete map of the fields due to changes in
+     the names of both fields and models.
+   - When it is necessary to create a complete map of the fields to specify
+     search keys in the destination model and thus avoid
+     duplicates.
 
-Pueder algunos de estos en la documentacion de referencia del modulo main.
+You can find some of these in the reference documentation of the main module.

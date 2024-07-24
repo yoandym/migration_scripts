@@ -5,40 +5,35 @@ HowTo
    :maxdepth: 3
    :caption: Contents:
 
+Authentication in Odoo instances
+----------------------------------
 
-Autenticacion en las intancias Odoo
-----------------------------------------
+How to define authentication data
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Cómo definir los datos de autenticación
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to verify that the authentication is correct
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-Mapeo de los campos a migrar entre instancias
+Mapping of fields to migrate between instances
 ----------------------------------------------
 
-Como generar el mapeo de los campos de forma facil
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to auto-generate the field mapping
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+How to define a map without any changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+How to define a map if there were name changes
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Como definir los campos a migrar sin cambios de ningun tipo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+How to define a map if there were complex changes in the data structure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+How to define a map if a field disappeared in the target model
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+How to define a map if the target model disappeared
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Como definir los campos a migrar si hubo cambios de nombre
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
-Como definir los campos a migrar si hubo cambios complejos en la estructura de datos del modelo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-
-Como definir los campos a migrar si hubo cambios complejos en la estructura de datos del modelo
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-Gestion de campos relacionados
+Management of related fields
 ------------------------------
