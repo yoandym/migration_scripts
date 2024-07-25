@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import os
+import copy
 
 from tools import Pretty
 
 from migrate import Executor
 
 
-def _account_payment_term_line_value_transformer(executor: Executor, data: dict) -> dict:
+def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> dict:
     """
     To migrate account/payment.term.lines from odoo v14 to v17.
     
@@ -17,7 +18,7 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: dict)
 
     Args:
         executor (Executor): The executor instance.
-        data (dict): The data to format. All model records at once.
+        data (list): The data to format. All model records at once.
 
     Returns:
         dict: The formatted data for the target instance.
@@ -47,7 +48,7 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: dict)
     return new_line_ids
 
 
-def _crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
+def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     """
     To migrate a custom crm.lead model from odoo v14 to v17.
     
@@ -56,12 +57,17 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: dict) -> dict:
 
     Args:
         executor (Executor): The executor instance.
-        data (dict): The data to format. All model records at once.
+        data (list): The data to format. All model records at once.
 
     Returns:
         dict: The formatted data for the target instance.
     """
-    pass
+    _data = copy.deepcopy(data)
+    for record in _data:
+        if "x_studio_categorizacin" in record:
+            record["description"] = record.get("description", "") + "\n" + record.pop("x_studio_categorizacin")
+            
+    return _data
 
 
 def migrate_crm_team():
@@ -193,5 +199,5 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_crm_lead(dry=True, debug=False)
-    # migrate_res_partner(dry=True)   
+    migrate_crm_lead(debug=True)
+    # migrate_res_partner(debug=False)   
