@@ -5,7 +5,6 @@
         "fields": {
             "login": "login",
             "password": "password",
-            "active": "active",
             "login_date": "login_date",
             "create_date": "create_date",
             "write_date": "write_date",
@@ -486,10 +485,7 @@
             "__last_update"
         ],
         "new": [
-            "activity_ids",
             "activity_state",
-            "activity_user_id",
-            "activity_type_id",
             "activity_type_icon",
             "activity_date_deadline",
             "my_activity_date_deadline",
@@ -578,8 +574,6 @@
             "email_normalized": "email_normalized",
             "is_blacklisted": "is_blacklisted",
             "message_ids": "message_ids",
-            "website_message_ids": "website_message_ids",
-            "message_has_sms_error": "message_has_sms_error",
             "phone_sanitized": "phone_sanitized",
             "phone_sanitized_blacklisted": "phone_sanitized_blacklisted",
             "phone_blacklisted": "phone_blacklisted",
@@ -1039,6 +1033,7 @@
             "email_from": "email_from",
             "phone": "phone",
             "mobile": "mobile",
+            "message_ids": "message_ids",
             "phone_mobile_search": "phone_mobile_search",
             "phone_state": "phone_state",
             "email_state": "email_state",
