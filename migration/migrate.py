@@ -5,6 +5,7 @@ This module provides the necessary classes and methods for data migration betwee
 """
 
 import os, sys
+import copy
 import json
 from dotenv import load_dotenv
 
@@ -14,6 +15,7 @@ from colorama import Fore, Back, Style
 from unidecode import unidecode
 
 import odoorpc
+import treelib
 
 from tools import Pretty
 from exceptions import TooDeepException, UnsupportedRelationException
@@ -41,27 +43,16 @@ class Executor(object):
     
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
-        
-    dry_mode = False
-    """
-    Set to True to run the migration in dry mode
-    In dry mode, the migration plan is shown but not executed
-    Useful to check the migration plan before running it
-    
-    .. danger :: related models are actually migrated no matter the dry mode
-
-    """
-    
+            
     default_search_keys = {"name": "name"}
 
-    def __init__(self, source: dict=None, target: dict=None, dry: bool=False, debug: bool=False, recursion_mode: str="w") -> None:
+    def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
         Initializes a new instance of the Migrate class.
 
         Args:
             source (dict): A dictionary containing the connection details for the source server.
             target (dict): A dictionary containing the connection details for the target server.
-            dry (bool): If True, the migration will be run in dry mode. Defaults to False.
             debug (bool): If True, the debug mode will be enabled. Defaults to False.
             recursion_mode (str): The recursion mode to apply. Defaults to "w".
                 - h: Halt, if cant traverse a relation because of recursion level
@@ -69,9 +60,7 @@ class Executor(object):
         """
         
         load_dotenv()
-        
-        self.dry_mode = dry
-        
+                
         self.debug = debug
         
         self.recursion_mode = recursion_mode
@@ -211,14 +200,14 @@ class Executor(object):
             
             data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
                                 
-            if self.dry_mode:
+            if self.debug:
                 print("new data")
                 Pretty.print(data)
-            else:
-                # creates the records at target instance
-                res = self.target_model.create(data)
-                        
-                print('%s %s records migrated successfully' % (len(res), model_name))
+            
+            # creates the records at target instance
+            res = self.target_model.create(data)
+                    
+            print('%s %s records migrated successfully' % (len(res), model_name))
         
         return True
     
@@ -286,10 +275,12 @@ class Executor(object):
         source_model = self.source_odoo.env[model_name]
         model_fields_metadata = source_model.fields_get(model_field_list)
         
-        # process relational fields
-        if isinstance(data, dict):
-            data = [data]
-        for idx, record in enumerate(data):
+        # ensure data consistency
+        _data = copy.deepcopy(data)
+        if isinstance(_data, dict):
+            _data = [_data]
+        
+        for idx, record in enumerate(_data):
             for column_name in list(record.keys()):
                 
                 # drop unwanted fields
@@ -341,14 +332,14 @@ class Executor(object):
                     # test for and process callables
                     # has to be done after the relational fields processing
                     # process the whole data set. 
-                    # Internally it detects and executes the callables for every field
+                    # At map load time callables are detected for every field
                     if callable(field_mapping_value):
-                        data = field_mapping_value(self, data)
+                        _data = field_mapping_value(self, _data)
                     else:
                         # do the field name change
                         record[field_mapping_value] = record.pop(column_name)
             
-        return data
+        return _data
     
     def _process_relation(self, model_name: str, relation_type: str, field_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
         """
@@ -401,7 +392,7 @@ class Executor(object):
                 related_source_data = related_source_recordset.read(model_field_list)
                         
                         
-                target_ids = []
+                _data = []
                 for record in related_source_data:
                     record_id = record['id']
                     # search it by every search key
@@ -410,17 +401,15 @@ class Executor(object):
                                                     search_keys=search_keys, 
                                                     target_model_name=target_model_name)
                     if _found:
-                        target_ids.append(_found)
+                        _data.append(_found)
                     else:
                         # data may contain new relations, so we have to format them
-                        data = self._format_data(model_name=model_name, 
-                                                data=record, 
-                                                recursion_level=recursion_level - 1)
-                        _id = target_model.create(data)
-                        target_ids.append(_id)
+                        _new_data = self._format_data(model_name=model_name, 
+                                                        data=record, 
+                                                        recursion_level=recursion_level - 1)
+                        _id = target_model.create(_new_data)
+                        _data.append(_id)
                 
-                # final format
-                data = [(0, 0, e) for e in target_ids]
 
             elif relation_type == 'many2one':
                 
@@ -446,7 +435,7 @@ class Executor(object):
                     if isinstance(_found, list):
                         _found = _found[0]
 
-                data = _found
+                _data = _found
             
             else:
                 raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
@@ -454,7 +443,7 @@ class Executor(object):
         else:
             raise TooDeepException('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (field_name, model_name))
                  
-        return data
+        return _data
     
     def search_in_target(self, model_name: str, source_id: int, target_model_name: str=None, search_keys: dict=None) -> list:
         """ 
@@ -762,4 +751,48 @@ class Executor(object):
         self.transformers[transformer.__name__] = transformer
         return fields_map
            
-    
+    def model_tree(self, model_name: str, recursion_level: int=0) -> dict:
+        """
+        Make a relation tree for the model until the recursion level.
+
+        Args:
+            model_name (str): The model name to make the relation tree for.
+            recursion_level (int): The recursion level to apply. Defaults to 0.
+
+        Returns:
+            dict: The relation tree for the model.
+        """
+        
+        def _build_tree(_model_name, from_field=None, _level=None):
+            
+            tree = treelib.Tree()
+            
+            if _level is None:
+                _level = 0
+                node = tree.create_node(tag=_model_name)
+            else:
+                tag = "%s->%s" % (from_field, _model_name)
+                node = tree.create_node(tag=tag)
+                        
+            if _level == recursion_level:
+                return tree
+                
+            # get odoo model and field metadata
+            source_model = self.source_odoo.env[_model_name]
+            field_metadata = source_model.fields_get()
+            
+            # build tree
+            for field, field_data in field_metadata.items():
+                field_type = field_data['type']
+                if field_type in self.relation_types:
+                    
+                    new_model = field_data['relation']
+                    
+                    tag = "%s->%s" % (field, _model_name)
+                    
+                    new_tree = _build_tree(_model_name=new_model, from_field=field, _level=_level + 1)
+                    tree.paste(nid=node.identifier, new_tree=new_tree)
+            
+            return tree
+                
+        return _build_tree(model_name)
