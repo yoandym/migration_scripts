@@ -1001,6 +1001,31 @@
             "initial_res_model"
         ]
     },
+    "mail.followers": {
+        "target_model": "mail.followers",
+        "search_keys": {
+            "name": "name"
+        },
+        "fields": {
+            "res_model": "res_model",
+            "res_id": "res_id",
+            "name": "name",
+            "email": "email",
+            "is_active": "is_active",
+            "id": "id",
+            "display_name": "display_name"
+        },
+        "removed": [
+            "partner_id",
+            "channel_id",
+            "subtype_ids",
+            "__last_update"
+        ],
+        "new": [
+            "partner_id",
+            "subtype_ids"
+        ]
+    },
     "crm.lead": {
         "fields": {
             "name": "name",
@@ -1034,6 +1059,9 @@
             "phone": "phone",
             "mobile": "mobile",
             "message_ids": "message_ids",
+            "message_follower_ids": "message_follower_ids",
+            "message_partner_ids": "message_partner_ids",
+            "website_message_ids": "website_message_ids",
             "phone_mobile_search": "phone_mobile_search",
             "phone_state": "phone_state",
             "email_state": "email_state",
