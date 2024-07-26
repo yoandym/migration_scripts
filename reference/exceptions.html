@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="Module: migration.tools" href="tools.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Module: migration.tools" href="tools.html" /><link rel="prev" title="Module migration.MigrationMap" href="mapping.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.07.18 -->
         <title>Module: migration.exceptions - XMLRPC Data Migration documentation</title>
@@ -219,13 +219,16 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="migrate.html">Module mirgation.migrate</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.migrate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="executor.html">Module migration.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="mapping.html">Module migration.MigrationMap</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.MigrationMap</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Module: migration.exceptions</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -288,6 +291,13 @@
 <p>Raised when we encounter an unsupported relation type.</p>
 </dd></dl>
 
+<dl class="py class">
+<dt class="sig sig-object py" id="migration.exceptions.MissingModelMappingException">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">migration.exceptions.</span></span><span class="sig-name descname"><span class="pre">MissingModelMappingException</span></span><a class="reference internal" href="../_modules/migration/exceptions.html#MissingModelMappingException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.exceptions.MissingModelMappingException" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Raised when, in the map, we encounter a field/relation to a model that is not mapped.</p>
+</dd></dl>
+
 </section>
 
         </article>
@@ -295,15 +305,23 @@
       <footer>
         
         <div class="related-pages">
-          
-          <a class="prev-page" href="tools.html">
+          <a class="next-page" href="tools.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Module: migration.tools</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="mapping.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Module: migration.tools</div>
+                <div class="title">Module migration.MigrationMap</div>
                 
               </div>
             </a>
@@ -340,6 +358,7 @@
 <li><a class="reference internal" href="#">Module: migration.exceptions</a><ul>
 <li><a class="reference internal" href="#migration.exceptions.TooDeepException"><code class="docutils literal notranslate"><span class="pre">TooDeepException</span></code></a></li>
 <li><a class="reference internal" href="#migration.exceptions.UnsupportedRelationException"><code class="docutils literal notranslate"><span class="pre">UnsupportedRelationException</span></code></a></li>
+<li><a class="reference internal" href="#migration.exceptions.MissingModelMappingException"><code class="docutils literal notranslate"><span class="pre">MissingModelMappingException</span></code></a></li>
 </ul>
 </li>
 </ul>
