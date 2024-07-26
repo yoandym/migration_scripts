@@ -59,8 +59,8 @@ class MigrationMap:
 
         Args:
             executor (object, optional): Holds an instance of 
-            an ``Executor`` ( it provides a connection to the source and 
-            destination databases and other tools). Defaults to None.
+                an ``Executor`` ( it provides a connection to the source and 
+                destination databases and other tools). Defaults to None.
         """
         self.map = {}
         self.transformers = {}
