@@ -218,10 +218,10 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/executor.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/executor.html">Module migration.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/mapping.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/mapping.html">Module migration.mapping</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.mapping</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
@@ -320,6 +320,10 @@
 <span class="sd">        }</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1">#: Default fields to search for a record in the source and target model.</span>
+    <span class="n">default_search_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">}</span>
+
 
 <div class="viewcode-block" id="MigrationMap.__init__">
 <a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap.__init__">[docs]</a>
@@ -356,6 +360,39 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map</span><span class="p">[</span><span class="n">source_model_name</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">MissingModelMappingException</span><span class="p">(</span><span class="s2">&quot;There is no mapping for model &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">source_model_name</span><span class="p">))</span></div>
+
+    
+<div class="viewcode-block" id="MigrationMap.get_target_model">
+<a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap.get_target_model">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_target_model</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the target model name for the source model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source_model_name (str): The source model name.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The target model name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">source_model_name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_model&quot;</span><span class="p">,</span> <span class="n">source_model_name</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="MigrationMap.get_search_keys">
+<a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap.get_search_keys">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_search_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the search keys for the source model.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            source_model_name (str): The source model name.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            MissingModelMappingException: Raised when ``source_model_name`` is not in the map.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict: The search keys for the source model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">source_model_name</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">)</span></div>
 
     
 <div class="viewcode-block" id="MigrationMap.add_transformer">
@@ -526,7 +563,6 @@
         <span class="k">return</span> <span class="nb">map</span></div>
 
     
-    
 <div class="viewcode-block" id="MigrationMap.load_from_file">
 <a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap.load_from_file">[docs]</a>
     <span class="k">def</span> <span class="nf">load_from_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -565,8 +601,6 @@
         
         <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="n">_d</span>
         <span class="k">return</span> <span class="n">_d</span></div>
-
-    
 
     
 <div class="viewcode-block" id="MigrationMap.normalice_fields">

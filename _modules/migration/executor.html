@@ -218,10 +218,10 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/executor.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/executor.html">Module migration.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/mapping.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/mapping.html">Module migration.mapping</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.mapping</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
@@ -287,7 +287,8 @@
 <span class="kn">import</span> <span class="nn">treelib</span>
 
 <span class="kn">from</span> <span class="nn">tools</span> <span class="kn">import</span> <span class="n">Pretty</span>
-<span class="kn">from</span> <span class="nn">exceptions</span> <span class="kn">import</span> <span class="n">TooDeepException</span><span class="p">,</span> <span class="n">UnsupportedRelationException</span><span class="p">,</span> <span class="n">MissingModelMappingException</span>
+<span class="kn">from</span> <span class="nn">mapping</span> <span class="kn">import</span> <span class="n">MigrationMap</span>
+<span class="kn">from</span> <span class="nn">exceptions</span> <span class="kn">import</span> <span class="n">TooDeepException</span><span class="p">,</span> <span class="n">UnsupportedRelationException</span>
 
 
 <div class="viewcode-block" id="Executor">
@@ -307,21 +308,20 @@
     <span class="n">source_model</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">target_model</span> <span class="o">=</span> <span class="kc">None</span>
     
-    <span class="c1">#: Set the full fields mapping for the migration</span>
-    <span class="n">fields_map</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1">#: An instance of MigrationMap</span>
+    <span class="n">migration_map</span> <span class="o">=</span> <span class="kc">None</span>
     
     <span class="n">transformers</span> <span class="o">=</span> <span class="p">{}</span>
     
     <span class="c1">#: Set the relation types to traverse</span>
     <span class="n">relation_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;one2many&#39;</span><span class="p">,</span> <span class="s1">&#39;many2one&#39;</span><span class="p">,</span> <span class="s1">&#39;many2many&#39;</span><span class="p">]</span>
             
-    <span class="n">default_search_keys</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;name&quot;</span><span class="p">}</span>
 
 <div class="viewcode-block" id="Executor.__init__">
 <a class="viewcode-back" href="../../reference/executor.html#migration.executor.Executor.__init__">[docs]</a>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">recursion_mode</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initializes a new instance of the Migrate class.</span>
+<span class="sd">        Initializes a new instance of the Executor class.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            source (dict): A dictionary containing the connection details for the source server.</span>
@@ -335,7 +335,7 @@
         <span class="n">load_dotenv</span><span class="p">()</span>
                 
         <span class="bp">self</span><span class="o">.</span><span class="n">debug</span> <span class="o">=</span> <span class="n">debug</span>
-        
+                
         <span class="bp">self</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">=</span> <span class="n">recursion_mode</span>
         
         <span class="k">if</span> <span class="n">source</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -360,7 +360,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">source_odoo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
         
         <span class="c1"># gets a logged in connection to the target server</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="n">target</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_connection</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span> <span class="o">=</span> <span class="n">MigrationMap</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
 
 
     <span class="nd">@property</span>
@@ -440,31 +443,36 @@
         
 <div class="viewcode-block" id="Executor.migrate">
 <a class="viewcode-back" href="../../reference/executor.html#migration.executor.Executor.migrate">[docs]</a>
-    <span class="k">def</span> <span class="nf">migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">migration_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">recursion_level</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">migrate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">migration_map</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">recursion_level</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Migrate data from source to target</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            model_name (str): The model name to migrate.</span>
-<span class="sd">            migration_map (Union[dict, list]): A list of str or dict with fields mapping to migrate. Ex: [&#39;field1&#39;, &#39;field2&#39;, {&#39;field3&#39;: &#39;field3_target&#39;}]</span>
+<span class="sd">            migration_map (Union[dict, list]): The migration map to use. Defaults to None.</span>
 <span class="sd">            recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.</span>
 <span class="sd">            batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        
+        <span class="k">if</span> <span class="n">migration_map</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">map</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Migration map not provided&#39;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">elif</span> <span class="n">migration_map</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">normalice_fields</span><span class="p">(</span><span class="n">migration_map</span><span class="p">)</span>
 
         <span class="c1"># save data</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_normalice_fields</span><span class="p">(</span><span class="n">migration_map</span><span class="p">)</span>
         
         <span class="c1"># match target context with source context to avoid translation and datetimes problems</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_match_context</span><span class="p">()</span>
         
         <span class="c1"># gets the source and target models</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_model&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_target_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">target_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target_model_name</span><span class="p">]</span>
         
         <span class="c1"># get the source and target fields for the migration</span>
-        <span class="n">main_model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span>
+        <span class="n">main_model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">model_name</span><span class="p">)[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span>
         
         <span class="n">source_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">main_model_fields_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
         <span class="n">target_fields</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">main_model_fields_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
@@ -545,7 +553,7 @@
 
     <span class="k">def</span> <span class="nf">_format_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">dict</span><span class="p">,</span> <span class="nb">list</span><span class="p">],</span> <span class="n">recursion_level</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Makes the data ready to be feed in the target instance:</span>
+<span class="sd">        Formats the data to be feed in the target instance:</span>
 <span class="sd">            - Traverse relational fields.</span>
 <span class="sd">            - Changes field names.</span>
 <span class="sd">            - Executes callables.</span>
@@ -560,7 +568,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="c1"># gets the fields mapping for the main model</span>
-        <span class="n">model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
+        <span class="n">model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">model_name</span><span class="p">)[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
         
         <span class="c1"># get the source fields metadata</span>
         <span class="n">model_field_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_fields_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
@@ -658,7 +666,7 @@
         <span class="k">if</span> <span class="n">recursion_level</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             
             <span class="c1"># gets the fields mapping for the model</span>
-            <span class="n">model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
+            <span class="n">model_fields_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">model_name</span><span class="p">)[</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span>
             
             <span class="c1"># gets the source model to sync from</span>
             <span class="n">source_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
@@ -668,13 +676,12 @@
             <span class="n">model_fields_metadata</span> <span class="o">=</span> <span class="n">source_model</span><span class="o">.</span><span class="n">fields_get</span><span class="p">(</span><span class="n">model_field_list</span><span class="p">)</span>
 
             <span class="c1"># get the target model and fields to sync to</span>
-            <span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_model&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+            <span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_target_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
             <span class="n">target_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">target_model_name</span><span class="p">]</span>
-            <span class="n">target_field_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">][</span><span class="s1">&#39;fields&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+            <span class="n">target_field_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">model_fields_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
             
             <span class="c1"># get the search keys</span>
-            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> 
-                                                             <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">)</span>
+            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_search_keys</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;one2many&#39;</span> <span class="ow">or</span> <span class="n">relation_type</span> <span class="o">==</span> <span class="s1">&#39;many2many&#39;</span><span class="p">:</span>
                 
@@ -755,10 +762,10 @@
 <span class="sd">            list: The list of ids found in the target model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">target_model_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target_model&quot;</span><span class="p">,</span> <span class="n">model_name</span><span class="p">)</span>
+            <span class="n">target_model_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_target_model</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
         
         <span class="k">if</span> <span class="n">search_keys</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;search_keys&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_search_keys</span><span class="p">)</span>
+            <span class="n">search_keys</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">get_search_keys</span><span class="p">(</span><span class="n">model_name</span><span class="p">)</span>
         
         <span class="n">source_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">source_model</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">model_name</span><span class="p">]</span>
         <span class="n">target_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_odoo</span><span class="o">.</span><span class="n">env</span><span class="p">[</span><span class="n">target_model_name</span><span class="p">]</span>

@@ -218,13 +218,16 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/migrate.html">Module mirgation.migrate</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.migrate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/executor.html">Module migration.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/mapping.html">Module migration.mapping</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.mapping</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -271,7 +274,8 @@
 
 <span class="kn">from</span> <span class="nn">tools</span> <span class="kn">import</span> <span class="n">Pretty</span>
 
-<span class="kn">from</span> <span class="nn">migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
+<span class="kn">from</span> <span class="nn">executor</span> <span class="kn">import</span> <span class="n">Executor</span>
+
 
 
 <span class="k">def</span> <span class="nf">_account_payment_term_line_value_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -397,12 +401,12 @@
     <span class="n">recursion</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="c1">#: Generate the field map </span>
-    <span class="n">res</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">make_fields_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span>
+    <span class="c1"># res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)</span>
     
     <span class="c1">#: Save the field map to a file for customization.</span>
     <span class="c1">#: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.</span>
     <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span> <span class="o">+</span> <span class="n">model</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
-    <span class="n">Pretty</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="c1"># Pretty.log(res, file_path=file_path)</span>
     
     <span class="c1"># ex.add_transformer(model=model, </span>
     <span class="c1">#                    field=&quot;x_studio_categorizacin&quot;, transformer=crm_lead_categorizacin_transformer)</span>
@@ -410,11 +414,11 @@
     <span class="c1">#                    field=&quot;line_ids&quot;, transformer=account_payment_term_line_ids_transformer)</span>
     
     <span class="c1">#: Load the customized field map from the file</span>
-    <span class="n">_map</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">load_fields_map</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
 
     
     <span class="c1">#: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.</span>
-    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_map</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="migrate_crm_lead">
@@ -447,7 +451,7 @@
     <span class="n">recursion</span> <span class="o">=</span> <span class="mi">3</span>
 
     <span class="c1">#: Generate the field map </span>
-    <span class="c1"># res = ex.make_fields_map(model_name=model, recursion_level=recursion)</span>
+    <span class="c1"># res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)</span>
     
     <span class="c1">#: Save the field map to a file for customization.</span>
     <span class="c1">#: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.</span>
@@ -460,10 +464,10 @@
     <span class="c1">#                    field=&quot;line_ids&quot;, transformer=account_payment_term_line_ids_transformer)</span>
     
     <span class="c1">#: Load the customized field map from the file</span>
-    <span class="n">_map</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">load_fields_map</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
     
     <span class="c1">#: Do the migration. There are about 1k records so we use a batchs avoid timeouts.</span>
-    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">_map</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
 
     
 

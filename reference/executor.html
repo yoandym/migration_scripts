@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Module migration.MigrationMap" href="mapping.html" /><link rel="prev" title="Module: migration.main" href="main.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Module migration.mapping" href="mapping.html" /><link rel="prev" title="Module: migration.main" href="main.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.07.18 -->
         <title>Module migration.executor - XMLRPC Data Migration documentation</title>
@@ -222,7 +222,7 @@
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Module migration.executor</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="mapping.html">Module migration.MigrationMap</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.MigrationMap</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="mapping.html">Module migration.mapping</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module migration.mapping</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
@@ -287,7 +287,7 @@ It provides methods to establish connections to the source and target servers, m
 <dl class="py method">
 <dt class="sig sig-object py" id="migration.executor.Executor.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'w'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/migration/executor.html#Executor.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.executor.Executor.__init__" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Initializes a new instance of the Migrate class.</p>
+<dd><p>Initializes a new instance of the Executor class.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -314,12 +314,6 @@ It provides methods to establish connections to the source and target servers, m
 <dd class="field-even"><p>bool</p>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="migration.executor.Executor.fields_map">
-<span class="sig-name descname"><span class="pre">fields_map</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#migration.executor.Executor.fields_map" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Set the full fields mapping for the migration</p>
 </dd></dl>
 
 <dl class="py method">
@@ -363,18 +357,24 @@ It provides methods to establish connections to the source and target servers, m
 
 <dl class="py method">
 <dt class="sig sig-object py" id="migration.executor.Executor.migrate">
-<span class="sig-name descname"><span class="pre">migrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migration_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/executor.html#Executor.migrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.executor.Executor.migrate" title="Link to this definition"><span>#</span></a></dt>
+<span class="sig-name descname"><span class="pre">migrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">migration_map</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">50</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/executor.html#Executor.migrate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.executor.Executor.migrate" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Migrate data from source to target</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>model_name</strong> (<em>str</em>) – The model name to migrate.</p></li>
-<li><p><strong>migration_map</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>list</em><em>]</em>) – A list of str or dict with fields mapping to migrate. Ex: [‘field1’, ‘field2’, {‘field3’: ‘field3_target’}]</p></li>
+<li><p><strong>migration_map</strong> (<em>Union</em><em>[</em><em>dict</em><em>, </em><em>list</em><em>]</em>) – The migration map to use. Defaults to None.</p></li>
 <li><p><strong>recursion_level</strong> (<em>int</em>) – The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.</p></li>
 <li><p><strong>batch_size</strong> (<em>int</em>) – The batch size to use when migrating a large dataset. Defaults to 100.</p></li>
 </ul>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migration.executor.Executor.migration_map">
+<span class="sig-name descname"><span class="pre">migration_map</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#migration.executor.Executor.migration_map" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>An instance of MigrationMap</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -438,7 +438,7 @@ If no search_keys is provided, look for in migration_map, else the <code class="
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Module migration.MigrationMap</div>
+                <div class="title">Module migration.mapping</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -487,10 +487,10 @@ If no search_keys is provided, look for in migration_map, else the <code class="
 <li><a class="reference internal" href="#migration.executor.Executor"><code class="docutils literal notranslate"><span class="pre">Executor</span></code></a><ul>
 <li><a class="reference internal" href="#migration.executor.Executor.__init__"><code class="docutils literal notranslate"><span class="pre">Executor.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.debug"><code class="docutils literal notranslate"><span class="pre">Executor.debug</span></code></a></li>
-<li><a class="reference internal" href="#migration.executor.Executor.fields_map"><code class="docutils literal notranslate"><span class="pre">Executor.fields_map</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.get_connection"><code class="docutils literal notranslate"><span class="pre">Executor.get_connection()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.get_fields"><code class="docutils literal notranslate"><span class="pre">Executor.get_fields()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.migrate"><code class="docutils literal notranslate"><span class="pre">Executor.migrate()</span></code></a></li>
+<li><a class="reference internal" href="#migration.executor.Executor.migration_map"><code class="docutils literal notranslate"><span class="pre">Executor.migration_map</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.relation_types"><code class="docutils literal notranslate"><span class="pre">Executor.relation_types</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.search_in_target"><code class="docutils literal notranslate"><span class="pre">Executor.search_in_target()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.test_login"><code class="docutils literal notranslate"><span class="pre">Executor.test_login()</span></code></a></li>

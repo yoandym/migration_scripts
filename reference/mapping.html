@@ -321,6 +321,12 @@ If no fields_map is provided, or the model / fields is not in the map, the trans
 </dl>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="migration.mapping.MigrationMap.default_search_keys">
+<span class="sig-name descname"><span class="pre">default_search_keys</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'name':</span> <span class="pre">'name'}</span></em><a class="headerlink" href="#migration.mapping.MigrationMap.default_search_keys" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Default fields to search for a record in the source and target model.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="migration.mapping.MigrationMap.generate_full_map">
 <span class="sig-name descname"><span class="pre">generate_full_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recursion_level</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/mapping.html#MigrationMap.generate_full_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.mapping.MigrationMap.generate_full_map" title="Link to this definition"><span>#</span></a></dt>
@@ -375,6 +381,43 @@ If no model is specified, return the whole map.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="migration.mapping.MigrationMap.get_search_keys">
+<span class="sig-name descname"><span class="pre">get_search_keys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/mapping.html#MigrationMap.get_search_keys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.mapping.MigrationMap.get_search_keys" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Get the search keys for the source model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_model_name</strong> (<em>str</em>) – The source model name.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="exceptions.html#migration.exceptions.MissingModelMappingException" title="migration.exceptions.MissingModelMappingException"><strong>MissingModelMappingException</strong></a> – Raised when <code class="docutils literal notranslate"><span class="pre">source_model_name</span></code> is not in the map.</p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The search keys for the source model.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="migration.mapping.MigrationMap.get_target_model">
+<span class="sig-name descname"><span class="pre">get_target_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source_model_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/migration/mapping.html#MigrationMap.get_target_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.mapping.MigrationMap.get_target_model" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>Get the target model name for the source model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source_model_name</strong> (<em>str</em>) – The source model name.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The target model name.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -537,8 +580,11 @@ out = {‘name’: ‘name’, ‘days’: ‘nb_days’, ‘color’: color_tra
 <li><a class="reference internal" href="#migration.mapping.MigrationMap"><code class="docutils literal notranslate"><span class="pre">MigrationMap</span></code></a><ul>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.__init__"><code class="docutils literal notranslate"><span class="pre">MigrationMap.__init__()</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.add_transformer"><code class="docutils literal notranslate"><span class="pre">MigrationMap.add_transformer()</span></code></a></li>
+<li><a class="reference internal" href="#migration.mapping.MigrationMap.default_search_keys"><code class="docutils literal notranslate"><span class="pre">MigrationMap.default_search_keys</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.generate_full_map"><code class="docutils literal notranslate"><span class="pre">MigrationMap.generate_full_map()</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.get_mapping"><code class="docutils literal notranslate"><span class="pre">MigrationMap.get_mapping()</span></code></a></li>
+<li><a class="reference internal" href="#migration.mapping.MigrationMap.get_search_keys"><code class="docutils literal notranslate"><span class="pre">MigrationMap.get_search_keys()</span></code></a></li>
+<li><a class="reference internal" href="#migration.mapping.MigrationMap.get_target_model"><code class="docutils literal notranslate"><span class="pre">MigrationMap.get_target_model()</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.load_from_file"><code class="docutils literal notranslate"><span class="pre">MigrationMap.load_from_file()</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.map"><code class="docutils literal notranslate"><span class="pre">MigrationMap.map</span></code></a></li>
 <li><a class="reference internal" href="#migration.mapping.MigrationMap.model_tree"><code class="docutils literal notranslate"><span class="pre">MigrationMap.model_tree()</span></code></a></li>
