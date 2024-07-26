@@ -420,14 +420,14 @@ class Executor(object):
                                                     search_keys=search_keys, 
                                                     target_model_name=target_model_name)
                     if _found:
-                        _data.append(_found)
+                        _data.append(_found[0])
                     else:
                         # data may contain new relations, so we have to format them
                         _new_data = self._format_data(model_name=model_name, 
                                                         data=record, 
                                                         recursion_level=recursion_level - 1)
                         _id = target_model.create(_new_data)
-                        _data.append(_id)
+                        _data.append(_id[0])
                 
 
             elif relation_type == 'many2one':
@@ -451,10 +451,8 @@ class Executor(object):
 
                     # create the record in target instance/model
                     _found = target_model.create(new_target_data)
-                    if isinstance(_found, list):
-                        _found = _found[0]
 
-                _data = _found
+                _data = _found[0]
             
             else:
                 raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
@@ -506,14 +504,14 @@ class Executor(object):
                     _found = unidecode(recordset.display_name) == unidecode(source_data.display_name)
                     
                     if _found:
-                        _data = source_id
+                        _data = [source_id]
                         break
             
             else:
                 source_key_value = source_data[s_key]
                 _found = target_model.search([[t_key, '=', source_key_value]])
                 if _found:
-                    _data = _found[0]
+                    _data = _found
                     break
         
         return _data
