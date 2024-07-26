@@ -1,3 +1,4 @@
+=======================
 Module: migration.main
 =======================
 
@@ -5,10 +6,12 @@ Module: migration.main
    :maxdepth: 3
    :caption: Contents:
 
-Esto es un ejemplo de migracion de datos entre instancias Odoo
+This is a data migration case between Odoo instances
 
-   - Instancia de origen: Odoo v14
-   - Instancia de destino: Odoo v17
+   - Source instance: Odoo v14
+   - Destination instance: Odoo v17
+
+.. _main_migrate_crm_team:
 
 .. automodule:: migration.main
    :members:

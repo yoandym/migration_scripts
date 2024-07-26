@@ -1,3 +1,4 @@
+============================
 Module: migration.exceptions
 ============================
 
@@ -12,4 +13,6 @@ Module: migration.exceptions
 .. autoclass:: UnsupportedRelationException
     :show-inheritance:
     :members:
-
+.. autoclass:: MissingModelMappingException
+    :show-inheritance:
+    :members:

@@ -84,3 +84,7 @@ napoleon_use_admonition_for_references = True
 napoleon_use_ivar = False
 napoleon_use_param = True
 napoleon_use_rtype = True
+
+intersphinx_mapping = {
+    
+}

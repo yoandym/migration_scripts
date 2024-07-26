@@ -24,55 +24,51 @@ and possibly a transformation function.
 A simple data migration
 --------------------------------------
 
-Below is an example of data migration between Odoo instances:
+Below is an example of simple data migration between Odoo instances:
 
 1. Define the authentication data for the source and destination instances.
 
    To do this, you can:
-   - Pass the data directly when instantiating the *Executor* class
-   - Define them in a .env configuration file
-   - Define them in environment variables
+      1.1 Pass the auth data directly when instantiating the ``Executor`` class
 
-To pass them directly when instantiating the *Executor* class:
+      .. code:: python
 
-.. code:: python
+               source = {
+                  "host": "host1,
+                  "port": 8069,
+                  "bd": "v14_db_1",
+                  "user": "admin",
+                  "password":  "admin",
+               }
 
-         source = {
-            "host": "host1,
-            "port": 8069,
-            "bd": "v14_db_1",
-            "user": "admin",
-            "password":  "admin",
-         }
+               target = {
+                  "host": "host2,
+                  "port": 8069,
+                  "bd": "v17_db_2",
+                  "user": "admin",
+                  "password":  "admin",
+               }
 
-         target = {
-            "host": "host2,
-            "port": 8069,
-            "bd": "v17_db_2",
-            "user": "admin",
-            "password":  "admin",
-         }
-
-         from migration.migrate import Executor
-         ex = Executor(source=source, target=target)
+               from migration.migrate import Executor
+               ex = Executor(source=source, target=target)
 
 
-To define them in a .env configuration file or in environment variables these
-are the variables you must define:
+      1.2 Define auth data in a .env configuration file or in environment variables.
+      These are the variables you must define:
 
-.. code:: sh
+      .. code:: sh
 
-      SOURCE_HOST="host1"
-      SOURCE_PORT="8069"
-      SOURCE_DB="v14_db_1"
-      SOURCE_DB_USER="admin"
-      SOURCE_DB_PASSWORD="admin"
+            SOURCE_HOST="host1"
+            SOURCE_PORT="8069"
+            SOURCE_DB="v14_db_1"
+            SOURCE_DB_USER="admin"
+            SOURCE_DB_PASSWORD="admin"
 
-      TARGET_HOST="host2"
-      TARGET_PORT="8069"
-      TARGET_DB="v17_db_2"
-      TARGET_DB_USER="admin"
-      TARGET_DB_PASSWORD="admin"
+            TARGET_HOST="host2"
+            TARGET_PORT="8069"
+            TARGET_DB="v17_db_2"
+            TARGET_DB_USER="admin"
+            TARGET_DB_PASSWORD="admin"
 
 2. Select the model and fields you want to migrate. Example
 
@@ -84,23 +80,27 @@ are the variables you must define:
 
 
 
-3. Execute the migration process.
-   
+3. Execute the migration process. The whole code would look like this:
+
 .. code:: python
 
-   # importe la clase Executor
+   # import Executor
    from migration.migrate import Executor
 
-   # instancie la clase Executor pasando los datos de autenticacion
-   ex = Executor(source=source, target=target)
-
-   # instancie la clase Executor sin pasar los datos de autenticacion si estos
-   # fueron definidos en variables de entorno o en un archivo .env
+   # instantiate Executor. In this case, the auth data was defined at .env
    ex = Executor()
 
-   # Ejecute la migracion
+   model = 'crm.team'
+   fields = ['name', 'sequence', 'active', 'is_favorite', 'color',
+               'alias_name', 'alias_contact', 'invoiced_target']
+
+   # execute the migration
    ex.migrate(model, fields)
 
+
+.. important::
+   You can see a full example
+   at :ref:`main module reference documentation <main_migrate_crm_team>`.
 
 An intermediate data migration
 -------------------------------
@@ -110,7 +110,7 @@ names, you only need to create a field mapping.
 
 1. Follow the initial instructions for a simple migration.
 2. Create the field mapping between the source and destination instances.
-   This is a list of strings or dictionaries. Example:
+   This is a list or dictionary. Example:
 
 .. code:: python
 
@@ -118,14 +118,13 @@ names, you only need to create a field mapping.
     fields = ['name', 'active', {'note': 'description'}]
 
 In this way, we would be indicating that:
-   - The 'name' field from the source instance did not have any changes and
-     corresponds directly to the 'name' field of the destination instance.
-   - The 'active' field from the source instance did not have any changes and
-     corresponds directly to the 'active' field of the destination instance.
+   - The ``name`` and ``active`` fields from the source instance had no
+     changes and corresponds directly to the ``name`` and ``active`` fields
+     of the target instance.
    - The 'note' field from the source instance was renamed to 'description'
      in the destination instance.
 
-3. Execute the migration process.
+1. Execute the migration process.
 
 .. code:: python
 

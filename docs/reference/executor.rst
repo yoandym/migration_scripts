@@ -1,5 +1,6 @@
-Module mirgation.migrate
-========================
+==========================
+Module migration.executor
+==========================
 
 
 
@@ -8,7 +9,7 @@ Module mirgation.migrate
    :caption: Contents:
 
 
-.. automodule:: migration.migrate
+.. automodule:: migration.executor
 .. autoclass:: Executor
     :show-inheritance:
     :members:
