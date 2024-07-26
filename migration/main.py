@@ -157,7 +157,7 @@ def migrate_crm_lead():
     """
 
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor(debug=True)
+    ex = Executor(debug=False)
 
     #: Model name to migrate
     model = 'crm.lead'
@@ -165,7 +165,7 @@ def migrate_crm_lead():
     
     #: Migrate upto 3 layers of related models.
     #: lead -> partner -> mail.message -> partner
-    recursion = 3
+    recursion = 4
 
     #: Generate the field map 
     # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)

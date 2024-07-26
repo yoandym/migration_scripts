@@ -10,7 +10,7 @@ from typing import Union
 
 import treelib
 
-from exceptions import MissingModelMappingException
+from exceptions import MissingModelMappingException, BadFieldMappingException
 
 class MigrationMap:
     """
@@ -310,22 +310,26 @@ class MigrationMap:
     
     def normalice_fields(self, fields: Union[list, dict]) -> dict:
         """
-        Normalice the given fields into the expected format, 
-        which is: [{'source_field_name1': 'target_field_name1'}, {'source_field_name2': transformer_function}, ...]
+        Normalice the given fields into the expected format. 
+        Which is (minimal conf):: 
+            
+            {
+                'fields': {'source_field_name1': 'target_field_name1', 'source_field_name2': transformer_function, ... }
+            }
         
         Examples:
             in = ['name', {'days': 'nb_days'}, 'color']
-            out = {'name': 'name', 'days': 'nb_days', 'color': 'color'}
+            out = {'fields': {'name': 'name', 'days': 'nb_days', 'color': 'color'}}
 
             in = ['name', {'days': 'nb_days'}, {'color': color_transformer}]
-            out = {'name': 'name', 'days': 'nb_days', 'color': color_transformer}
+            out = {'fields': {'name': 'name', 'days': 'nb_days', 'color': color_transformer}}
 
 
         Args:
             fields (Union[list, dict]): The fields list to normalice.
 
         Returns:
-            fields (dict): The normaliced fields list.
+            map (dict): The normaliced fields dict structure.
         """
         _f = fields.copy()
         combined_dict = {}
@@ -336,9 +340,15 @@ class MigrationMap:
                     e = {e: e}
                     _f[i] = e
             
-            combined_dict = {k: v for d in _f for k, v in d.items()}
+            combined_dict["fields"] = {k: v for d in _f for k, v in d.items()}
+        
         elif isinstance(_f, dict):
-            combined_dict = _f
+            if "fields" in _f:
+                combined_dict = _f
+            else:
+                combined_dict["fields"] = _f
+        else:
+            raise BadFieldMappingException("Error: Invalid fields mapping format.")
             
         self.map = combined_dict
         return combined_dict
