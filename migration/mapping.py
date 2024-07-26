@@ -63,7 +63,7 @@ class MigrationMap:
             destination databases and other tools). Defaults to None.
         """
         self.map = {}
-        self.transformers = []
+        self.transformers = {}
         self.excutor = None
 
     def get_mapping(self, source_model_name: str= None):
