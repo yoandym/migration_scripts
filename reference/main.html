@@ -274,20 +274,20 @@
 <h1>Module: migration.main<a class="headerlink" href="#module-migration-main" title="Link to this heading"><span>#</span></a></h1>
 <div class="toctree-wrapper compound">
 </div>
-<p>Esto es un ejemplo de migracion de datos entre instancias Odoo</p>
+<p>This is a data migration case between Odoo instances</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Instancia de origen: Odoo v14</p></li>
-<li><p>Instancia de destino: Odoo v17</p></li>
+<li><p>Source instance: Odoo v14</p></li>
+<li><p>Destination instance: Odoo v17</p></li>
 </ul>
 </div></blockquote>
 <dl class="py function" id="module-migration.main">
-<dt class="sig sig-object py" id="migration.main.migrate_crm_lead">
+<span id="main-migrate-crm-team"></span><dt class="sig sig-object py" id="migration.main.migrate_crm_lead">
 <span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">migrate_crm_lead</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/main.html#migrate_crm_lead"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.migrate_crm_lead" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Migrate crm.lead model from odoo v14 to v17.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dry</strong> (<em>bool</em>) – If True, only show the migration plan without executing it.</p>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>dict</em>) – Optional params to pass to Executor.</p>
 </dd>
 </dl>
 <p>This is a more advanced migration case. Here we use:</p>
@@ -296,7 +296,7 @@
 <li><p>An auto generated fields map to simplify the process.</p></li>
 <li><p>Recursion to migrate also related models.</p></li>
 <li><p>A transformer function to merge custom field x_studio_categorizacin with field description.
-See _crm_lead_categorizacin_transformer function.</p></li>
+See <code class="docutils literal notranslate"><span class="pre">_crm_lead_categorizacin_transformer</span></code> function.</p></li>
 </ul>
 </div></blockquote>
 </dd></dl>
@@ -304,7 +304,7 @@ See _crm_lead_categorizacin_transformer function.</p></li>
 <dl class="py function">
 <dt class="sig sig-object py" id="migration.main.migrate_crm_team">
 <span class="sig-prename descclassname"><span class="pre">migration.main.</span></span><span class="sig-name descname"><span class="pre">migrate_crm_team</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/migration/main.html#migrate_crm_team"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.main.migrate_crm_team" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Migrate crm.team model from odoo v14 to v17.</p>
+<dd><p>A simple data migration for model crm.team model from odoo v14 to v17.</p>
 </dd></dl>
 
 <dl class="py function">

@@ -267,13 +267,14 @@
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 
 <span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">copy</span>
 
 <span class="kn">from</span> <span class="nn">tools</span> <span class="kn">import</span> <span class="n">Pretty</span>
 
 <span class="kn">from</span> <span class="nn">migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
 
 
-<span class="k">def</span> <span class="nf">_account_payment_term_line_value_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_account_payment_term_line_value_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To migrate account/payment.term.lines from odoo v14 to v17.</span>
 <span class="sd">    </span>
@@ -283,7 +284,7 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        executor (Executor): The executor instance.</span>
-<span class="sd">        data (dict): The data to format. All model records at once.</span>
+<span class="sd">        data (list): The data to format. All model records at once.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: The formatted data for the target instance.</span>
@@ -313,7 +314,7 @@
     <span class="k">return</span> <span class="n">new_line_ids</span>
 
 
-<span class="k">def</span> <span class="nf">_crm_lead_categorizacin_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="k">def</span> <span class="nf">_crm_lead_categorizacin_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    To migrate a custom crm.lead model from odoo v14 to v17.</span>
 <span class="sd">    </span>
@@ -322,19 +323,24 @@
 
 <span class="sd">    Args:</span>
 <span class="sd">        executor (Executor): The executor instance.</span>
-<span class="sd">        data (dict): The data to format. All model records at once.</span>
+<span class="sd">        data (list): The data to format. All model records at once.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: The formatted data for the target instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">pass</span>
+    <span class="n">_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">_data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;x_studio_categorizacin&quot;</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;x_studio_categorizacin&quot;</span><span class="p">)</span>
+            
+    <span class="k">return</span> <span class="n">_data</span>
 
 
 <div class="viewcode-block" id="migrate_crm_team">
 <a class="viewcode-back" href="../../reference/main.html#migration.main.migrate_crm_team">[docs]</a>
 <span class="k">def</span> <span class="nf">migrate_crm_team</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Migrate crm.team model from odoo v14 to v17.</span>
+<span class="sd">    A simple data migration for model crm.team model from odoo v14 to v17.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1">#: No parameter given to Executor so connection data is loaded from .env file</span>
@@ -418,14 +424,14 @@
 <span class="sd">    Migrate crm.lead model from odoo v14 to v17.</span>
 <span class="sd">    </span>
 <span class="sd">    Args:</span>
-<span class="sd">        dry (bool): If True, only show the migration plan without executing it.</span>
+<span class="sd">        kwargs (dict): Optional params to pass to Executor.</span>
 
 <span class="sd">    This is a more advanced migration case. Here we use:</span>
 <span class="sd">    </span>
 <span class="sd">        - An auto generated fields map to simplify the process.</span>
 <span class="sd">        - Recursion to migrate also related models.</span>
 <span class="sd">        - A transformer function to merge custom field x_studio_categorizacin with field description.</span>
-<span class="sd">          See _crm_lead_categorizacin_transformer function.</span>
+<span class="sd">          See ``_crm_lead_categorizacin_transformer`` function.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
@@ -471,8 +477,8 @@
     <span class="c1"># and then enter de maps folder</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;maps&quot;</span><span class="p">)</span>
 
-    <span class="n">migrate_crm_lead</span><span class="p">(</span><span class="n">dry</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="c1"># migrate_res_partner(dry=True)   </span>
+    <span class="n">migrate_crm_lead</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># migrate_res_partner(debug=False)   </span>
 </pre></div>
         </article>
       </div>

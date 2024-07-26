@@ -216,13 +216,16 @@
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../reference/reference.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../reference/migrate.html">Module mirgation.migrate</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.migrate</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -286,16 +289,11 @@ functions from the module.</p>
 </div>
 <section id="a-simple-data-migration">
 <h2>A simple data migration<a class="headerlink" href="#a-simple-data-migration" title="Link to this heading"><span>#</span></a></h2>
-<p>Below is an example of data migration between Odoo instances:</p>
+<p>Below is an example of simple data migration between Odoo instances:</p>
 <ol class="arabic">
 <li><p>Define the authentication data for the source and destination instances.</p>
-<p>To do this, you can:
-- Pass the data directly when instantiating the <em>Executor</em> class
-- Define them in a .env configuration file
-- Define them in environment variables</p>
-</li>
-</ol>
-<p>To pass them directly when instantiating the <em>Executor</em> class:</p>
+<dl>
+<dt>To do this, you can:</dt><dd><p>1.1 Pass the auth data directly when instantiating the <code class="docutils literal notranslate"><span class="pre">Executor</span></code> class</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">{</span>
    <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host1,</span>
    <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
@@ -316,8 +314,8 @@ functions from the module.</p>
 <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>To define them in a .env configuration file or in environment variables these
-are the variables you must define:</p>
+<p>1.2 Define auth data in a .env configuration file or in environment variables.
+These are the variables you must define:</p>
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SOURCE_HOST</span><span class="o">=</span><span class="s2">&quot;host1&quot;</span>
 <span class="nv">SOURCE_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
 <span class="nv">SOURCE_DB</span><span class="o">=</span><span class="s2">&quot;v14_db_1&quot;</span>
@@ -331,7 +329,9 @@ are the variables you must define:</p>
 <span class="nv">TARGET_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
 </pre></div>
 </div>
-<ol class="arabic simple" start="2">
+</dd>
+</dl>
+</li>
 <li><p>Select the model and fields you want to migrate. Example</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.team&#39;</span>
@@ -340,21 +340,26 @@ are the variables you must define:</p>
 </pre></div>
 </div>
 <ol class="arabic simple" start="3">
-<li><p>Execute the migration process.</p></li>
+<li><p>Execute the migration process. The whole code would look like this:</p></li>
 </ol>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># importe la clase Executor</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># import Executor</span>
 <span class="kn">from</span> <span class="nn">migration.migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
 
-<span class="c1"># instancie la clase Executor pasando los datos de autenticacion</span>
-<span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
-
-<span class="c1"># instancie la clase Executor sin pasar los datos de autenticacion si estos</span>
-<span class="c1"># fueron definidos en variables de entorno o en un archivo .env</span>
+<span class="c1"># instantiate Executor. In this case, the auth data was defined at .env</span>
 <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">()</span>
 
-<span class="c1"># Ejecute la migracion</span>
+<span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.team&#39;</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;sequence&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="s1">&#39;is_favorite&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;alias_name&#39;</span><span class="p">,</span> <span class="s1">&#39;alias_contact&#39;</span><span class="p">,</span> <span class="s1">&#39;invoiced_target&#39;</span><span class="p">]</span>
+
+<span class="c1"># execute the migration</span>
 <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
 </pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>You can see a full example
+at <a class="reference internal" href="../reference/main.html#main-migrate-crm-team"><span class="std std-ref">main module reference documentation</span></a>.</p>
 </div>
 </section>
 <section id="an-intermediate-data-migration">
@@ -364,7 +369,7 @@ names, you only need to create a field mapping.</p>
 <ol class="arabic simple">
 <li><p>Follow the initial instructions for a simple migration.</p></li>
 <li><p>Create the field mapping between the source and destination instances.
-This is a list of strings or dictionaries. Example:</p></li>
+This is a list or dictionary. Example:</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;account.payment.term&#39;</span>
 <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;active&#39;</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;note&#39;</span><span class="p">:</span> <span class="s1">&#39;description&#39;</span><span class="p">}]</span>
@@ -372,16 +377,15 @@ This is a list of strings or dictionaries. Example:</p></li>
 </div>
 <dl class="simple">
 <dt>In this way, we would be indicating that:</dt><dd><ul class="simple">
-<li><p>The ‘name’ field from the source instance did not have any changes and
-corresponds directly to the ‘name’ field of the destination instance.</p></li>
-<li><p>The ‘active’ field from the source instance did not have any changes and
-corresponds directly to the ‘active’ field of the destination instance.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">active</span></code> fields from the source instance had no
+changes and corresponds directly to the <code class="docutils literal notranslate"><span class="pre">name</span></code> and <code class="docutils literal notranslate"><span class="pre">active</span></code> fields
+of the target instance.</p></li>
 <li><p>The ‘note’ field from the source instance was renamed to ‘description’
 in the destination instance.</p></li>
 </ul>
 </dd>
 </dl>
-<ol class="arabic simple" start="3">
+<ol class="arabic simple">
 <li><p>Execute the migration process.</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Ejecute la migracion</span>
