@@ -5,7 +5,8 @@ import copy
 
 from tools import Pretty
 
-from migrate import Executor
+from executor import Executor
+
 
 
 def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> dict:
@@ -72,7 +73,7 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
 
 def migrate_crm_team():
     """
-    Migrate crm.team model from odoo v14 to v17.
+    A simple data migration for model crm.team model from odoo v14 to v17.
     """
     
     #: No parameter given to Executor so connection data is loaded from .env file
@@ -123,12 +124,12 @@ def migrate_res_partner(dry):
     recursion = 1
 
     #: Generate the field map 
-    res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
     
     #: Save the field map to a file for customization.
     #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
     file_path = "./" + model + ".json"
-    Pretty.log(res, file_path=file_path)
+    # Pretty.log(res, file_path=file_path)
     
     # ex.add_transformer(model=model, 
     #                    field="x_studio_categorizacin", transformer=crm_lead_categorizacin_transformer)
@@ -136,25 +137,25 @@ def migrate_res_partner(dry):
     #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
     
     #: Load the customized field map from the file
-    _map = ex.load_fields_map(file_path=file_path)
+    ex.migration_map.load_from_file(file_path=file_path)
 
     
     #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
-    ex.migrate(model, _map, batch_size=100, recursion_level=recursion)
+    ex.migrate(model, batch_size=100, recursion_level=recursion)
 
 def migrate_crm_lead(**kwargs):
     """
     Migrate crm.lead model from odoo v14 to v17.
     
     Args:
-        dry (bool): If True, only show the migration plan without executing it.
+        kwargs (dict): Optional params to pass to Executor.
 
     This is a more advanced migration case. Here we use:
     
         - An auto generated fields map to simplify the process.
         - Recursion to migrate also related models.
         - A transformer function to merge custom field x_studio_categorizacin with field description.
-          See _crm_lead_categorizacin_transformer function.
+          See ``_crm_lead_categorizacin_transformer`` function.
 
     """
 
@@ -170,7 +171,7 @@ def migrate_crm_lead(**kwargs):
     recursion = 3
 
     #: Generate the field map 
-    # res = ex.make_fields_map(model_name=model, recursion_level=recursion)
+    # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
     
     #: Save the field map to a file for customization.
     #: Its save to run this many times since Pretty.log(), by default, doesn´t overwrite the file.
@@ -183,10 +184,10 @@ def migrate_crm_lead(**kwargs):
     #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
     
     #: Load the customized field map from the file
-    _map = ex.load_fields_map(file_path=file_path)
+    ex.migration_map.load_from_file(file_path=file_path)
     
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
-    ex.migrate(model, _map, batch_size=1, recursion_level=recursion)
+    ex.migrate(model, batch_size=1, recursion_level=recursion)
     
 
 

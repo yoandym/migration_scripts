@@ -18,6 +18,7 @@ import odoorpc
 import treelib
 
 from tools import Pretty
+from mapping import MigrationMap
 from exceptions import TooDeepException, UnsupportedRelationException
 
 
@@ -36,19 +37,18 @@ class Executor(object):
     source_model = None
     target_model = None
     
-    #: Set the full fields mapping for the migration
-    fields_map = None
+    #: An instance of MigrationMap
+    migration_map = None
     
     transformers = {}
     
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
             
-    default_search_keys = {"name": "name"}
 
     def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
-        Initializes a new instance of the Migrate class.
+        Initializes a new instance of the Executor class.
 
         Args:
             source (dict): A dictionary containing the connection details for the source server.
@@ -62,7 +62,7 @@ class Executor(object):
         load_dotenv()
                 
         self.debug = debug
-        
+                
         self.recursion_mode = recursion_mode
         
         if source is None:
@@ -88,6 +88,9 @@ class Executor(object):
         
         # gets a logged in connection to the target server
         self.target_odoo = self.get_connection(target)
+        
+        self.migration_map = MigrationMap(self)
+
 
     @property
     def debug(self):
@@ -158,31 +161,36 @@ class Executor(object):
             
             return False
         
-    def migrate(self, model_name: str, migration_map: Union[dict, list], recursion_level: int=0, batch_size=50):
+    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50):
         """
         Migrate data from source to target
 
         Args:
             model_name (str): The model name to migrate.
-            migration_map (Union[dict, list]): A list of str or dict with fields mapping to migrate. Ex: ['field1', 'field2', {'field3': 'field3_target'}]
+            migration_map (Union[dict, list]): The migration map to use. Defaults to None.
             recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
             batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.
         """
+        
+        if migration_map is None and self.migration_map.map is None:
+            print('Migration map not provided')
+            return False
+        elif migration_map is not None:
+            self.migration_map.normalice_fields(migration_map)
 
         # save data
         self.model_name = model_name
-        self.migration_map = self._normalice_fields(migration_map)
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
         
         # gets the source and target models
         self.source_model = self.source_odoo.env[model_name]
-        self.target_model_name = self.migration_map[model_name].get("target_model", model_name)
+        self.target_model_name = self.migration_map.get_target_model(model_name)
         self.target_model = self.target_odoo.env[self.target_model_name]
         
         # get the source and target fields for the migration
-        main_model_fields_map = self.migration_map[model_name]["fields"]
+        main_model_fields_map = self.migration_map.get_mapping(model_name)["fields"]
         
         source_fields = list(main_model_fields_map.keys())
         target_fields = list(main_model_fields_map.values())
@@ -201,11 +209,17 @@ class Executor(object):
             data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
                                 
             if self.debug:
-                print("new data")
+                print("\nnew data:")
                 Pretty.print(data)
             
             # creates the records at target instance
-            res = self.target_model.create(data)
+            try:
+                res = self.target_model.create(data)
+            except Exception as e:
+                print('Error processing batch in target instance')
+                print(e)
+
+                return False
                     
             print('%s %s records migrated successfully' % (len(res), model_name))
         
@@ -253,7 +267,7 @@ class Executor(object):
 
     def _format_data(self, model_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
         """
-        Makes the data ready to be feed in the target instance:
+        Formats the data to be feed in the target instance:
             - Traverse relational fields.
             - Changes field names.
             - Executes callables.
@@ -268,7 +282,7 @@ class Executor(object):
         """
         
         # gets the fields mapping for the main model
-        model_fields_map = self.migration_map[model_name]['fields']
+        model_fields_map = self.migration_map.get_mapping(model_name)['fields']
         
         # get the source fields metadata
         model_field_list = list(model_fields_map.keys())
@@ -366,7 +380,7 @@ class Executor(object):
         if recursion_level > 0:
             
             # gets the fields mapping for the model
-            model_fields_map = self.migration_map[model_name]['fields']
+            model_fields_map = self.migration_map.get_mapping(model_name)['fields']
             
             # gets the source model to sync from
             source_model = self.source_odoo.env[model_name]
@@ -376,13 +390,12 @@ class Executor(object):
             model_fields_metadata = source_model.fields_get(model_field_list)
 
             # get the target model and fields to sync to
-            target_model_name = self.migration_map[model_name].get("target_model", model_name)
+            target_model_name = self.migration_map.get_target_model(model_name)
             target_model = self.target_odoo.env[target_model_name]
-            target_field_list = list(self.migration_map[model_name]['fields'].values())
+            target_field_list = list(model_fields_map.values())
             
             # get the search keys
-            search_keys = self.migration_map[model_name].get("search_keys", 
-                                                             self.default_search_keys)
+            search_keys = self.migration_map.get_search_keys(model_name)
 
             if relation_type == 'one2many' or relation_type == 'many2many':
                 
@@ -461,10 +474,10 @@ class Executor(object):
             list: The list of ids found in the target model.
         """
         if target_model_name is None:
-            target_model_name = self.migration_map[model_name].get("target_model", model_name)
+            target_model_name = self.migration_map.get_target_model(model_name)
         
         if search_keys is None:
-            search_keys = self.migration_map[model_name].get("search_keys", self.default_search_keys)
+            search_keys = self.migration_map.get_search_keys(model_name)
         
         source_model = self.source_model.env[model_name]
         target_model = self.target_odoo.env[target_model_name]
@@ -530,41 +543,6 @@ class Executor(object):
         
         return [field for field in fields if fields_metadata[field]['type'] not in relations_to_remove]
     
-    def _normalice_fields(self, fields: Union[list, dict]) -> dict:
-        """
-        Normalice the fields list into the expected format, 
-        which is: [{'source_field_name': 'target_field_name'}, {'source_field_name': transformer_function}, ...]
-        
-        Examples:
-            in = ['name', {'days': 'nb_days'}, 'color']
-            out = {'name': 'name', 'days': 'nb_days', 'color': 'color'}
-
-            in = ['name', {'days': 'nb_days'}, {'color': color_transformer}]
-            out = {'name': 'name', 'days': 'nb_days', 'color': color_transformer}
-
-
-        Args:
-            fields (Union[list, dict]): The fields list to normalice.
-
-        Returns:
-            fields (dict): The normaliced fields list.
-        """
-        _f = fields.copy()
-        combined_dict = {}
-        
-        if isinstance(_f, list):
-            for i, e in enumerate(_f):
-                if type(e) == str:
-                    e = {e: e}
-                    _f[i] = e
-            
-            combined_dict = {k: v for d in _f for k, v in d.items()}
-        elif isinstance(_f, dict):
-            combined_dict = _f
-            
-        
-        return combined_dict
-    
     def _split_into_batches(self, large_list: list, batch_size: int) -> list:
         """
         Splits a large list into smaller batches of a specified size.
@@ -609,190 +587,3 @@ class Executor(object):
                 
         return True
     
-    def load_fields_map(self, file_path: str) -> dict:
-        """
-        Load a fields map from a file.
-
-        Args:
-            file_path (str): The path to the file where the fields map is stored.
-
-        Returns:
-            dict: The fields map loaded from the file.
-        """
-        _d = None
-        with open(file_path, 'r') as file:
-            _d = json.load(file)
-        
-        # if _d references a callable get a pointer to it
-        # _d is expected to contain {model_name: {fields:{field1:field1, field2:@callable_name, ...}, removed:[], new:[]}, ...
-        for _model_name, _data in _d.items():
-            for _field, _value in _data['fields'].items():
-                if type(_value) == str and _value[0].strip(" ").startswith('@'):
-                    _callable_name = _value[1:]
-                    
-                    # first search self.transformers
-                    _callable_pointer = self.transformers.get(_callable_name, None)
-                    # if not found, search in __main__
-                    if _callable_pointer is None:
-                        import __main__
-                        _callable_pointer = getattr(__main__, _callable_name, None)
-                        
-                    if _callable_pointer is None:
-                        raise Exception('Error: Callable %s not found' % _callable_name)
-                        
-                    _d[_model_name]['fields'][_field] = _callable_pointer
-        return _d
-    
-    def make_fields_map(self, model_name:str, target_model_name:str = None, recursion_level: int=0) -> dict:
-        """
-        Make a fields map from a list of source and target fields.
-        The output is intended to be feed to other migration methods / tools.
-        
-        Args:
-            model_name (str): The main source model name to map from.
-            target_model_name (str): The main target model name to map to.
-            recursion_level (int): The recursion level to apply. This means that the map will be made for the related models/fields too.
-                - If 0, no recursion will be applied.
-                - If 1, only the first level of related models/fields will be mapped.
-                - If 2, the first and second level of related models/fields will be mapped.
-                - ...
-
-        Returns:
-            dict: A dict with the folling format: {modelname: {target_model, search_keys, fields, removed, new}, ...} where:
-                - modelname is the source model name.
-                - target_model is the target model name. You can modify it if you want to migrate to a different model name
-                - search_keys is a **dict** with the keys to search for the records in the target model. Default is {'id': 'id', 'name': 'name'}. This is useful to avoid data dups.
-                - fields is a **dict** with the fields mapping: {'source_field1': 'target_field1', 'source_field2': 'target_field2', ...}
-                - removed is a **list** with the fields that are not in the target model. You can use this list to adjust the mappings.
-                - new is a **list** with the fields that are not in the source model. You can use this list to adjust the mappings.
-        """
-        
-        # model_name is actually the source model to migrate
-        source_model_name = model_name
-        
-        # target_model_name can be None. Example if the user is not interested in recursion
-        if target_model_name is None or target_model_name == '':
-            target_model_name = model_name
-                
-        source_fields = self.get_fields(instance=1, model_name=source_model_name, summary_only=False)
-        target_fields = self.get_fields(instance=2, model_name=target_model_name, summary_only=False)
-        
-        map = {}
-        submap = {}
-        removed_fields = list(source_fields.copy().keys())
-        new_fields = list(target_fields.copy().keys())
-
-        # # this is necceary cause the source or target fields maybe empty (because the model does not exist)
-        field_list = list(source_fields.copy().keys())
-
-        for field in field_list:
-            if field in target_fields:
-                include_field_in_map = True
-                
-                # test for and process relational fields
-                field_type = source_fields[field]['type']
-                if field_type in self.relation_types:
-                    if recursion_level > 0:
-                        # get source and target related model names
-                        related_source_model_name = source_fields[field]['relation']
-                        try:
-                            related_target_model_name = target_fields[field]['relation']
-                        except KeyError:
-                            related_target_model_name = related_source_model_name
-                            print('Warning: Source Field %s.%s poiting to %s is not a relation in target instance.' % (model_name, field, related_source_model_name))
-                            print('You have to adjust the fields map with a transformer function or remove the field from the map.')
-                        else: # if no errors
-                            # build a new map for the related models
-                            new_map = self.make_fields_map(model_name=related_source_model_name, target_model_name=related_target_model_name, 
-                                                            recursion_level=recursion_level - 1)                        
-                            map.update(new_map)
-                    elif self.recursion_mode == 'w':
-                        include_field_in_map = False
-                        print('Warning: Field %s.%s is a relation and current recursion level is not enougth. Skipping it from map/migration.' % (model_name, field))
-                    elif self.recursion_mode == 'h':
-                        include_field_in_map = False
-                        raise Exception('Error: Field %s.%s is a relation and current recursion level is not enougth. Cant traverse it. Aborting.' % (model_name, field))
-                    else:
-                        raise Exception('Error: Invalid recursion mode %s. Use "h" for halt or "w" for warn.' % self.recursion_mode)
-                
-                # should i include the field in the map?
-                if include_field_in_map:
-                    submap[field] = field
-                    removed_fields.remove(field)
-                    new_fields.remove(field)
-                
-        map[source_model_name] = {
-            "target_model": target_model_name,
-            "search_keys": self.default_search_keys, # default search keys
-            "fields": submap, "removed": removed_fields, "new": new_fields}
-        
-        return map
-    
-    def add_transformer(self, transformer, model: str, field: str, fields_map: dict=None) -> dict:
-        """
-        Add a transformer to the models / fields map.
-        If no fields_map is provided, or the model / fields is not in the map, the transformer is added to the locals() so it can be used later. Ex at fields_map loading.
-
-        Args:
-            transformer (list): A transformer function / callable to add to the fields map.
-            model (str): The model to add the transformer to.
-            field (str): The field to add the transformer to.
-            fields_map (dict): The fields map to add the transformers to. Defaults to None.
-
-        Returns:
-            dict: The updated fields map.
-        """
-        # if we got a fields_map, add the transformer to it
-        # if the provided model and field does not exist, return the fields_map as is and add the trasnformer to the locals()
-        if fields_map and model in fields_map and field in fields_map[model]['fields']:
-            fields_map[model]['fields'][field] = transformer
-        
-        # also add the transformer to the locals() so it can be used later
-        self.transformers[transformer.__name__] = transformer
-        return fields_map
-           
-    def model_tree(self, model_name: str, recursion_level: int=0) -> dict:
-        """
-        Make a relation tree for the model until the recursion level.
-
-        Args:
-            model_name (str): The model name to make the relation tree for.
-            recursion_level (int): The recursion level to apply. Defaults to 0.
-
-        Returns:
-            dict: The relation tree for the model.
-        """
-        
-        def _build_tree(_model_name, from_field=None, _level=None):
-            
-            tree = treelib.Tree()
-            
-            if _level is None:
-                _level = 0
-                node = tree.create_node(tag=_model_name)
-            else:
-                tag = "%s->%s" % (from_field, _model_name)
-                node = tree.create_node(tag=tag)
-                        
-            if _level == recursion_level:
-                return tree
-                
-            # get odoo model and field metadata
-            source_model = self.source_odoo.env[_model_name]
-            field_metadata = source_model.fields_get()
-            
-            # build tree
-            for field, field_data in field_metadata.items():
-                field_type = field_data['type']
-                if field_type in self.relation_types:
-                    
-                    new_model = field_data['relation']
-                    
-                    tag = "%s->%s" % (field, _model_name)
-                    
-                    new_tree = _build_tree(_model_name=new_model, from_field=field, _level=_level + 1)
-                    tree.paste(nid=node.identifier, new_tree=new_tree)
-            
-            return tree
-                
-        return _build_tree(model_name)
