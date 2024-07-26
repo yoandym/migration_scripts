@@ -386,13 +386,13 @@
 
 <div class="viewcode-block" id="migrate_res_partner">
 <a class="viewcode-back" href="../../reference/main.html#migration.main.migrate_res_partner">[docs]</a>
-<span class="k">def</span> <span class="nf">migrate_res_partner</span><span class="p">(</span><span class="n">dry</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">migrate_res_partner</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Migrate res.partner model from odoo v14 to v17.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1">#: No parameter given to Executor so connection data is loaded from .env file</span>
-    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">dry</span><span class="o">=</span><span class="n">dry</span><span class="p">)</span>
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">()</span>
 
     <span class="c1">#: Model name to migrate</span>
     <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;res.partner&#39;</span>
@@ -423,13 +423,10 @@
 
 <div class="viewcode-block" id="migrate_crm_lead">
 <a class="viewcode-back" href="../../reference/main.html#migration.main.migrate_crm_lead">[docs]</a>
-<span class="k">def</span> <span class="nf">migrate_crm_lead</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">migrate_crm_lead</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Migrate crm.lead model from odoo v14 to v17.</span>
 <span class="sd">    </span>
-<span class="sd">    Args:</span>
-<span class="sd">        kwargs (dict): Optional params to pass to Executor.</span>
-
 <span class="sd">    This is a more advanced migration case. Here we use:</span>
 <span class="sd">    </span>
 <span class="sd">        - An auto generated fields map to simplify the process.</span>
@@ -440,7 +437,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">#: No parameter given to Executor so connection data is loaded from .env file</span>
-    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="c1">#: Model name to migrate</span>
     <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.lead&#39;</span>
@@ -448,7 +445,7 @@
     
     <span class="c1">#: Migrate upto 3 layers of related models.</span>
     <span class="c1">#: lead -&gt; partner -&gt; mail.message -&gt; partner</span>
-    <span class="n">recursion</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">recursion</span> <span class="o">=</span> <span class="mi">4</span>
 
     <span class="c1">#: Generate the field map </span>
     <span class="c1"># res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)</span>
@@ -481,8 +478,8 @@
     <span class="c1"># and then enter de maps folder</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;maps&quot;</span><span class="p">)</span>
 
-    <span class="n">migrate_crm_lead</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="c1"># migrate_res_partner(debug=False)   </span>
+    <span class="n">migrate_crm_lead</span><span class="p">()</span>
+    <span class="c1"># migrate_res_partner()   </span>
 </pre></div>
         </article>
       </div>

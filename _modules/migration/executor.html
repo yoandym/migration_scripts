@@ -311,8 +311,14 @@
     <span class="c1">#: An instance of MigrationMap</span>
     <span class="n">migration_map</span> <span class="o">=</span> <span class="kc">None</span>
     
-    <span class="n">transformers</span> <span class="o">=</span> <span class="p">{}</span>
-    
+    <span class="n">recursion_mode</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    The recursion mode to use while traversing relations. Defaults to &quot;w&quot;.</span>
+<span class="sd">        - h: Halt. Will raise an exception if cant traverse a relation because of recursion level</span>
+<span class="sd">        - w: Warn. Warn, wipe the field from map, and keep running, </span>
+<span class="sd">        if cant traverse a relationbecause of recursion level</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+        
     <span class="c1">#: Set the relation types to traverse</span>
     <span class="n">relation_types</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;one2many&#39;</span><span class="p">,</span> <span class="s1">&#39;many2one&#39;</span><span class="p">,</span> <span class="s1">&#39;many2many&#39;</span><span class="p">]</span>
             
@@ -386,9 +392,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span> <span class="o">=</span> <span class="n">value</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_debug</span><span class="p">:</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">tracebacklimit</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">else</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">tracebacklimit</span> <span class="o">=</span> <span class="mi">1000</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">tracebacklimit</span> <span class="o">=</span> <span class="mi">0</span>
 
 <div class="viewcode-block" id="Executor.get_connection">
 <a class="viewcode-back" href="../../reference/executor.html#migration.executor.Executor.get_connection">[docs]</a>

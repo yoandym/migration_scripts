@@ -378,6 +378,15 @@ It provides methods to establish connections to the source and target servers, m
 </dd></dl>
 
 <dl class="py attribute">
+<dt class="sig sig-object py" id="migration.executor.Executor.recursion_mode">
+<span class="sig-name descname"><span class="pre">recursion_mode</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#migration.executor.Executor.recursion_mode" title="Link to this definition"><span>#</span></a></dt>
+<dd><p>The recursion mode to use while traversing relations. Defaults to “w”.
+- h: Halt. Will raise an exception if cant traverse a relation because of recursion level
+- w: Warn. Warn, wipe the field from map, and keep running,
+if cant traverse a relationbecause of recursion level</p>
+</dd></dl>
+
+<dl class="py attribute">
 <dt class="sig sig-object py" id="migration.executor.Executor.relation_types">
 <span class="sig-name descname"><span class="pre">relation_types</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['one2many',</span> <span class="pre">'many2one',</span> <span class="pre">'many2many']</span></em><a class="headerlink" href="#migration.executor.Executor.relation_types" title="Link to this definition"><span>#</span></a></dt>
 <dd><p>Set the relation types to traverse</p>
@@ -491,6 +500,7 @@ If no search_keys is provided, look for in migration_map, else the <code class="
 <li><a class="reference internal" href="#migration.executor.Executor.get_fields"><code class="docutils literal notranslate"><span class="pre">Executor.get_fields()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.migrate"><code class="docutils literal notranslate"><span class="pre">Executor.migrate()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.migration_map"><code class="docutils literal notranslate"><span class="pre">Executor.migration_map</span></code></a></li>
+<li><a class="reference internal" href="#migration.executor.Executor.recursion_mode"><code class="docutils literal notranslate"><span class="pre">Executor.recursion_mode</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.relation_types"><code class="docutils literal notranslate"><span class="pre">Executor.relation_types</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.search_in_target"><code class="docutils literal notranslate"><span class="pre">Executor.search_in_target()</span></code></a></li>
 <li><a class="reference internal" href="#migration.executor.Executor.test_login"><code class="docutils literal notranslate"><span class="pre">Executor.test_login()</span></code></a></li>
