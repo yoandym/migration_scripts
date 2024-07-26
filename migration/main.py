@@ -109,13 +109,13 @@ def migrate_payment_terms():
     #: Do the migration
     ex.migrate(model, fields)
 
-def migrate_res_partner(dry):
+def migrate_res_partner():
     """
     Migrate res.partner model from odoo v14 to v17.
     """
     
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor(dry=dry)
+    ex = Executor()
 
     #: Model name to migrate
     model = 'res.partner'
@@ -143,13 +143,10 @@ def migrate_res_partner(dry):
     #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
     ex.migrate(model, batch_size=100, recursion_level=recursion)
 
-def migrate_crm_lead(**kwargs):
+def migrate_crm_lead():
     """
     Migrate crm.lead model from odoo v14 to v17.
     
-    Args:
-        kwargs (dict): Optional params to pass to Executor.
-
     This is a more advanced migration case. Here we use:
     
         - An auto generated fields map to simplify the process.
@@ -160,7 +157,7 @@ def migrate_crm_lead(**kwargs):
     """
 
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor(**kwargs)
+    ex = Executor(debug=True)
 
     #: Model name to migrate
     model = 'crm.lead'
@@ -200,5 +197,5 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_crm_lead(debug=True)
-    # migrate_res_partner(debug=False)   
+    migrate_crm_lead()
+    # migrate_res_partner()   

@@ -40,8 +40,14 @@ class Executor(object):
     #: An instance of MigrationMap
     migration_map = None
     
-    transformers = {}
-    
+    recursion_mode = None
+    """ 
+    The recursion mode to use while traversing relations. Defaults to "w".
+        - h: Halt. Will raise an exception if cant traverse a relation because of recursion level
+        - w: Warn. Warn, wipe the field from map, and keep running, 
+        if cant traverse a relationbecause of recursion level
+    """
+        
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
             
@@ -112,9 +118,9 @@ class Executor(object):
         """
         self._debug = value
         if self._debug:
-            sys.tracebacklimit = 0
-        else:
             sys.tracebacklimit = 1000
+        else:
+            sys.tracebacklimit = 0
 
     def get_connection(self, instance):
         """
