@@ -66,7 +66,7 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     _data = copy.deepcopy(data)
     for record in _data:
         if "x_studio_categorizacin" in record:
-            record["description"] = record.get("description", "") + "\n" + record.pop("x_studio_categorizacin")
+            record["description"] = record.get("description", "") + "\n" + record.pop("x_studio_categorizacin", "")
             
     return _data
 
@@ -157,7 +157,7 @@ def migrate_crm_lead():
     """
 
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor(debug=False)
+    ex = Executor(debug=True)
 
     #: Model name to migrate
     model = 'crm.lead'
@@ -186,7 +186,23 @@ def migrate_crm_lead():
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
     ex.migrate(model, batch_size=1, recursion_level=recursion)
     
+    
+def data_test():
+    
+    import json
+    
+    file_path = "/Users/yoandym/Workspace/soltein/crm_migration/migration_scripts/migration/ine.json"
+    with open(file_path, 'r') as file:
+        data = json.load(file)
+        
+    ex = Executor(debug=True)
+    
+    ex.target_model_name = "crm.lead"
+    ex.target_model = ex.target_odoo.env[ex.target_model_name]
+    
+    res = ex.target_model.create(data)    
 
+    print(res)
 
 if __name__ == "__main__":
     
@@ -199,3 +215,4 @@ if __name__ == "__main__":
 
     migrate_crm_lead()
     # migrate_res_partner()   
+    # data_test()
