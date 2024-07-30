@@ -6,7 +6,7 @@ This module provides the necessary classes and methods for data migration betwee
 
 import os, sys
 import copy
-import json
+from datetime import datetime
 from dotenv import load_dotenv
 
 from typing import Union
@@ -51,7 +51,7 @@ class Executor(object):
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
     
-    record_create_options = {'tracking_disable': True, }
+    record_create_options = {'tracking_disable': True}
     
     log_path = None
             
@@ -101,7 +101,9 @@ class Executor(object):
         
         self.migration_map = MigrationMap(self)
         
-        self.log_path = os.path.join(os.path.dirname(__file__), 'run.log')
+        # set log file name to current os date time
+        log_file_name = "%s.log" % datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        self.log_path = os.path.join(os.path.dirname(__file__), log_file_name)
 
     @property
     def debug(self):
@@ -235,7 +237,7 @@ class Executor(object):
                 
             except Exception as e:
                 batch_ids = batch
-                result_message = 'Batch %s processing error.' % batch_ids
+                result_message = 'Batch processing error. Source instance ids: %s' % batch_ids
                 
                 Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
                 Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
