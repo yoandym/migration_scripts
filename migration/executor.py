@@ -52,6 +52,8 @@ class Executor(object):
     relation_types = ['one2many', 'many2one', 'many2many']
     
     record_create_options = {'tracking_disable': True, }
+    
+    log_path = None
             
 
     def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
@@ -98,6 +100,8 @@ class Executor(object):
         self.target_odoo = self.get_connection(target)
         
         self.migration_map = MigrationMap(self)
+        
+        self.log_path = os.path.join(os.path.dirname(__file__), 'run.log')
 
     @property
     def debug(self):
@@ -210,26 +214,37 @@ class Executor(object):
             batches = self._split_into_batches(ids, batch_size)
             
         for batch in batches:
-            recordset = self.source_model.browse(batch)
-            data = recordset.read(source_fields)
+                                            
             
-            data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
-                                
-            if self.debug:
-                print("\nNew Record")
-                Pretty.log(data, "/Users/yoandym/Workspace/soltein/crm_migration/migration_scripts/migration/log.json", overwrite=True, mode='a')
-            
-            # creates the records at target instance
             try:
-                res = self.target_model.create(data)
-            except Exception as e:
-                print('Error processing batch in target instance')
-                print(e)
+                # get data from source instance
+                recordset = self.source_model.browse(batch)
+                data = recordset.read(source_fields)
+                
+                # format it to be feed in the target instance
+                data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
 
-                return False
+                # creates the records at target instance
+                res = self.target_model.create(data)
+                
+                # print the results
+                batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
+                result_message = '%s %s migrated successfully: %s' % (len(res), model_name, batch_ids)
+                
+                print(result_message)
+                
+            except Exception as e:
+                batch_ids = batch
+                result_message = 'Batch %s processing error.' % batch_ids
+                
+                Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
+                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+
+                if self.debug:
+                    Pretty.log(data, self.log_path, overwrite=True, mode='a')
+                
+                print(result_message)
                     
-            print('%s %s records migrated successfully' % (len(res), model_name))
-        
         return True
     
     def get_fields(self, instance: int, model_name: str, required_only=False, summary_only=True) -> list:
@@ -346,9 +361,7 @@ class Executor(object):
                         else:
                             raise UnsupportedRelationException('Relation type %s is not supported yet' % field_type)
                 except Exception as e:
-                    print('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name))
-                    print("Data Record")
-                    Pretty.print(record)
+                    Pretty.log('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name), self.log_path, overwrite=True, mode='a')
                     raise e
                 
                 # test for and do field name changes
