@@ -64,7 +64,7 @@ class MigrationMap:
         """
         self.map = {}
         self.transformers = {}
-        self.excutor = None
+        self.executor = executor
 
     def get_mapping(self, source_model_name: str= None):
         """
@@ -245,7 +245,7 @@ class MigrationMap:
                             print('You have to adjust the fields map with a transformer function or remove the field from the map.')
                         else: # if no errors
                             # build a new map for the related models
-                            new_map = self.make_fields_map(model_name=related_source_model_name, target_model_name=related_target_model_name, 
+                            new_map = self.generate_full_map(model_name=related_source_model_name, target_model_name=related_target_model_name, 
                                                             recursion_level=recursion_level - 1)                        
                             map.update(new_map)
                     elif self.executor.recursion_mode == 'w':
