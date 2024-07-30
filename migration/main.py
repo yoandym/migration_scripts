@@ -66,7 +66,14 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     _data = copy.deepcopy(data)
     for record in _data:
         if "x_studio_categorizacin" in record:
-            record["description"] = record.get("description", "") + "\n" + record.pop("x_studio_categorizacin", "")
+            description = record.get("description", "")
+            if not isinstance(description, str):
+                description = ""
+            x_studio_categorizacin = record.pop("x_studio_categorizacin", "")
+            if not isinstance(x_studio_categorizacin, str):
+                x_studio_categorizacin = ""
+            
+            record["description"] = description + "\n" + x_studio_categorizacin
             
     return _data
 
