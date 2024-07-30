@@ -351,7 +351,6 @@
             "is_favorite": "is_favorite",
             "use_leads": "use_leads",
             "use_opportunities": "use_opportunities",
-            "alias_id": "alias_id",
             "create_date": "create_date",
             "alias_name": "alias_name",
             "alias_defaults": "alias_defaults",
@@ -431,7 +430,6 @@
             "date": "date",
             "currency_unit_label": "currency_unit_label",
             "currency_subunit_label": "currency_subunit_label",
-            "display_name": "display_name",
             "create_date": "create_date",
             "display_rounding_warning": "display_rounding_warning"
         },
@@ -573,7 +571,6 @@
             "image_1920": "image_1920",
             "email_normalized": "email_normalized",
             "is_blacklisted": "is_blacklisted",
-            "message_ids": "message_ids",
             "phone_sanitized": "phone_sanitized",
             "phone_sanitized_blacklisted": "phone_sanitized_blacklisted",
             "phone_blacklisted": "phone_blacklisted",
@@ -711,12 +708,11 @@
     },
     "res.partner.industry": {
         "target_model": "res.partner.industry",
-        "search_keys": {"display_name": "display_name"},
+        "search_keys": {"name": "name"},
         "fields": {
             "name": "name",
             "full_name": "full_name",
             "active": "active",
-            "display_name": "display_name",
             "create_date": "create_date"
         },
         "removed": [
@@ -773,7 +769,6 @@
             "vat_label": "vat_label",
             "state_required": "state_required",
             "zip_required": "zip_required",
-            "display_name": "display_name",
             "create_date": "create_date"
         },
         "removed": [
@@ -905,7 +900,7 @@
         ]
     },
     "mail.message": {
-        "search_keys": {"display_name": "display_name"},
+        "search_keys": {"message_id": "message_id"},
         "fields": {
             "subject": "subject",
             "date": "date",
@@ -917,27 +912,16 @@
             "model": "model",
             "res_id": "res_id",
             "record_name": "record_name",
-            "mail_activity_type_id": "mail_activity_type_id",
             "is_internal": "is_internal",
             "email_from": "email_from",
             "author_avatar": "author_avatar",
             "partner_ids": "partner_ids",
-            "notified_partner_ids": "notified_partner_ids",
-            "needaction": "needaction",
-            "has_error": "has_error",
-            "notification_ids": "notification_ids",
             "starred": "starred",
             "message_id": "message_id",
             "reply_to": "reply_to",
-            "email_layout_xmlid": "email_layout_xmlid",
             "mail_ids": "mail_ids",
-            "has_sms_error": "has_sms_error",
-            "snailmail_error": "snailmail_error",
-            "letter_ids": "letter_ids",
             "message_type": "message_type",
-            "display_name": "display_name",
-            "create_date": "create_date",
-            "write_date": "write_date"
+            "create_date": "create_date"
         },
         "removed": [
             "channel_ids",
@@ -979,7 +963,6 @@
             "default_user_id": "default_user_id",
             "res_model_change": "res_model_change",
             "category": "category",
-            "display_name": "display_name",
             "create_date": "create_date"
         },
         "removed": [
@@ -1009,11 +992,11 @@
         "fields": {
             "res_model": "res_model",
             "res_id": "res_id",
+            "partner_id": "partner_id",
             "name": "name",
             "email": "email",
             "is_active": "is_active",
-            "id": "id",
-            "display_name": "display_name"
+            "id": "id"
         },
         "removed": [
             "partner_id",
@@ -1058,13 +1041,8 @@
             "email_from": "email_from",
             "phone": "phone",
             "mobile": "mobile",
-            "message_ids": "message_ids",
             "message_follower_ids": "message_follower_ids",
-            "message_partner_ids": "message_partner_ids",
-            "website_message_ids": "website_message_ids",
             "phone_mobile_search": "phone_mobile_search",
-            "phone_state": "phone_state",
-            "email_state": "email_state",
             "website": "website",
             "lang_id": "lang_id",
             "street": "street",
