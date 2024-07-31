@@ -51,10 +51,12 @@ class Executor(object):
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
     
+    #: Options / Values to set on context. By default sets tracking **'tracking_disable' = True**.
     record_create_options = {'tracking_disable': True}
     
+    #: Directory to save logs
     log_path = None
-            
+                
 
     def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
@@ -101,8 +103,10 @@ class Executor(object):
         
         self.migration_map = MigrationMap(self)
         
+        self.run_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        
         # set log file name to current os date time
-        log_file_name = "%s.log" % datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+        log_file_name = "%s.log" % self.run_id
         self.log_path = os.path.join(os.path.dirname(__file__), log_file_name)
 
     @property
