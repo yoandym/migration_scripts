@@ -174,7 +174,7 @@ class Executor(object):
             
             return False
         
-    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50):
+    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None) -> bool:
         """
         Migrate data from source to target
 
@@ -183,6 +183,7 @@ class Executor(object):
             migration_map (Union[dict, list]): The migration map to use. Defaults to None.
             recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
             batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.
+            source_ids (list): A list of source ids to migrate. If present it will migrate only the provided ids. Defaults to None.
         """
         
         if migration_map is None and self.migration_map.map is None:
@@ -208,15 +209,18 @@ class Executor(object):
         source_fields = list(main_model_fields_map.keys())
         target_fields = list(main_model_fields_map.values())
                 
-        # gets the source data taking into consideration the batch size
-        ids = self.source_model.search([])
-        batches = [ids]
+        # get the source data 
+        if not source_ids:
+            ids = self.source_model.search([])
+        else:
+            ids = source_ids
         
+        # take into consideration the batch size
+        batches = [ids]
         if len(ids) > batch_size:
             batches = self._split_into_batches(ids, batch_size)
             
         for batch in batches:
-                                            
             
             try:
                 # get data from source instance
@@ -608,3 +612,15 @@ class Executor(object):
                 
         return True
     
+    def delayed_update(self, model, field, data: dict) -> int:
+        """
+        Create a message record in the target instance with security rights / access rules in mind.
+        That is, the author and creator is the same user
+
+        Args:
+            data (dict): The data to create the record with.
+
+        Returns:
+            int: The id of the created record.
+        """
+        return self.target_model.create(data)
