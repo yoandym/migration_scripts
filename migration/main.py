@@ -141,9 +141,8 @@ def migrate_res_partner():
     #: Load the customized field map from the file
     ex.migration_map.load_from_file(file_path=file_path)
 
-    #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
-    source_ids = [6736, 6735, 7698, 7699, 34015, 23202, 37431, 6737, 6738, 24749, 6739, 6740, 6741, 6742, 37432, 6743, 36907, 64986, 26589, 34016]
-    ex.migrate(model, batch_size=1, recursion_level=recursion, source_ids=source_ids)
+    #: Do the migration. There are about 20k records so we use a batch size of 10 to avoid timeouts.
+    ex.migrate(model, batch_size=10, recursion_level=recursion)
 
 def migrate_crm_lead():
     """
