@@ -482,24 +482,29 @@ If no model is specified, return the whole map.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="migration.mapping.MigrationMap.normalice_fields">
 <span class="sig-name descname"><span class="pre">normalice_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fields</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/migration/mapping.html#MigrationMap.normalice_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#migration.mapping.MigrationMap.normalice_fields" title="Link to this definition"><span>#</span></a></dt>
-<dd><p>Normalice the given fields into the expected format,
-which is: [{‘source_field_name1’: ‘target_field_name1’}, {‘source_field_name2’: transformer_function}, …]</p>
+<dd><p>Normalice the given fields into the expected format.
+Which is (minimal conf):</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s1">&#39;fields&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;source_field_name1&#39;</span><span class="p">:</span> <span class="s1">&#39;target_field_name1&#39;</span><span class="p">,</span> <span class="s1">&#39;source_field_name2&#39;</span><span class="p">:</span> <span class="n">transformer_function</span><span class="p">,</span> <span class="o">...</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <div class="admonition-examples admonition">
 <p class="admonition-title">Examples</p>
 <p>in = [‘name’, {‘days’: ‘nb_days’}, ‘color’]
-out = {‘name’: ‘name’, ‘days’: ‘nb_days’, ‘color’: ‘color’}</p>
+out = {‘fields’: {‘name’: ‘name’, ‘days’: ‘nb_days’, ‘color’: ‘color’}}</p>
 <p>in = [‘name’, {‘days’: ‘nb_days’}, {‘color’: color_transformer}]
-out = {‘name’: ‘name’, ‘days’: ‘nb_days’, ‘color’: color_transformer}</p>
+out = {‘fields’: {‘name’: ‘name’, ‘days’: ‘nb_days’, ‘color’: color_transformer}}</p>
 </div>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>fields</strong> (<em>Union</em><em>[</em><em>list</em><em>, </em><em>dict</em><em>]</em>) – The fields list to normalice.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The normaliced fields list.</p>
+<dd class="field-even"><p>The normaliced fields dict structure.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>fields (dict)</p>
+<dd class="field-odd"><p>map (dict)</p>
 </dd>
 </dl>
 </dd></dl>

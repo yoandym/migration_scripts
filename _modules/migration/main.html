@@ -274,9 +274,9 @@
 
 <span class="kn">from</span> <span class="nn">tools</span> <span class="kn">import</span> <span class="n">Pretty</span>
 
-<span class="kn">from</span> <span class="nn">executor</span> <span class="kn">import</span> <span class="n">Executor</span>
-
-
+<span class="kn">from</span> <span class="nn">executor</span> <span class="kn">import</span> <span class="n">Executor</span>    
+    
+    
 
 <span class="k">def</span> <span class="nf">_account_payment_term_line_value_transformer</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">Executor</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -335,7 +335,14 @@
     <span class="n">_data</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">_data</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">&quot;x_studio_categorizacin&quot;</span> <span class="ow">in</span> <span class="n">record</span><span class="p">:</span>
-            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;x_studio_categorizacin&quot;</span><span class="p">)</span>
+            <span class="n">description</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="n">x_studio_categorizacin</span> <span class="o">=</span> <span class="n">record</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;x_studio_categorizacin&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x_studio_categorizacin</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">x_studio_categorizacin</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">description</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">x_studio_categorizacin</span>
             
     <span class="k">return</span> <span class="n">_data</span>
 
@@ -392,13 +399,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     
     <span class="c1">#: No parameter given to Executor so connection data is loaded from .env file</span>
-    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">()</span>
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1">#: Model name to migrate</span>
     <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;res.partner&#39;</span>
     
     <span class="c1">#: The model has some relations so we use **Recursion** set to 1 to migrate upto one layer of related models.</span>
-    <span class="n">recursion</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">recursion</span> <span class="o">=</span> <span class="mi">4</span>
 
     <span class="c1">#: Generate the field map </span>
     <span class="c1"># res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)</span>
@@ -408,17 +415,11 @@
     <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span> <span class="o">+</span> <span class="n">model</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
     <span class="c1"># Pretty.log(res, file_path=file_path)</span>
     
-    <span class="c1"># ex.add_transformer(model=model, </span>
-    <span class="c1">#                    field=&quot;x_studio_categorizacin&quot;, transformer=crm_lead_categorizacin_transformer)</span>
-    <span class="c1"># ex.add_transformer(model=&quot;account.payment.term&quot;, </span>
-    <span class="c1">#                    field=&quot;line_ids&quot;, transformer=account_payment_term_line_ids_transformer)</span>
-    
     <span class="c1">#: Load the customized field map from the file</span>
     <span class="n">ex</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
 
-    
-    <span class="c1">#: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.</span>
-    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
+    <span class="c1">#: Do the migration. There are about 20k records so we use a batch size of 10 to avoid timeouts.</span>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="migrate_crm_lead">
@@ -437,7 +438,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="c1">#: No parameter given to Executor so connection data is loaded from .env file</span>
-    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="c1">#: Model name to migrate</span>
     <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.lead&#39;</span>
@@ -464,10 +465,26 @@
     <span class="n">ex</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">load_from_file</span><span class="p">(</span><span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
     
     <span class="c1">#: Do the migration. There are about 1k records so we use a batchs avoid timeouts.</span>
-    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
+    <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span></div>
 
     
+    
+<span class="k">def</span> <span class="nf">data_test</span><span class="p">():</span>
+    
+    <span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">debug</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
+    <span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;res.country.state&#39;</span>
+    
+    <span class="n">recursion</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">ex</span><span class="o">.</span><span class="n">migration_map</span><span class="o">.</span><span class="n">generate_full_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion</span><span class="p">)</span>
+    
+    <span class="n">file_path</span> <span class="o">=</span> <span class="s2">&quot;./&quot;</span> <span class="o">+</span> <span class="n">model</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
+    <span class="n">Pretty</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">file_path</span><span class="o">=</span><span class="n">file_path</span><span class="p">)</span>
+        
+    <span class="c1"># ex.migration_map.load_from_file(file_path=file_path)</span>
+    
+    <span class="c1"># ex.migrate(model, batch_size=10, recursion_level=recursion)</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
     
@@ -478,8 +495,10 @@
     <span class="c1"># and then enter de maps folder</span>
     <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;maps&quot;</span><span class="p">)</span>
 
-    <span class="n">migrate_crm_lead</span><span class="p">()</span>
-    <span class="c1"># migrate_res_partner()   </span>
+    <span class="n">migrate_res_partner</span><span class="p">()</span>   
+    <span class="c1"># migrate_crm_lead()</span>
+   
+    <span class="c1"># data_test()</span>
 </pre></div>
         </article>
       </div>

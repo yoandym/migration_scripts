@@ -279,7 +279,7 @@
 
 <span class="kn">import</span> <span class="nn">treelib</span>
 
-<span class="kn">from</span> <span class="nn">exceptions</span> <span class="kn">import</span> <span class="n">MissingModelMappingException</span>
+<span class="kn">from</span> <span class="nn">exceptions</span> <span class="kn">import</span> <span class="n">MissingModelMappingException</span><span class="p">,</span> <span class="n">BadFieldMappingException</span>
 
 <div class="viewcode-block" id="MigrationMap">
 <a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap">[docs]</a>
@@ -337,7 +337,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">transformers</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">excutor</span> <span class="o">=</span> <span class="kc">None</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">executor</span> <span class="o">=</span> <span class="n">executor</span></div>
 
 
 <div class="viewcode-block" id="MigrationMap.get_mapping">
@@ -536,7 +536,7 @@
                             <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;You have to adjust the fields map with a transformer function or remove the field from the map.&#39;</span><span class="p">)</span>
                         <span class="k">else</span><span class="p">:</span> <span class="c1"># if no errors</span>
                             <span class="c1"># build a new map for the related models</span>
-                            <span class="n">new_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_fields_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">related_source_model_name</span><span class="p">,</span> <span class="n">target_model_name</span><span class="o">=</span><span class="n">related_target_model_name</span><span class="p">,</span> 
+                            <span class="n">new_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_full_map</span><span class="p">(</span><span class="n">model_name</span><span class="o">=</span><span class="n">related_source_model_name</span><span class="p">,</span> <span class="n">target_model_name</span><span class="o">=</span><span class="n">related_target_model_name</span><span class="p">,</span> 
                                                             <span class="n">recursion_level</span><span class="o">=</span><span class="n">recursion_level</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>                        
                             <span class="nb">map</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_map</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">executor</span><span class="o">.</span><span class="n">recursion_mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
@@ -607,22 +607,26 @@
 <a class="viewcode-back" href="../../reference/mapping.html#migration.mapping.MigrationMap.normalice_fields">[docs]</a>
     <span class="k">def</span> <span class="nf">normalice_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Normalice the given fields into the expected format, </span>
-<span class="sd">        which is: [{&#39;source_field_name1&#39;: &#39;target_field_name1&#39;}, {&#39;source_field_name2&#39;: transformer_function}, ...]</span>
+<span class="sd">        Normalice the given fields into the expected format. </span>
+<span class="sd">        Which is (minimal conf):: </span>
+<span class="sd">            </span>
+<span class="sd">            {</span>
+<span class="sd">                &#39;fields&#39;: {&#39;source_field_name1&#39;: &#39;target_field_name1&#39;, &#39;source_field_name2&#39;: transformer_function, ... }</span>
+<span class="sd">            }</span>
 <span class="sd">        </span>
 <span class="sd">        Examples:</span>
 <span class="sd">            in = [&#39;name&#39;, {&#39;days&#39;: &#39;nb_days&#39;}, &#39;color&#39;]</span>
-<span class="sd">            out = {&#39;name&#39;: &#39;name&#39;, &#39;days&#39;: &#39;nb_days&#39;, &#39;color&#39;: &#39;color&#39;}</span>
+<span class="sd">            out = {&#39;fields&#39;: {&#39;name&#39;: &#39;name&#39;, &#39;days&#39;: &#39;nb_days&#39;, &#39;color&#39;: &#39;color&#39;}}</span>
 
 <span class="sd">            in = [&#39;name&#39;, {&#39;days&#39;: &#39;nb_days&#39;}, {&#39;color&#39;: color_transformer}]</span>
-<span class="sd">            out = {&#39;name&#39;: &#39;name&#39;, &#39;days&#39;: &#39;nb_days&#39;, &#39;color&#39;: color_transformer}</span>
+<span class="sd">            out = {&#39;fields&#39;: {&#39;name&#39;: &#39;name&#39;, &#39;days&#39;: &#39;nb_days&#39;, &#39;color&#39;: color_transformer}}</span>
 
 
 <span class="sd">        Args:</span>
 <span class="sd">            fields (Union[list, dict]): The fields list to normalice.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            fields (dict): The normaliced fields list.</span>
+<span class="sd">            map (dict): The normaliced fields dict structure.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">_f</span> <span class="o">=</span> <span class="n">fields</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="n">combined_dict</span> <span class="o">=</span> <span class="p">{}</span>
@@ -633,9 +637,15 @@
                     <span class="n">e</span> <span class="o">=</span> <span class="p">{</span><span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">}</span>
                     <span class="n">_f</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">e</span>
             
-            <span class="n">combined_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_f</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">combined_dict</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">_f</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_f</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="n">combined_dict</span> <span class="o">=</span> <span class="n">_f</span>
+            <span class="k">if</span> <span class="s2">&quot;fields&quot;</span> <span class="ow">in</span> <span class="n">_f</span><span class="p">:</span>
+                <span class="n">combined_dict</span> <span class="o">=</span> <span class="n">_f</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">combined_dict</span><span class="p">[</span><span class="s2">&quot;fields&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_f</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">BadFieldMappingException</span><span class="p">(</span><span class="s2">&quot;Error: Invalid fields mapping format.&quot;</span><span class="p">)</span>
             
         <span class="bp">self</span><span class="o">.</span><span class="n">map</span> <span class="o">=</span> <span class="n">combined_dict</span>
         <span class="k">return</span> <span class="n">combined_dict</span></div>
