@@ -574,6 +574,8 @@
             "display_name": "display_name"
         },
         "fields": {
+            "partner_id": "partner_id",
+            "bank_id": "bank_id",
             "active": "active",
             "acc_type": "acc_type",
             "acc_number": "acc_number",
@@ -588,8 +590,6 @@
             "write_date": "write_date"
         },
         "removed": [
-            "partner_id",
-            "bank_id",
             "currency_id",
             "journal_id",
             "create_uid",
@@ -621,9 +621,7 @@
             "rating_ids",
             "website_message_ids",
             "message_has_sms_error",
-            "partner_id",
             "allow_out_payment",
-            "bank_id",
             "currency_id",
             "create_uid",
             "write_uid",
