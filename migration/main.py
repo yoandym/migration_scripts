@@ -5,9 +5,9 @@ import copy
 
 from tools import Pretty
 
-from executor import Executor
-
-
+from executor import Executor    
+    
+    
 
 def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> dict:
     """
@@ -122,13 +122,13 @@ def migrate_res_partner():
     """
     
     #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor()
+    ex = Executor(debug=True)
 
     #: Model name to migrate
     model = 'res.partner'
     
     #: The model has some relations so we use **Recursion** set to 1 to migrate upto one layer of related models.
-    recursion = 1
+    recursion = 4
 
     #: Generate the field map 
     # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
@@ -138,17 +138,11 @@ def migrate_res_partner():
     file_path = "./" + model + ".json"
     # Pretty.log(res, file_path=file_path)
     
-    # ex.add_transformer(model=model, 
-    #                    field="x_studio_categorizacin", transformer=crm_lead_categorizacin_transformer)
-    # ex.add_transformer(model="account.payment.term", 
-    #                    field="line_ids", transformer=account_payment_term_line_ids_transformer)
-    
     #: Load the customized field map from the file
     ex.migration_map.load_from_file(file_path=file_path)
 
-    
-    #: Do the migration. There are about 20k records so we use a batch size of 100 to avoid timeouts.
-    ex.migrate(model, batch_size=100, recursion_level=recursion)
+    #: Do the migration. There are about 20k records so we use a batch size of 10 to avoid timeouts.
+    ex.migrate(model, batch_size=10, recursion_level=recursion)
 
 def migrate_crm_lead():
     """
@@ -191,25 +185,25 @@ def migrate_crm_lead():
     ex.migration_map.load_from_file(file_path=file_path)
     
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
-    ex.migrate(model, batch_size=1, recursion_level=recursion)
+    ex.migrate(model, batch_size=10, recursion_level=recursion)
     
     
 def data_test():
     
-    import json
-    
-    file_path = "/Users/yoandym/Workspace/soltein/crm_migration/migration_scripts/migration/ine.json"
-    with open(file_path, 'r') as file:
-        data = json.load(file)
-        
     ex = Executor(debug=True)
-    
-    ex.target_model_name = "crm.lead"
-    ex.target_model = ex.target_odoo.env[ex.target_model_name]
-    
-    res = ex.target_model.create(data)    
 
-    print(res)
+    model = 'res.country.state'
+    
+    recursion = 1
+
+    res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
+    
+    file_path = "./" + model + ".json"
+    Pretty.log(res, file_path=file_path)
+        
+    # ex.migration_map.load_from_file(file_path=file_path)
+    
+    # ex.migrate(model, batch_size=10, recursion_level=recursion)
 
 if __name__ == "__main__":
     
@@ -220,6 +214,7 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_crm_lead()
-    # migrate_res_partner()   
+    migrate_res_partner()   
+    # migrate_crm_lead()
+   
     # data_test()
