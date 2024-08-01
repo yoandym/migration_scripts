@@ -9,7 +9,7 @@ from executor import Executor
     
     
 
-def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> dict:
+def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> list:
     """
     To migrate account/payment.term.lines from odoo v14 to v17.
     
@@ -22,7 +22,7 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: list)
         data (list): The data to format. All model records at once.
 
     Returns:
-        dict: The formatted data for the target instance.
+        list: The formatted data for the target instance.
     """
 
     line_ids = data.copy()
@@ -62,8 +62,8 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     Returns:
         dict: The formatted data for the target instance.
     """
-    _data = copy.deepcopy(data)
-    for record in _data:
+    _data = []
+    for idx, record in enumerate(data):
         if "x_studio_categorizacin" in record:
             description = record.get("description", "")
             if not isinstance(description, str):
@@ -73,6 +73,8 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
                 x_studio_categorizacin = ""
             
             record["description"] = description + "\n" + x_studio_categorizacin
+        
+        _data.append(record)
             
     return _data
 
