@@ -15,7 +15,7 @@ from colorama import Fore, Back, Style
 from unidecode import unidecode
 
 import odoorpc
-import treelib
+import sqlite3
 
 from tools import Pretty
 from mapping import MigrationMap
@@ -53,10 +53,6 @@ class Executor(object):
     
     #: Options / Values to set on context. By default sets tracking **'tracking_disable' = True**.
     record_create_options = {'tracking_disable': True}
-    
-    #: Directory to save logs
-    log_path = None
-                
 
     def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
@@ -105,9 +101,45 @@ class Executor(object):
         
         self.run_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
-        # set log file name to current os date time
+        default_path = self._get_main_path()
+        
+        # set log and tracking db file and path
         log_file_name = "%s.log" % self.run_id
-        self.log_path = os.path.join(os.path.dirname(__file__), log_file_name)
+        self.log_path = os.path.join(default_path, log_file_name)
+        
+        db_file_name = "%s.db" % self.run_id
+        self.db_path = os.path.join(default_path, db_file_name)
+        
+        # get a db connection and initialize it
+        self.ids_tracking_db = sqlite3.connect(self.db_path)
+        self._init_ids_tracking_db()
+
+    def _init_ids_tracking_db(self):
+        """
+        Initialize the ids tracking database
+        """
+        cursor = self.ids_tracking_db.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS ids_tracking
+                        (
+                            source_model_name TEXT,
+                            source_id INTEGER, 
+                            target_model_name TEXT,
+                            target_id INTEGER
+                        )
+                        ''')
+        self.ids_tracking_db.commit()
+
+    def _get_main_path(self) -> str:
+        """
+        Get the main module container directory path.
+        
+        Returns:
+            str: The main module container directory path.
+        """
+        main_module = sys.modules['__main__']
+        main_path = os.path.abspath(main_module.__file__)
+        main_dir = os.path.dirname(main_path)
+        return main_dir
 
     @property
     def debug(self):
@@ -195,9 +227,6 @@ class Executor(object):
             return False
         elif migration_map is not None:
             self.migration_map.normalice_fields(migration_map)
-
-        # save data
-        self.model_name = model_name
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
@@ -213,7 +242,7 @@ class Executor(object):
         source_fields = list(main_model_fields_map.keys())
         target_fields = list(main_model_fields_map.values())
                 
-        # get the source data 
+        # get source ids to migrate 
         if not source_ids:
             ids = self.source_model.search([])
         else:
@@ -225,6 +254,7 @@ class Executor(object):
             batches = self._split_into_batches(ids, batch_size)
             
         for batch in batches:
+            data = []
             
             try:
                 # get data from source instance
@@ -236,6 +266,8 @@ class Executor(object):
 
                 # creates the records at target instance
                 res = self.target_model.create(data)
+                
+                self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
                 
                 # print the results
                 batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
@@ -296,6 +328,31 @@ class Executor(object):
             fields = list(fields.keys())
         
         return fields
+
+    def _track_ids(self, source_model_name: str, source_ids: list, target_model_name: str, target_ids: list) -> None:
+        """
+        Track the ids of the migrated records into a sqlite database
+
+        Args:
+            source_model_name (str): The source model name.
+            source_ids (list): The source ids.
+            target_model_name (str): The target model name.
+            target_ids (list): The target ids.
+        """
+        
+       
+        cursor = self.ids_tracking_db.cursor()
+        
+        for idx, source_id in enumerate(source_ids):
+            try:
+                target_id = target_ids[idx]
+                cursor.execute('INSERT INTO ids_tracking VALUES (?, ?, ?, ?)', (source_model_name, source_id, target_model_name, target_id))
+                self.ids_tracking_db.commit()
+            except Exception as e:
+                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+                message = "Error tracking ids. %s.id=%s --> %s.id=%s" % (source_model_name, source_ids, target_model_name, target_ids)
+                Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                print(message)
 
     def _format_data(self, model_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
         """
@@ -447,6 +504,9 @@ class Executor(object):
                                                 target_model_name=target_model_name)
                 if _found:
                     _data.append(_found[0])
+                    
+                    # tracking
+                    self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
                 else:
                     # data may contain new relations, so we have to format them
                     _new_data = self._format_data(model_name=model_name, 
@@ -454,6 +514,9 @@ class Executor(object):
                                                     recursion_level=recursion_level - 1)
                     _id = target_model.create(_new_data)
                     _data.append(_id[0])
+                    
+                    # tracking
+                    self._track_ids(model_name, [record_id], target_model_name, [_id[0]])
             
 
         elif relation_type == 'many2one':
@@ -479,6 +542,9 @@ class Executor(object):
                 _found = target_model.create(new_target_data)
 
             _data = _found[0]
+            
+            # tracking
+            self._track_ids(model_name, [related_source_id], target_model_name, [_data])
         
         else:
             raise UnsupportedRelationException('%s relations are not supported yet', relation_type)

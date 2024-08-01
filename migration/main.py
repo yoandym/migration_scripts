@@ -48,7 +48,6 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: list)
 
     return new_line_ids
 
-
 def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     """
     To migrate a custom crm.lead model from odoo v14 to v17.
@@ -192,18 +191,19 @@ def data_test():
     
     ex = Executor(debug=True)
 
-    model = 'res.country.state'
+    model = 'res.partner'
     
     recursion = 1
 
-    res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
+    # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
     
     file_path = "./" + model + ".json"
-    Pretty.log(res, file_path=file_path)
+    # Pretty.log(res, file_path=file_path)
         
-    # ex.migration_map.load_from_file(file_path=file_path)
+    ex.migration_map.load_from_file(file_path=file_path)
     
-    # ex.migrate(model, batch_size=10, recursion_level=recursion)
+    source_ids = [62316, 60596, 38355]
+    ex.migrate(model, batch_size=10, recursion_level=recursion, source_ids=source_ids)
 
 if __name__ == "__main__":
     
@@ -214,7 +214,7 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_res_partner()   
-    # migrate_crm_lead()
+    # migrate_res_partner()   
+    migrate_crm_lead()
    
     # data_test()
