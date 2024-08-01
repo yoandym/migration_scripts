@@ -431,7 +431,7 @@ class Executor(object):
                     Pretty.log('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name), self.log_path, overwrite=True, mode='a')
                     raise e
                 
-                # test for and do field name changes
+                # test for and do field name changes / transformations with callables
                 field_mapping_value = model_fields_map[column_name]
                 if column_name != field_mapping_value:
                     
@@ -440,10 +440,14 @@ class Executor(object):
                     # process the whole data set. 
                     # At map load time callables are detected for every field
                     if callable(field_mapping_value):
+                        # update data before processing callables
+                        _data[idx] = record
                         _data = field_mapping_value(self, _data)
                     else:
                         # do the field name change
                         record[field_mapping_value] = record.pop(column_name)
+            
+            _data[idx] = record
             
         return _data
     
