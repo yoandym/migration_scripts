@@ -225,20 +225,29 @@ class MigrationMap:
         
         map = {}
         submap = {}
-        removed_fields = list(source_fields.copy().keys())
+        removed_fields = []
         new_fields = list(target_fields.copy().keys())
+        too_deep = []
 
         # # this is necceary cause the source or target fields maybe empty (because the model does not exist)
         field_list = list(source_fields.copy().keys())
 
         for field in field_list:
             if field in target_fields:
+                # We have the same field in both instances, so it is not new
+                new_fields.remove(field)
+                
+                # by default include the field in the map
                 include_field_in_map = True
                 
                 # test for and process relational fields
                 field_type = source_fields[field]['type']
                 if field_type in self.executor.relation_types:
                     if recursion_level > 0:
+                        
+                        # include the field in the map fields
+                        include_field_in_map = True
+                        
                         # get source and target related model names
                         related_source_model_name = source_fields[field]['relation']
                         try:
@@ -253,24 +262,31 @@ class MigrationMap:
                                                             recursion_level=recursion_level - 1)                        
                             map.update(new_map)
                     elif self.executor.recursion_mode == 'w':
+                        
+                        # mark the field as too deep
+                        too_deep.append(field)
+                        
+                        # do not include the field in the map
                         include_field_in_map = False
+                        
                         print('Warning: Field %s.%s is a relation and current recursion level is not enougth. Skipping it from map/migration.' % (model_name, field))
+                        
                     elif self.executor.recursion_mode == 'h':
-                        include_field_in_map = False
                         raise TooDeepException('Error: Field %s.%s is a relation and current recursion level is not enougth. Cant traverse it. Aborting.' % (model_name, field))
                     else:
                         raise Exception('Error: Invalid recursion mode %s. Use "h" for halt or "w" for warn.' % self.executor.recursion_mode)
                 
-                # should i include the field in the map?
+                # include the field in the map
                 if include_field_in_map:
                     submap[field] = field
-                    removed_fields.remove(field)
-                    new_fields.remove(field)
-                
+            else:
+                removed_fields.append(field)
+                    
         map[source_model_name] = {
             "target_model": target_model_name,
             "search_keys": self.default_search_keys, # default search keys
-            "fields": submap, "removed": removed_fields, "new": new_fields}
+            "fields": submap, "too_deep": too_deep, "removed": removed_fields, "new": new_fields
+            }
         
         self.map = map
         return map

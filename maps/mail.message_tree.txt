@@ -1,0 +1,21 @@
+mail.message
+├── attachment_ids->ir.attachment
+├── author_id->res.partner
+├── canned_response_ids->mail.shortcode
+├── channel_ids->mail.channel
+├── child_ids->mail.message
+├── create_uid->res.users
+├── letter_ids->snailmail.letter
+├── mail_activity_type_id->mail.activity.type
+├── mail_ids->mail.mail
+├── mail_server_id->ir.mail_server
+├── moderator_id->res.users
+├── notification_ids->mail.notification
+├── notified_partner_ids->res.partner
+├── parent_id->mail.message
+├── partner_ids->res.partner
+├── rating_ids->rating.rating
+├── starred_partner_ids->res.partner
+├── subtype_id->mail.message.subtype
+├── tracking_value_ids->mail.tracking.value
+└── write_uid->res.users
