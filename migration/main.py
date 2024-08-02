@@ -234,6 +234,36 @@ def make_a_tree(model_name: str, recursion_level: int):
     file_path = "./" + model_name + "_tree.txt"
     res.save2file(file_path)
 
+
+def test_instances():
+    
+    import os
+    import dotenv
+    
+    dotenv.load_dotenv()
+    
+    source = {
+        "host": os.environ["SOURCE_HOST"],
+        "port": os.environ["SOURCE_PORT"],
+        "bd": os.environ["SOURCE_DB"],
+        "user": os.environ["SOURCE_DB_USER"],
+        "password": os.environ["SOURCE_DB_PASSWORD"],
+    }
+    
+    target = {
+    "host": os.environ["TARGET_HOST"],
+    "port": os.environ["TARGET_PORT"],
+    "bd": os.environ["TARGET_DB"],
+    "user": os.environ["TARGET_DB_USER"],
+    "password": os.environ["TARGET_DB_PASSWORD"],
+    }
+                
+    ex = Executor(debug=True)
+    # ex.test_login(instance=source)
+    ex.test_login(instance=target)
+    
+
+
 if __name__ == "__main__":
     
     # gwt current path 
@@ -242,12 +272,14 @@ if __name__ == "__main__":
     os.chdir(os.path.dirname(current_path))
     # and then enter de maps folder
     os.chdir("maps")
+    
+    test_instances()
 
     # migrate_res_partner()   
     # migrate_crm_lead()
    
     # migrate_some_ids(model="crm.lead", source_ids=[29825])
     
-    make_a_map(model_name="mail.message", recursion_level=2)
+    # make_a_map(model_name="mail.message", recursion_level=2)
    
     # make_a_tree("mail.message", 1)

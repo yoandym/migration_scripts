@@ -557,7 +557,6 @@
             "signup_expiration": "signup_expiration",
             "signup_valid": "signup_valid",
             "signup_url": "signup_url",
-            "additional_info": "additional_info",
             "credit": "credit",
             "debit": "debit",
             "debit_limit": "debit_limit",
@@ -906,7 +905,6 @@
             "starred": "starred",
             "message_id": "message_id",
             "reply_to": "reply_to",
-            "mail_ids": "mail_ids",
             "message_type": "message_type",
             "create_date": "create_date"
         },
