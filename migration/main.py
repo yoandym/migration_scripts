@@ -78,7 +78,6 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
             
     return _data
 
-
 def migrate_crm_team():
     """
     A simple data migration for model crm.team model from odoo v14 to v17.
@@ -188,14 +187,11 @@ def migrate_crm_lead():
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
     ex.migrate(model, batch_size=10, recursion_level=recursion)
     
-    
-def data_test():
+def migrate_some_ids(model, source_ids):
     
     ex = Executor(debug=True)
-
-    model = 'res.partner'
     
-    recursion = 1
+    recursion = 3
 
     # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
     
@@ -204,8 +200,39 @@ def data_test():
         
     ex.migration_map.load_from_file(file_path=file_path)
     
-    source_ids = [62316, 60596, 38355]
+    
     ex.migrate(model, batch_size=10, recursion_level=recursion, source_ids=source_ids)
+
+def make_a_map(model_name: str, recursion_level: int):
+    """
+    Generate a file with a field map for a model.
+    
+    Args:
+        model_name (str): The model name.
+        recursion_level (int): The recursion level.
+    Returns:
+        None
+    """
+    ex = Executor(debug=True)
+    res = ex.migration_map.generate_full_map(model_name=model_name, recursion_level=recursion_level)
+    file_path = "./" + model_name + ".json"
+    Pretty.log(res, file_path=file_path)
+
+def make_a_tree(model_name: str, recursion_level: int):
+    """
+    Generate a file with a tree map for a model.
+    
+    Args:
+        model_name (str): The model name.
+        recursion_level (int): The recursion level.
+    
+    Returns:
+        None
+    """
+    ex = Executor(debug=True)
+    res = ex.migration_map.model_tree(model_name=model_name, recursion_level=recursion_level)
+    file_path = "./" + model_name + "_tree.txt"
+    res.save2file(file_path)
 
 if __name__ == "__main__":
     
@@ -217,6 +244,10 @@ if __name__ == "__main__":
     os.chdir("maps")
 
     # migrate_res_partner()   
-    migrate_crm_lead()
+    # migrate_crm_lead()
    
-    # data_test()
+    # migrate_some_ids(model="crm.lead", source_ids=[29825])
+    
+    make_a_map(model_name="mail.message", recursion_level=2)
+   
+    # make_a_tree("mail.message", 1)
