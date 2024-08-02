@@ -864,44 +864,34 @@
         ],
         "new": []
     },
-    "mail.activity": {
+    "mail.followers": {
+        "target_model": "mail.followers",
+        "search_keys": {
+            "name": "name"
+        },
         "fields": {
-            "res_model_id": "res_model_id",
             "res_model": "res_model",
             "res_id": "res_id",
-            "res_name": "res_name",
-            "activity_type_id": "activity_type_id",
-            "activity_category": "activity_category",
-            "activity_decoration": "activity_decoration",
-            "icon": "icon",
-            "summary": "summary",
-            "note": "note",
-            "date_deadline": "date_deadline",
-            "automated": "automated",
-            "user_id": "user_id",
-            "request_partner_id": "request_partner_id",
-            "state": "state",
-            "recommended_activity_type_id": "recommended_activity_type_id",
-            "previous_activity_type_id": "previous_activity_type_id",
-            "has_recommended_activities": "has_recommended_activities",
-            "mail_template_ids": "mail_template_ids",
-            "can_write": "can_write",
-            "create_date": "create_date"
+            "partner_id": "partner_id",
+            "name": "name",
+            "email": "email",
+            "is_active": "is_active"
         },
         "removed": [
-            "force_next",
+            "partner_id",
+            "channel_id",
+            "subtype_ids",
             "__last_update"
         ],
         "new": [
-            "date_done",
-            "attachment_ids",
-            "chaining_type",
-            "active"
+            "partner_id",
+            "subtype_ids"
         ]
     },
     "mail.message": {
         "search_keys": {"message_id": "message_id"},
         "fields": {
+            "parent_id": "parent_id",
             "subject": "subject",
             "date": "date",
             "body": "body",
@@ -910,6 +900,8 @@
             "is_internal": "is_internal",
             "email_from": "email_from",
             "author_avatar": "author_avatar",
+            "model": "model",
+            "res_id": "res_id",
             "partner_ids": "partner_ids",
             "starred": "starred",
             "message_id": "message_id",
@@ -939,69 +931,6 @@
             "pinned_at",
             "reply_to_force_new",
             "email_add_signature"
-        ]
-    },
-    "mail.activity.type": {
-        "fields": {
-            "name": "name",
-            "summary": "summary",
-            "sequence": "sequence",
-            "active": "active",
-            "delay_count": "delay_count",
-            "delay_unit": "delay_unit",
-            "delay_label": "delay_label",
-            "delay_from": "delay_from",
-            "icon": "icon",
-            "decoration_type": "decoration_type",
-            "previous_type_ids": "previous_type_ids",
-            "mail_template_ids": "mail_template_ids",
-            "default_user_id": "default_user_id",
-            "res_model_change": "res_model_change",
-            "category": "category",
-            "create_date": "create_date"
-        },
-        "removed": [
-            "res_model_id",
-            "default_next_type_id",
-            "force_next",
-            "next_type_ids",
-            "default_description",
-            "initial_res_model_id",
-            "__last_update"
-        ],
-        "new": [
-            "res_model",
-            "triggered_next_type_id",
-            "chaining_type",
-            "suggested_next_type_ids",
-            "default_note",
-            "keep_done",
-            "initial_res_model"
-        ]
-    },
-    "mail.followers": {
-        "target_model": "mail.followers",
-        "search_keys": {
-            "name": "name"
-        },
-        "fields": {
-            "res_model": "res_model",
-            "res_id": "res_id",
-            "partner_id": "partner_id",
-            "name": "name",
-            "email": "email",
-            "is_active": "is_active",
-            "id": "id"
-        },
-        "removed": [
-            "partner_id",
-            "channel_id",
-            "subtype_ids",
-            "__last_update"
-        ],
-        "new": [
-            "partner_id",
-            "subtype_ids"
         ]
     },
     "crm.lead": {
@@ -1034,6 +963,11 @@
             "function": "function",
             "title": "title",
             "email_from": "email_from",
+            "message_ids": "message_ids",
+            "website_message_ids": "website_message_ids",
+            "message_is_follower": "message_is_follower",
+            "message_follower_ids": "message_follower_ids",
+            "message_partner_ids": "message_partner_ids",
             "phone": "phone",
             "mobile": "mobile",
             "website": "website",
