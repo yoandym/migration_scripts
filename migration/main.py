@@ -9,7 +9,7 @@ from executor import Executor
     
     
 
-def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> dict:
+def _account_payment_term_line_value_transformer(executor: Executor, data: list) -> list:
     """
     To migrate account/payment.term.lines from odoo v14 to v17.
     
@@ -22,7 +22,7 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: list)
         data (list): The data to format. All model records at once.
 
     Returns:
-        dict: The formatted data for the target instance.
+        list: The formatted data for the target instance.
     """
 
     line_ids = data.copy()
@@ -48,7 +48,6 @@ def _account_payment_term_line_value_transformer(executor: Executor, data: list)
 
     return new_line_ids
 
-
 def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     """
     To migrate a custom crm.lead model from odoo v14 to v17.
@@ -63,8 +62,8 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     Returns:
         dict: The formatted data for the target instance.
     """
-    _data = copy.deepcopy(data)
-    for record in _data:
+    _data = []
+    for idx, record in enumerate(data):
         if "x_studio_categorizacin" in record:
             description = record.get("description", "")
             if not isinstance(description, str):
@@ -74,9 +73,10 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
                 x_studio_categorizacin = ""
             
             record["description"] = description + "\n" + x_studio_categorizacin
+        
+        _data.append(record)
             
     return _data
-
 
 def migrate_crm_team():
     """
@@ -187,23 +187,52 @@ def migrate_crm_lead():
     #: Do the migration. There are about 1k records so we use a batchs avoid timeouts.
     ex.migrate(model, batch_size=10, recursion_level=recursion)
     
-    
-def data_test():
+def migrate_some_ids(model, source_ids):
     
     ex = Executor(debug=True)
-
-    model = 'res.country.state'
     
-    recursion = 1
+    recursion = 3
 
-    res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
+    # res = ex.migration_map.generate_full_map(model_name=model, recursion_level=recursion)
     
     file_path = "./" + model + ".json"
-    Pretty.log(res, file_path=file_path)
+    # Pretty.log(res, file_path=file_path)
         
-    # ex.migration_map.load_from_file(file_path=file_path)
+    ex.migration_map.load_from_file(file_path=file_path)
     
-    # ex.migrate(model, batch_size=10, recursion_level=recursion)
+    
+    ex.migrate(model, batch_size=10, recursion_level=recursion, source_ids=source_ids)
+
+def make_a_map(model_name: str, recursion_level: int):
+    """
+    Generate a file with a field map for a model.
+    
+    Args:
+        model_name (str): The model name.
+        recursion_level (int): The recursion level.
+    Returns:
+        None
+    """
+    ex = Executor(debug=True)
+    res = ex.migration_map.generate_full_map(model_name=model_name, recursion_level=recursion_level)
+    file_path = "./" + model_name + ".json"
+    Pretty.log(res, file_path=file_path)
+
+def make_a_tree(model_name: str, recursion_level: int):
+    """
+    Generate a file with a tree map for a model.
+    
+    Args:
+        model_name (str): The model name.
+        recursion_level (int): The recursion level.
+    
+    Returns:
+        None
+    """
+    ex = Executor(debug=True)
+    res = ex.migration_map.model_tree(model_name=model_name, recursion_level=recursion_level)
+    file_path = "./" + model_name + "_tree.txt"
+    res.save2file(file_path)
 
 if __name__ == "__main__":
     
@@ -214,7 +243,11 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
 
-    migrate_res_partner()   
+    # migrate_res_partner()   
     # migrate_crm_lead()
    
-    # data_test()
+    # migrate_some_ids(model="crm.lead", source_ids=[29825])
+    
+    make_a_map(model_name="mail.message", recursion_level=2)
+   
+    # make_a_tree("mail.message", 1)

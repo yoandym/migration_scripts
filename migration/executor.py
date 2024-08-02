@@ -15,7 +15,7 @@ from colorama import Fore, Back, Style
 from unidecode import unidecode
 
 import odoorpc
-import treelib
+import sqlite3
 
 from tools import Pretty
 from mapping import MigrationMap
@@ -53,10 +53,6 @@ class Executor(object):
     
     #: Options / Values to set on context. By default sets tracking **'tracking_disable' = True**.
     record_create_options = {'tracking_disable': True}
-    
-    #: Directory to save logs
-    log_path = None
-                
 
     def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
@@ -105,9 +101,47 @@ class Executor(object):
         
         self.run_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
-        # set log file name to current os date time
+        default_path = self._get_main_path()
+        
+        # set log and tracking db file and path
         log_file_name = "%s.log" % self.run_id
-        self.log_path = os.path.join(os.path.dirname(__file__), log_file_name)
+        self.log_path = os.path.join(default_path, log_file_name)
+        
+        db_file_name = "%s.db" % self.run_id
+        self.db_path = os.path.join(default_path, db_file_name)
+        
+        # get a db connection and initialize it
+        self.ids_tracking_db = sqlite3.connect(self.db_path)
+        self._init_ids_tracking_db()
+
+    def _init_ids_tracking_db(self):
+        """
+        Initialize the ids tracking database
+        """
+        cursor = self.ids_tracking_db.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS ids_tracking
+                        (
+                            source_model_name TEXT,
+                            source_id INTEGER, 
+                            target_model_name TEXT,
+                            target_id INTEGER,
+                            has_decoupled_relation BOOLEAN DEFAULT FALSE,
+                            update_required BOOLEAN DEFAULT FALSE
+                        )
+                        ''')
+        self.ids_tracking_db.commit()
+
+    def _get_main_path(self) -> str:
+        """
+        Get the main module container directory path.
+        
+        Returns:
+            str: The main module container directory path.
+        """
+        main_module = sys.modules['__main__']
+        main_path = os.path.abspath(main_module.__file__)
+        main_dir = os.path.dirname(main_path)
+        return main_dir
 
     @property
     def debug(self):
@@ -177,86 +211,7 @@ class Executor(object):
             Pretty.print('FAILED', Pretty.FAILED_COLOR)
             
             return False
-        
-    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None) -> bool:
-        """
-        Migrate data from source to target
-
-        Args:
-            model_name (str): The model name to migrate.
-            migration_map (Union[dict, list]): The migration map to use. Defaults to None.
-            recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
-            batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.
-            source_ids (list): A list of source ids to migrate. If present it will migrate only the provided ids. Defaults to None.
-        """
-        
-        if migration_map is None and self.migration_map.map is None:
-            print('Migration map not provided')
-            return False
-        elif migration_map is not None:
-            self.migration_map.normalice_fields(migration_map)
-
-        # save data
-        self.model_name = model_name
-        
-        # match target context with source context to avoid translation and datetimes problems
-        self._match_context()
-        
-        # gets the source and target models
-        self.source_model = self.source_odoo.env[model_name]
-        self.target_model_name = self.migration_map.get_target_model(model_name)
-        self.target_model = self.target_odoo.env[self.target_model_name]
-        
-        # get the source and target fields for the migration
-        main_model_fields_map = self.migration_map.get_mapping(model_name)["fields"]
-        
-        source_fields = list(main_model_fields_map.keys())
-        target_fields = list(main_model_fields_map.values())
-                
-        # get the source data 
-        if not source_ids:
-            ids = self.source_model.search([])
-        else:
-            ids = source_ids
-        
-        # take into consideration the batch size
-        batches = [ids]
-        if len(ids) > batch_size:
-            batches = self._split_into_batches(ids, batch_size)
-            
-        for batch in batches:
-            
-            try:
-                # get data from source instance
-                recordset = self.source_model.browse(batch)
-                data = recordset.read(source_fields)
-                
-                # format it to be feed in the target instance
-                data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
-
-                # creates the records at target instance
-                res = self.target_model.create(data)
-                
-                # print the results
-                batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
-                result_message = '%s %s migrated successfully: %s' % (len(res), model_name, batch_ids)
-                
-                print(result_message)
-                
-            except Exception as e:
-                batch_ids = batch
-                result_message = 'Batch processing error. Source instance ids: %s' % batch_ids
-                
-                Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
-                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
-
-                if self.debug:
-                    Pretty.log(data, self.log_path, overwrite=True, mode='a')
-                
-                print(result_message)
-                    
-        return True
-    
+      
     def get_fields(self, instance: int, model_name: str, required_only=False, summary_only=True) -> list:
         """
         Get fields for the model
@@ -296,7 +251,144 @@ class Executor(object):
             fields = list(fields.keys())
         
         return fields
+ 
+    def search_in_target(self, model_name: str, source_id: int, target_model_name: str=None, search_keys: dict=None) -> list:
+        """ 
+        Search for records in the target model using ``search keys``
+        
+        Args:
+            model_name (str): The souce model name where data came from.
+            source_id (int): The record id, from source, whose ``search_keys`` are going to be searched in the target model.
+            target_model_name (str, optional): The target model name to search in. Defaults to None.
+                If no target_model_name is provided, look for in migration_map, else the same ``model_name`` is used.
+            search_keys (dict, optional): The search keys to use. Defaults to None.
+                If no search_keys is provided, look for in migration_map, else the ``default_search_keys`` are used.
 
+        Returns:
+            list: The list of ids found in the target model.
+        """
+        if target_model_name is None:
+            target_model_name = self.migration_map.get_target_model(model_name)
+        
+        if search_keys is None:
+            search_keys = self.migration_map.get_search_keys(model_name)
+        
+        source_model = self.source_model.env[model_name]
+        target_model = self.target_odoo.env[target_model_name]
+        
+        source_fields_to_read = list(search_keys.keys())
+        target_fields_to_read = list(search_keys.values())
+        
+        source_recordset = source_model.browse(source_id)
+        source_data = source_recordset.read(source_fields_to_read)[0]
+        
+        _found = False
+        _data = False
+        
+        # search in target model by every search key
+        for s_key, t_key in search_keys.items():
+            if t_key == 'id':
+                _found = target_model.search_count([['id', '=', source_id]])
+                if _found:
+                    recordset = target_model.browse(source_id)
+                    _found = unidecode(recordset.display_name) == unidecode(source_data.display_name)
+                    
+                    if _found:
+                        _data = [source_id]
+                        break
+            
+            else:
+                source_key_value = source_data[s_key]
+                _found = target_model.search([[t_key, '=', source_key_value]])
+                if _found:
+                    _data = _found
+                    break
+        
+        return _data
+    
+    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None) -> bool:
+        """
+        Migrate data from source to target
+
+        Args:
+            model_name (str): The model name to migrate.
+            migration_map (Union[dict, list]): The migration map to use. Defaults to None.
+            recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
+            batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.
+            source_ids (list): A list of source ids to migrate. If present it will migrate only the provided ids. Defaults to None.
+        """
+        
+        if migration_map is None and self.migration_map.map is None:
+            print('Migration map not provided')
+            return False
+        elif migration_map is not None:
+            self.migration_map.normalice_fields(migration_map)
+        
+        
+        
+        # match target context with source context to avoid translation and datetimes problems
+        self._match_context()
+        
+        # gets the source and target models
+        self.source_model = self.source_odoo.env[model_name]
+        self.target_model_name = self.migration_map.get_target_model(model_name)
+        self.target_model = self.target_odoo.env[self.target_model_name]
+        
+        # get the source and target fields for the migration
+        main_model_fields_map = self.migration_map.get_mapping(model_name)["fields"]
+        
+        source_fields = list(main_model_fields_map.keys())
+        target_fields = list(main_model_fields_map.values())
+                
+        # get source ids to migrate 
+        if not source_ids:
+            ids = self.source_model.search([])
+        else:
+            ids = source_ids
+        
+        # take into consideration the batch size
+        batches = [ids]
+        if len(ids) > batch_size:
+            batches = self._split_into_batches(ids, batch_size)
+            
+        for batch in batches:
+            data = []
+            
+            try:
+                # get data from source instance
+                recordset = self.source_model.browse(batch)
+                data = recordset.read(source_fields)
+                
+                # format it to be feed in the target instance
+                data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
+
+                # creates the records at target instance
+                res = self.target_model.create(data)
+                
+                self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
+                
+                self._process_decoupled_relations(model_name)
+                
+                # print the results
+                batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
+                result_message = '%s %s migrated successfully: %s' % (len(res), model_name, batch_ids)
+                
+                print(result_message)
+                
+            except Exception as e:
+                batch_ids = batch
+                result_message = 'Batch processing error. Source instance ids: %s' % batch_ids
+                
+                Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
+                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+
+                if self.debug:
+                    Pretty.log(data, self.log_path, overwrite=True, mode='a')
+                
+                print(result_message)
+                    
+        return True
+    
     def _format_data(self, model_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
         """
         Formats the data to be feed in the target instance:
@@ -327,9 +419,17 @@ class Executor(object):
             _data = [_data]
         
         for idx, record in enumerate(_data):
-            for column_name in list(record.keys()):
+            fields = list(record.keys())
+            has_a_decoupled_relation = self._has_decoupled_relation(fields)
+            
+            for column_name in fields:
                 
-                # drop unwanted fields
+                # drop decoupled relations fields, will be processed later
+                if column_name in ["model", "res_id"] and has_a_decoupled_relation:
+                    record.pop(column_name)
+                    continue
+                
+                # drop other unwanted fields
                 if column_name not in model_field_list:
                     record.pop(column_name)
                     continue
@@ -374,7 +474,7 @@ class Executor(object):
                     Pretty.log('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name), self.log_path, overwrite=True, mode='a')
                     raise e
                 
-                # test for and do field name changes
+                # test for and do field name changes / transformations with callables
                 field_mapping_value = model_fields_map[column_name]
                 if column_name != field_mapping_value:
                     
@@ -383,10 +483,14 @@ class Executor(object):
                     # process the whole data set. 
                     # At map load time callables are detected for every field
                     if callable(field_mapping_value):
+                        # update data before processing callables
+                        _data[idx] = record
                         _data = field_mapping_value(self, _data)
                     else:
                         # do the field name change
                         record[field_mapping_value] = record.pop(column_name)
+            
+            _data[idx] = record
             
         return _data
     
@@ -447,13 +551,22 @@ class Executor(object):
                                                 target_model_name=target_model_name)
                 if _found:
                     _data.append(_found[0])
+                    
+                    # tracking
+                    self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
                 else:
                     # data may contain new relations, so we have to format them
                     _new_data = self._format_data(model_name=model_name, 
-                                                    data=record, 
-                                                    recursion_level=recursion_level - 1)
+                                                  data=record, 
+                                                  recursion_level=recursion_level - 1)
                     _id = target_model.create(_new_data)
                     _data.append(_id[0])
+                    
+                    # tracking
+                    has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
+                    self._track_ids(source_model_name=model_name, source_ids=[record_id], 
+                                    target_model_name=target_model_name, target_ids=[_id[0]],
+                                    has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
             
 
         elif relation_type == 'many2one':
@@ -479,66 +592,110 @@ class Executor(object):
                 _found = target_model.create(new_target_data)
 
             _data = _found[0]
+            
+            # tracking
+            has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
+            self._track_ids(source_model_name=model_name, source_ids=[related_source_id], 
+                            target_model_name=target_model_name, target_ids=[_data],
+                            has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
         
         else:
             raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
           
         return _data
-    
-    def search_in_target(self, model_name: str, source_id: int, target_model_name: str=None, search_keys: dict=None) -> list:
-        """ 
-        Search for records in the target model using ``search keys``
-        
-        Args:
-            model_name (str): The souce model name where data came from.
-            source_id (int): The record id, from source, whose ``search_keys`` are going to be searched in the target model.
-            target_model_name (str, optional): The target model name to search in. Defaults to None.
-                If no target_model_name is provided, look for in migration_map, else the same ``model_name`` is used.
-            search_keys (dict, optional): The search keys to use. Defaults to None.
-                If no search_keys is provided, look for in migration_map, else the ``default_search_keys`` are used.
 
-        Returns:
-            list: The list of ids found in the target model.
+    def _process_decoupled_relations(self, model_name: str):
         """
-        if target_model_name is None:
-            target_model_name = self.migration_map.get_target_model(model_name)
+        Process / updates records with special fields used to make a decoupled relation to other models.
+        This are fields that points to another record using a ``model``and ``res_id`` schema. 
+        ( A record maybe not yet created when the model is being processed) 
         
-        if search_keys is None:
-            search_keys = self.migration_map.get_search_keys(model_name)
+        Example:
+            - Models with a messages_ids field, pointing to a mail.message which in turn has the fields ``model`` and ``res_id``
+              that points back to a parent/associated model
+
+        Args:
+            model_name (str): _description_
+        """
         
-        source_model = self.source_model.env[model_name]
-        target_model = self.target_odoo.env[target_model_name]
+        decoupled_relation_fields = ["model", "res_id"]
         
-        source_fields_to_read = list(search_keys.keys())
-        target_fields_to_read = list(search_keys.values())
-        
-        source_recordset = source_model.browse(source_id)
-        source_data = source_recordset.read(source_fields_to_read)[0]
-        
-        _found = False
-        _data = False
-        
-        # search in target model by every search key
-        for s_key, t_key in search_keys.items():
-            if t_key == 'id':
-                _found = target_model.search_count([['id', '=', source_id]])
-                if _found:
-                    recordset = target_model.browse(source_id)
-                    _found = unidecode(recordset.display_name) == unidecode(source_data.display_name)
+        # get records with decoupled relations requiring an update
+        cursor = self.ids_tracking_db.cursor()
+        cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE has_decoupled_relation = 1 AND update_required = 1')
+        records = cursor.fetchall()
+        for rec in records:
+            try:
+                source_model_name, source_id, target_model_name, target_id = rec
+                source_model = self.source_odoo.env[source_model_name]
+                target_model = self.target_odoo.env[target_model_name] 
+                
+                source_recordset = source_model.browse(source_id)
+                source_data = source_recordset.read(decoupled_relation_fields)
+                source_data = source_data[0]
+                
+                related_model_name = source_data['model']
+                related_id = source_data['res_id']
+                
+                # search in the ids_tracking db for the related record
+                cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE source_model_name = ? AND source_id = ?', (related_model_name, related_id))
+                related_rec = cursor.fetchone()
+                if related_rec:
+                    related_source_model_name, related_source_id, related_target_model_name, related_target_id = related_rec
                     
-                    if _found:
-                        _data = [source_id]
-                        break
-            
-            else:
-                source_key_value = source_data[s_key]
-                _found = target_model.search([[t_key, '=', source_key_value]])
-                if _found:
-                    _data = _found
-                    break
+                    # update the target record model and res_id
+                    target_recordset = target_model.browse(target_id)
+                    target_data = target_recordset.read(decoupled_relation_fields)
+                    target_data = target_data[0]
+                    target_data['model'] = related_target_model_name
+                    target_data['res_id'] = related_target_id
+                    target_recordset.write(target_data)
+                    
+                    # update the ids_tracking db
+                    cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
+                    self.ids_tracking_db.commit()
+                else:
+                    message = "Decoupled relation not updated. Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
+                    Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                    print(message)
+            except Exception as e:
+                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+                message = "Error processing decoupled relations. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
+                Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                print(message)
+
+    def _track_ids(self, source_model_name: str, source_ids: list, target_model_name: str, target_ids: list, has_decoupled_relation: bool=False, update_required:bool=False) -> None:
+        """
+        Track the ids of the migrated records into a sqlite database.
+        Tracks also if a model / record has a decoupled relation using a ``model``and ``res_id`` schema.
+        and if an update is required in the target instance.
         
-        return _data
-    
+        If a record has a decoupled relation, the model-res_id record may not exist yet in the target instance,
+        so, after all the records are created, the res_id has to be updated.
+
+        Args:
+            source_model_name (str): The source model name.
+            source_ids (list): The source ids.
+            target_model_name (str): The target model name.
+            target_ids (list): The target ids.
+            has_decoupled_relation (bool): If the model has a decoupled relation using a ``model``and ``res_id`` schema. Defaults to False.
+            update_required (bool): If an update is required in the target instance. Defaults to False.
+        """
+       
+        cursor = self.ids_tracking_db.cursor()
+        
+        for idx, source_id in enumerate(source_ids):
+            try:
+                target_id = target_ids[idx]
+                cursor.execute('INSERT INTO ids_tracking VALUES (?, ?, ?, ?, ?, ?)', 
+                                        (source_model_name, source_id, target_model_name, target_id, has_decoupled_relation, update_required))
+                self.ids_tracking_db.commit()
+            except Exception as e:
+                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+                message = "Error tracking ids. %s.id=%s --> %s.id=%s" % (source_model_name, source_ids, target_model_name, target_ids)
+                Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                print(message)
+
     def _remove_implicit_fields(self, fields):
         """
         Remove implicit fields from the fields list
@@ -616,15 +773,18 @@ class Executor(object):
                 
         return True
     
-    def delayed_update(self, model, field, data: dict) -> int:
+    def _has_decoupled_relation(self, fields: list) -> bool:
         """
-        Create a message record in the target instance with security rights / access rules in mind.
-        That is, the author and creator is the same user
+        Check if there is decoupled relation schema with another model
 
         Args:
-            data (dict): The data to create the record with.
+            fields (list): the fields list to check.
 
         Returns:
-            int: The id of the created record.
+            bool: True if the model has a decoupled relation, False otherwise.
         """
-        return self.target_model.create(data)
+        
+        if "model" in fields and "res_id" in fields:
+            return True
+        
+        return False

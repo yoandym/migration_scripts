@@ -10,7 +10,7 @@ from typing import Union
 
 import treelib
 
-from exceptions import MissingModelMappingException, BadFieldMappingException
+from exceptions import MissingModelMappingException, BadFieldMappingException, TooDeepException
 
 class MigrationMap:
     """
@@ -163,13 +163,13 @@ class MigrationMap:
                 return tree
                 
             # get odoo model and field metadata
-            source_model = self.source_odoo.env[_model_name]
+            source_model = self.executor.source_odoo.env[_model_name]
             field_metadata = source_model.fields_get()
             
             # build tree
             for field, field_data in field_metadata.items():
                 field_type = field_data['type']
-                if field_type in self.relation_types:
+                if field_type in self.executor.relation_types:
                     
                     new_model = field_data['relation']
                     
@@ -195,13 +195,17 @@ class MigrationMap:
                 - If 1, only the first level of related models/fields will be mapped.
                 - If 2, the first and second level of related models/fields will be mapped.
                 - ...
+        Raises:
+            Exception: Raised when no executor instance is provided.
+            TooDeepException: Raised when the recursion level is not enough to traverse a relation field.
 
         Returns:
-            dict: A dict with the folling format: {modelname: {target_model, search_keys, fields, removed, new}, ...} where:
+            dict: A dict with the folling format: {modelname: {target_model, search_keys, fields, too_deep, removed, new}, ...} where:
                 - modelname is the source model name.
                 - target_model is the target model name. You can modify it if you want to migrate to a different model name
                 - search_keys is a **dict** with the keys to search for the records in the target model. Default is {'id': 'id', 'name': 'name'}. This is useful to avoid data dups.
                 - fields is a **dict** with the fields mapping: {'source_field1': 'target_field1', 'source_field2': 'target_field2', ...}
+                - too_deep is a **list** with the fields that are relations and the recursion level is not enough to traverse them. You can use this list to adjust the mappings.
                 - removed is a **list** with the fields that are not in the target model. You can use this list to adjust the mappings.
                 - new is a **list** with the fields that are not in the source model. You can use this list to adjust the mappings.
         """
@@ -253,7 +257,7 @@ class MigrationMap:
                         print('Warning: Field %s.%s is a relation and current recursion level is not enougth. Skipping it from map/migration.' % (model_name, field))
                     elif self.executor.recursion_mode == 'h':
                         include_field_in_map = False
-                        raise Exception('Error: Field %s.%s is a relation and current recursion level is not enougth. Cant traverse it. Aborting.' % (model_name, field))
+                        raise TooDeepException('Error: Field %s.%s is a relation and current recursion level is not enougth. Cant traverse it. Aborting.' % (model_name, field))
                     else:
                         raise Exception('Error: Invalid recursion mode %s. Use "h" for halt or "w" for warn.' % self.executor.recursion_mode)
                 
