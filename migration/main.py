@@ -235,7 +235,7 @@ def make_a_tree(model_name: str, recursion_level: int):
     res.save2file(file_path)
 
 
-def test_instances():
+def test_instances(use_ssl: bool=False):
     
     import os
     import dotenv
@@ -246,19 +246,21 @@ def test_instances():
         "host": os.environ["SOURCE_HOST"],
         "port": os.environ["SOURCE_PORT"],
         "bd": os.environ["SOURCE_DB"],
+        "protocol": 'jsonrpc+ssl' if use_ssl else 'jsonrpc',
         "user": os.environ["SOURCE_DB_USER"],
         "password": os.environ["SOURCE_DB_PASSWORD"],
     }
     
     target = {
-    "host": os.environ["TARGET_HOST"],
-    "port": os.environ["TARGET_PORT"],
-    "bd": os.environ["TARGET_DB"],
-    "user": os.environ["TARGET_DB_USER"],
-    "password": os.environ["TARGET_DB_PASSWORD"],
+        "host": os.environ["TARGET_HOST"],
+        "port": os.environ["TARGET_PORT"],
+        "bd": os.environ["TARGET_DB"],
+        "protocol": 'jsonrpc+ssl' if use_ssl else 'jsonrpc',
+        "user": os.environ["TARGET_DB_USER"],
+        "password": os.environ["TARGET_DB_PASSWORD"],
     }
                 
-    ex = Executor(debug=True)
+    ex = Executor(use_ssl=use_ssl, debug=False)
     # ex.test_login(instance=source)
     ex.test_login(instance=target)
     
@@ -273,9 +275,9 @@ if __name__ == "__main__":
     # and then enter de maps folder
     os.chdir("maps")
     
-    test_instances()
+    # test_instances(use_ssl=False)
 
-    # migrate_res_partner()   
+    migrate_res_partner()   
     # migrate_crm_lead()
    
     # migrate_some_ids(model="crm.lead", source_ids=[29825])

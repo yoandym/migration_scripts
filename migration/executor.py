@@ -54,7 +54,7 @@ class Executor(object):
     #: Options / Values to set on context. By default sets tracking **'tracking_disable' = True**.
     record_create_options = {'tracking_disable': True}
 
-    def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
+    def __init__(self, use_ssl: bool=False, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
         Initializes a new instance of the Executor class.
 
@@ -73,11 +73,16 @@ class Executor(object):
                 
         self.recursion_mode = recursion_mode
         
+        self.use_ssl = use_ssl
+        
+        protocol = 'jsonrpc+ssl' if self.use_ssl else 'jsonrpc'
+        
         if source is None:
             source = {
                 "host": os.environ["SOURCE_HOST"],
                 "port": os.environ["SOURCE_PORT"],
                 "bd": os.environ["SOURCE_DB"],
+                "protocol": protocol,
                 "user": os.environ["SOURCE_DB_USER"],
                 "password": os.environ["SOURCE_DB_PASSWORD"],
             }
@@ -87,6 +92,7 @@ class Executor(object):
                 "host": os.environ["TARGET_HOST"],
                 "port": os.environ["TARGET_PORT"],
                 "bd": os.environ["TARGET_DB"],
+                "protocol": protocol,
                 "user": os.environ["TARGET_DB_USER"],
                 "password": os.environ["TARGET_DB_PASSWORD"],
             }
@@ -179,7 +185,7 @@ class Executor(object):
         """
         
         # Prepare the connection to the server
-        odoo = odoorpc.ODOO(host=instance['host'], port=instance['port'])
+        odoo = odoorpc.ODOO(host=instance['host'], port=instance['port'], protocol=instance['protocol'])
         
         # Login
         odoo.login(instance['bd'], instance['user'], instance['password'])
