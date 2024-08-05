@@ -34,7 +34,7 @@ Below is an example of simple data migration between Odoo instances:
       .. code:: python
 
                source = {
-                  "host": "host1,
+                  "host": "host1",
                   "port": 8069,
                   "bd": "v14_db_1",
                   "user": "admin",
@@ -42,7 +42,7 @@ Below is an example of simple data migration between Odoo instances:
                }
 
                target = {
-                  "host": "host2,
+                  "host": "host2",
                   "port": 8069,
                   "bd": "v17_db_2",
                   "user": "admin",
