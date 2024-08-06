@@ -411,7 +411,6 @@
             "barcode": "barcode",
             "email": "email",
             "phone": "phone",
-            "user_id": "user_id",
             "signup_token": "signup_token",
             "signup_type": "signup_type",
             "signup_expiration": "signup_expiration",
@@ -428,7 +427,6 @@
             "customer_rank": "customer_rank",
             "sale_warn": "sale_warn",
             "sale_warn_msg": "sale_warn_msg",
-            "image_1920": "image_1920",
             "email_normalized": "email_normalized",
             "is_blacklisted": "is_blacklisted",
             "phone_sanitized": "phone_sanitized",
@@ -436,10 +434,7 @@
             "phone_blacklisted": "phone_blacklisted",
             "mobile_blacklisted": "mobile_blacklisted",
             "website_url": "website_url",
-            "image_1024": "image_1024",
             "image_512": "image_512",
-            "image_256": "image_256",
-            "image_128": "image_128",
             "create_date": "create_date"
         },
         "removed": [

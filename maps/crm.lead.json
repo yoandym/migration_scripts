@@ -551,7 +551,6 @@
             "barcode": "barcode",
             "email": "email",
             "phone": "phone",
-            "user_id": "user_id",
             "signup_token": "signup_token",
             "signup_type": "signup_type",
             "signup_expiration": "signup_expiration",
@@ -575,10 +574,7 @@
             "phone_blacklisted": "phone_blacklisted",
             "mobile_blacklisted": "mobile_blacklisted",
             "website_url": "website_url",
-            "image_1024": "image_1024",
             "image_512": "image_512",
-            "image_256": "image_256",
-            "image_128": "image_128",
             "create_date": "create_date"
         },
         "removed": [
