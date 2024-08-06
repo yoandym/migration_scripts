@@ -518,7 +518,7 @@ class Executor(object):
             
         return _data
     
-    def _process_relation(self, model_name: str, relation_type: str, field_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
+    def _process_relation(self, model_name: str, relation_type: str, field_name: str, data: Union[dict, list], recursion_level: int = 0) -> Union[int, list]:
         """
         Process / traverses the relational fields in data
 
@@ -530,7 +530,7 @@ class Executor(object):
             recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
         
         Returns:
-            data (dict): The data with the relational fields ready to be created in the target instance.
+            data (Union[int, list]): The data for the relational field ready to feed into the target instance.
         
         Exceptions:
             TooDeepException: If the recursion level is not enough to process the relational field, and recursion_mode is set to Halt.
@@ -557,9 +557,9 @@ class Executor(object):
         # get the search keys
         search_keys = self.migration_map.get_search_keys(model_name)
         
-        _data = []
-
         if relation_type == 'one2many' or relation_type == 'many2many':
+            
+            _data = []
             
             # get the source data
             related_source_ids = data # Ex: [33, 34, 35] 
@@ -609,7 +609,7 @@ class Executor(object):
             _found = self.search_in_tracking_db(model_name, related_source_id)
             
             if _found:
-                _data.append(_found[1])
+                _data = _found[1]
             else:
                 # search it by every search key
                 _found = self.search_in_target(model_name=model_name, 
