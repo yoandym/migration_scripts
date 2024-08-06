@@ -279,14 +279,14 @@ class Executor(object):
         if search_keys is None:
             search_keys = self.migration_map.get_search_keys(model_name)
         
-        source_model = self.source_model.env[model_name]
+        source_model = self.source_odoo.env[model_name]
         target_model = self.target_odoo.env[target_model_name]
         
         source_fields_to_read = list(search_keys.keys())
         target_fields_to_read = list(search_keys.values())
         
         source_recordset = source_model.browse(source_id)
-        source_data = source_recordset.read(source_fields_to_read)[0]
+        source_data = source_recordset[0]
         
         _found = False
         _data = False
@@ -304,13 +304,30 @@ class Executor(object):
                         break
             
             else:
-                source_key_value = source_data[s_key]
+                source_key_value = getattr(source_data, s_key) 
                 _found = target_model.search([[t_key, '=', source_key_value]])
                 if _found:
                     _data = _found
                     break
         
         return _data
+ 
+    def search_in_tracking_db(self, source_model_name: str, source_id: int) -> list:
+        """
+        Search for records (source_model_name and source_id) in the tracking database.
+        If found return the target_model_name and target_id.
+
+        Args:
+            source_model_name (str): Source model name to search for.
+            source_id (int): Source id to search for.
+
+        Returns:
+            list: A list with the target_model_name and target_id if found, an empty list otherwise.
+        """
+        cursor = self.ids_tracking_db.cursor()
+        cursor.execute('SELECT target_model_name, target_id FROM ids_tracking WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
+        record = cursor.fetchone()
+        return record if record else []
     
     def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None) -> bool:
         """
@@ -455,8 +472,8 @@ class Executor(object):
                 # test for and process relational fields
                 try:
                     if field_type in self.relation_types:
+                        new_source_model_name = model_fields_metadata[column_name]['relation']
                         if recursion_level > 0:
-                            new_source_model_name = model_fields_metadata[column_name]['relation']
                             col_value = self._process_relation(model_name=new_source_model_name, 
                                                             relation_type=field_type, 
                                                             field_name=column_name,
@@ -470,6 +487,7 @@ class Executor(object):
                         else:
                             raise TooDeepException('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (column_name, model_name))
                     elif 'relation' in model_fields_metadata[column_name]:
+                        new_source_model_name = model_fields_metadata[column_name]['relation']
                         if self.recursion_mode == 'w':
                             print('Removing %s.%s --> %s from migration because relation type not supported.' % (model_name, column_name, new_source_model_name))
                             record.pop(column_name)
@@ -538,6 +556,8 @@ class Executor(object):
         
         # get the search keys
         search_keys = self.migration_map.get_search_keys(model_name)
+        
+        _data = []
 
         if relation_type == 'one2many' or relation_type == 'many2many':
             
@@ -545,65 +565,78 @@ class Executor(object):
             related_source_ids = data # Ex: [33, 34, 35] 
             related_source_recordset = source_model.browse(related_source_ids)
             related_source_data = related_source_recordset.read(model_field_list)
-                    
-                    
-            _data = []
+                               
             for record in related_source_data:
                 record_id = record['id']
-                # search it by every search key
-                _found = self.search_in_target(model_name=model_name, 
-                                                source_id=record_id, 
-                                                search_keys=search_keys, 
-                                                target_model_name=target_model_name)
+                
+                #first search in the tracking db
+                _found = self.search_in_tracking_db(model_name, record_id)
+                
                 if _found:
-                    _data.append(_found[0])
-                    
-                    # tracking
-                    self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
+                    _data.append(_found[1])
                 else:
-                    # data may contain new relations, so we have to format them
-                    _new_data = self._format_data(model_name=model_name, 
-                                                  data=record, 
-                                                  recursion_level=recursion_level - 1)
-                    _id = target_model.create(_new_data)
-                    _data.append(_id[0])
-                    
-                    # tracking
-                    has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
-                    self._track_ids(source_model_name=model_name, source_ids=[record_id], 
-                                    target_model_name=target_model_name, target_ids=[_id[0]],
-                                    has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
+                    # the search remote
+                    _found = self.search_in_target(model_name=model_name, 
+                                                    source_id=record_id, 
+                                                    search_keys=search_keys, 
+                                                    target_model_name=target_model_name)
+                    if _found:
+                        _data.append(_found[0])
+                        
+                        # tracking
+                        self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
+                    else:
+                        # data may contain new relations, so we have to format them
+                        _new_data = self._format_data(model_name=model_name, 
+                                                    data=record, 
+                                                    recursion_level=recursion_level - 1)
+                        _id = target_model.create(_new_data)
+                        _data.append(_id[0])
+                        
+                        # tracking
+                        has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
+                        self._track_ids(source_model_name=model_name, source_ids=[record_id], 
+                                        target_model_name=target_model_name, target_ids=[_id[0]],
+                                        has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
             
 
         elif relation_type == 'many2one':
             
             # get the source data
             related_source_id, related_source_display_name = data # Ex: [33, 'MXN']                            
-            related_source_recordset = source_model.browse(related_source_id)
-            related_source_data = related_source_recordset.read(model_field_list)[0]
             
-            # search it by every search key
-            _found = self.search_in_target(model_name=model_name, 
-                                            source_id=related_source_id, 
-                                            search_keys=search_keys, 
-                                            target_model_name=target_model_name)
+            #first search in the tracking db
+            _found = self.search_in_tracking_db(model_name, related_source_id)
             
-            # if still not found, create it
-            if not _found:
-                                    
-                # data may contain new relations, so we have to format them
-                new_target_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
+            if _found:
+                _data.append(_found[1])
+            else:
+                # search it by every search key
+                _found = self.search_in_target(model_name=model_name, 
+                                                source_id=related_source_id, 
+                                                search_keys=search_keys, 
+                                                target_model_name=target_model_name)
+                
+                # if still not found, create it
+                if not _found:
+                    
+                    related_source_recordset = source_model.browse(related_source_id)
+                    related_source_data = related_source_recordset.read(model_field_list)[0]
 
-                # create the record in target instance/model
-                _found = target_model.create(new_target_data)
+                                        
+                    # data may contain new relations, so we have to format them
+                    new_target_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)
 
-            _data = _found[0]
-            
-            # tracking
-            has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
-            self._track_ids(source_model_name=model_name, source_ids=[related_source_id], 
-                            target_model_name=target_model_name, target_ids=[_data],
-                            has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
+                    # create the record in target instance/model
+                    _found = target_model.create(new_target_data)
+
+                _data = _found[0]
+                
+                # tracking
+                has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
+                self._track_ids(source_model_name=model_name, source_ids=[related_source_id], 
+                                target_model_name=target_model_name, target_ids=[_data],
+                                has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
         
         else:
             raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
