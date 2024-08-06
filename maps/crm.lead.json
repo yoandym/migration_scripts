@@ -513,7 +513,7 @@
         ]
     },
     "res.partner": {
-        "search_keys": {"name": "name"},
+        "search_keys": {"name": "name", "vat": "vat"},
         "fields": {
             "name": "name",
             "date": "date",
