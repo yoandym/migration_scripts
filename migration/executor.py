@@ -51,8 +51,8 @@ class Executor(object):
     #: Set the relation types to traverse
     relation_types = ['one2many', 'many2one', 'many2many']
     
-    #: Options / Values to set on context. By default sets tracking **'tracking_disable' = True**.
-    record_create_options = {'tracking_disable': True}
+    #: Options / Values to set on context. By default disables tracking and subscribe.
+    record_create_options = {'tracking_disable': True, 'mail_create_nosubscribe': True}
 
     def __init__(self, use_ssl: bool=False, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
