@@ -1,6 +1,6 @@
-========================================
-Migrate data between Odoo instances
-========================================
+===================================================================
+Migrate data using a custom python script
+===================================================================
 
 .. toctree::
    :maxdepth: 3
@@ -16,60 +16,13 @@ fields of the source and destination model are not of the same data type, or
 they change names or are split / merged, then you must create a field mapping
 and possibly a transformation function.
 
-.. Note::
-   In any case, keep in mind that to use the module you must create
-   your own migration script, which must import the necessary classes and
-   functions from the module.
-
 A simple data migration
 --------------------------------------
 
 Below is an example of simple data migration between Odoo instances:
 
-1. Define the authentication data for the source and destination instances.
-
-   To do this, you can:
-      1.1 Pass the auth data directly when instantiating the ``Executor`` class
-
-      .. code:: python
-
-               source = {
-                  "host": "host1",
-                  "port": 8069,
-                  "bd": "v14_db_1",
-                  "user": "admin",
-                  "password":  "admin",
-               }
-
-               target = {
-                  "host": "host2",
-                  "port": 8069,
-                  "bd": "v17_db_2",
-                  "user": "admin",
-                  "password":  "admin",
-               }
-
-               from migration.migrate import Executor
-               ex = Executor(source=source, target=target)
-
-
-      1.2 Define auth data in a .env configuration file or in environment variables.
-      These are the variables you must define:
-
-      .. code:: sh
-
-            SOURCE_HOST="host1"
-            SOURCE_PORT="8069"
-            SOURCE_DB="v14_db_1"
-            SOURCE_DB_USER="admin"
-            SOURCE_DB_PASSWORD="admin"
-
-            TARGET_HOST="host2"
-            TARGET_PORT="8069"
-            TARGET_DB="v17_db_2"
-            TARGET_DB_USER="admin"
-            TARGET_DB_PASSWORD="admin"
-
+1. :doc:`Define authentication data <tutorial_migrate_conf>` for the
+   source and destination instances.
 2. Select the model and fields you want to migrate. Example
 
 .. code:: python
@@ -77,8 +30,6 @@ Below is an example of simple data migration between Odoo instances:
     model = 'crm.team'
     fields = ['name', 'sequence', 'active', 'is_favorite', 'color',
                'alias_name', 'alias_contact', 'invoiced_target']
-
-
 
 3. Execute the migration process. The whole code would look like this:
 
@@ -97,10 +48,6 @@ Below is an example of simple data migration between Odoo instances:
    # execute the migration
    ex.migrate(model, fields)
 
-
-.. important::
-   You can see a full example
-   at :ref:`main module reference documentation <main_migrate_crm_team>`.
 
 An intermediate data migration
 -------------------------------

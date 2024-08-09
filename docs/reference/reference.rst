@@ -6,7 +6,7 @@ Reference
    :maxdepth: 3
    :caption: Contents:
 
-   main
+   cli
    executor
    mapping
    exceptions
