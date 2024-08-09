@@ -54,7 +54,7 @@ class Executor(object):
     #: Options / Values to set on context. By default disables tracking and subscribe.
     record_create_options = {'tracking_disable': True, 'mail_create_nosubscribe': True}
 
-    def __init__(self, use_ssl: bool=False, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
+    def __init__(self, source: dict=None, target: dict=None, debug: bool=False, recursion_mode: str="w") -> None:
         """
         Initializes a new instance of the Executor class.
 
@@ -72,17 +72,13 @@ class Executor(object):
         self.debug = debug
                 
         self.recursion_mode = recursion_mode
-        
-        self.use_ssl = use_ssl
-        
-        protocol = 'jsonrpc+ssl' if self.use_ssl else 'jsonrpc'
-        
+                        
         if source is None:
             source = {
                 "host": os.environ["SOURCE_HOST"],
                 "port": os.environ["SOURCE_PORT"],
                 "bd": os.environ["SOURCE_DB"],
-                "protocol": protocol,
+                "protocol": os.environ.get("SOURCE_PROTOCOL", 'jsonrpc'),
                 "user": os.environ["SOURCE_DB_USER"],
                 "password": os.environ["SOURCE_DB_PASSWORD"],
             }
@@ -92,7 +88,7 @@ class Executor(object):
                 "host": os.environ["TARGET_HOST"],
                 "port": os.environ["TARGET_PORT"],
                 "bd": os.environ["TARGET_DB"],
-                "protocol": protocol,
+                "protocol": os.environ.get("TARGET_PROTOCOL", 'jsonrpc'),
                 "user": os.environ["TARGET_DB_USER"],
                 "password": os.environ["TARGET_DB_PASSWORD"],
             }
