@@ -103,7 +103,7 @@ class Executor(object):
         
         self.run_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
-        default_path = self._get_main_path()
+        default_path = os.getcwd()
         
         # set log and tracking db file and path
         log_file_name = "%s.log" % self.run_id
@@ -133,17 +133,6 @@ class Executor(object):
                         ''')
         self.ids_tracking_db.commit()
 
-    def _get_main_path(self) -> str:
-        """
-        Get the main module container directory path.
-        
-        Returns:
-            str: The main module container directory path.
-        """
-        main_module = sys.modules['__main__']
-        main_path = os.path.abspath(main_module.__file__)
-        main_dir = os.path.dirname(main_path)
-        return main_dir
 
     @property
     def debug(self):
