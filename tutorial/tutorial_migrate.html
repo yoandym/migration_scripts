@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HowTo" href="../howto.html" /><link rel="prev" title="Installation" href="tutorial_install.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="HowTo" href="../howto.html" /><link rel="prev" title="Migrate data using the CLI" href="tutorial_migrate_cli.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.07.18 -->
-        <title>Migrate data between Odoo instances - XMLRPC Data Migration documentation</title>
+        <title>Migrate data using a custom python script - XMLRPC Data Migration documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=613ab9ff" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
@@ -204,31 +204,40 @@
 <li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_install.html">Installation</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Installation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Migrate data between Odoo instances</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Migrate data between Odoo instances</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_migrate_conf.html">Configuration</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Configuration</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_migrate_map.html">Generate a Migration Map</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Generate a Migration Map</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="tutorial_migrate_cli.html">Migrate data using the CLI</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Migrate data using the CLI</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+</ul>
+</li>
+<li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#">Migrate data using a custom python script</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Migrate data using a custom python script</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../howto.html">HowTo</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of HowTo</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../howto.html">HowTo</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of HowTo</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation.html">Explanation</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Explanation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../explanation.html">Explanation</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Explanation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/reference.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/main.html">Module: migration.main</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of Module: migration.main</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../reference/reference.html">Reference</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/cli.html">Module: migration.cli</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.cli</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/executor.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/executor.html">Module migration.executor</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Module migration.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/mapping.html">Module mirgation.executor</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of Module mirgation.executor</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/mapping.html">Module migration.mapping</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of Module migration.mapping</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/exceptions.html">Module: migration.exceptions</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of Module: migration.exceptions</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
-<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../reference/tools.html">Module: migration.tools</a><input class="toctree-checkbox" id="toctree-checkbox-14" name="toctree-checkbox-14" role="switch" type="checkbox"/><label for="toctree-checkbox-14"><div class="visually-hidden">Toggle navigation of Module: migration.tools</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="simple">
 </ul>
 </li>
 </ul>
@@ -273,8 +282,8 @@
           </label>
         </div>
         <article role="main" id="furo-main-content">
-          <section id="migrate-data-between-odoo-instances">
-<h1>Migrate data between Odoo instances<a class="headerlink" href="#migrate-data-between-odoo-instances" title="Link to this heading"><span>#</span></a></h1>
+          <section id="migrate-data-using-a-custom-python-script">
+<h1>Migrate data using a custom python script<a class="headerlink" href="#migrate-data-using-a-custom-python-script" title="Link to this heading"><span>#</span></a></h1>
 <div class="toctree-wrapper compound">
 </div>
 <p>If the migration to be done is simple, that is: the fields of the source and
@@ -284,57 +293,12 @@ class almost directly.</p>
 fields of the source and destination model are not of the same data type, or
 they change names or are split / merged, then you must create a field mapping
 and possibly a transformation function.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In any case, keep in mind that to use the module you must create
-your own migration script, which must import the necessary classes and
-functions from the module.</p>
-</div>
 <section id="a-simple-data-migration">
 <h2>A simple data migration<a class="headerlink" href="#a-simple-data-migration" title="Link to this heading"><span>#</span></a></h2>
 <p>Below is an example of simple data migration between Odoo instances:</p>
-<ol class="arabic">
-<li><p>Define the authentication data for the source and destination instances.</p>
-<dl>
-<dt>To do this, you can:</dt><dd><p>1.1 Pass the auth data directly when instantiating the <code class="docutils literal notranslate"><span class="pre">Executor</span></code> class</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">source</span> <span class="o">=</span> <span class="p">{</span>
-   <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host1,</span>
-   <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
-   <span class="s2">&quot;bd&quot;</span><span class="p">:</span> <span class="s2">&quot;v14_db_1&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;password&quot;</span><span class="p">:</span>  <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="n">target</span> <span class="o">=</span> <span class="p">{</span>
-   <span class="s2">&quot;host&quot;</span><span class="p">:</span> <span class="s2">&quot;host2,</span>
-   <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="mi">8069</span><span class="p">,</span>
-   <span class="s2">&quot;bd&quot;</span><span class="p">:</span> <span class="s2">&quot;v17_db_2&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-   <span class="s2">&quot;password&quot;</span><span class="p">:</span>  <span class="s2">&quot;admin&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-
-<span class="kn">from</span> <span class="nn">migration.migrate</span> <span class="kn">import</span> <span class="n">Executor</span>
-<span class="n">ex</span> <span class="o">=</span> <span class="n">Executor</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>1.2 Define auth data in a .env configuration file or in environment variables.
-These are the variables you must define:</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">SOURCE_HOST</span><span class="o">=</span><span class="s2">&quot;host1&quot;</span>
-<span class="nv">SOURCE_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
-<span class="nv">SOURCE_DB</span><span class="o">=</span><span class="s2">&quot;v14_db_1&quot;</span>
-<span class="nv">SOURCE_DB_USER</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-<span class="nv">SOURCE_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-
-<span class="nv">TARGET_HOST</span><span class="o">=</span><span class="s2">&quot;host2&quot;</span>
-<span class="nv">TARGET_PORT</span><span class="o">=</span><span class="s2">&quot;8069&quot;</span>
-<span class="nv">TARGET_DB</span><span class="o">=</span><span class="s2">&quot;v17_db_2&quot;</span>
-<span class="nv">TARGET_DB_USER</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-<span class="nv">TARGET_DB_PASSWORD</span><span class="o">=</span><span class="s2">&quot;admin&quot;</span>
-</pre></div>
-</div>
-</dd>
-</dl>
-</li>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="tutorial_migrate_conf.html"><span class="doc">Define authentication data</span></a> for the
+source and destination instances.</p></li>
 <li><p>Select the model and fields you want to migrate. Example</p></li>
 </ol>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span> <span class="o">=</span> <span class="s1">&#39;crm.team&#39;</span>
@@ -358,11 +322,6 @@ These are the variables you must define:</p>
 <span class="c1"># execute the migration</span>
 <span class="n">ex</span><span class="o">.</span><span class="n">migrate</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
 </pre></div>
-</div>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You can see a full example
-at <a class="reference internal" href="../reference/main.html#main-migrate-crm-team"><span class="std std-ref">main module reference documentation</span></a>.</p>
 </div>
 </section>
 <section id="an-intermediate-data-migration">
@@ -428,14 +387,14 @@ duplicates.</p></li>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
-          <a class="prev-page" href="tutorial_install.html">
+          <a class="prev-page" href="tutorial_migrate_cli.html">
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
               <div class="page-info">
                 <div class="context">
                   <span>Previous</span>
                 </div>
                 
-                <div class="title">Installation</div>
+                <div class="title">Migrate data using the CLI</div>
                 
               </div>
             </a>
@@ -469,7 +428,7 @@ duplicates.</p></li>
         <div class="toc-tree-container">
           <div class="toc-tree">
             <ul>
-<li><a class="reference internal" href="#">Migrate data between Odoo instances</a><ul>
+<li><a class="reference internal" href="#">Migrate data using a custom python script</a><ul>
 <li><a class="reference internal" href="#a-simple-data-migration">A simple data migration</a></li>
 <li><a class="reference internal" href="#an-intermediate-data-migration">An intermediate data migration</a></li>
 <li><a class="reference internal" href="#an-advanced-data-migration">An advanced data migration</a></li>
