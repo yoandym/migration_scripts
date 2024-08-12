@@ -322,9 +322,7 @@ if __name__ == "__main__":
         test_instances(debug=args.debug)
     elif args.subcommand == 'migrate':
         migration_map = _get_map_path_for_model(model=args.model)
-        # make ids it a python list
-        ids = args.ids.split() if args.ids else None
-        migrate_model(model=args.model, source_ids=ids, batch_size=args.batch_size, recursion=args.recursion, debug=args.debug)
+        migrate_model(model=args.model, source_ids=args.ids, batch_size=args.batch_size, recursion=args.recursion, debug=args.debug)
     elif args.subcommand == 'make-map':
         make_a_map(model_name=args.model, recursion_level=args.recursion, debug=args.debug)
     elif args.subcommand == 'make-tree':
