@@ -301,6 +301,9 @@ class MigrationMap:
         Returns:
             dict: The fields map loaded from the file.
         """
+        
+        print("Reading file map from %s" % file_path)
+        
         _d = None
         with open(file_path, 'r') as file:
             _d = json.load(file)
