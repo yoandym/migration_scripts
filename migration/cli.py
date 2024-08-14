@@ -86,15 +86,20 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
     """
     _data = []
     for idx, record in enumerate(data):
-        if "x_studio_categorizacin" in record:
-            description = record.get("description", "")
-            if not isinstance(description, str):
-                description = ""
-            x_studio_categorizacin = record.pop("x_studio_categorizacin", "")
-            if not isinstance(x_studio_categorizacin, str):
-                x_studio_categorizacin = ""
-            
-            record["description"] = description + "\n" + x_studio_categorizacin
+        
+        # process the description field
+        description = record.get("description", "")
+        if not isinstance(description, str):
+            description = ""
+        else:
+            description = description.replace("\n", "<br>")
+
+        # process the x_studio_categorizacin field                
+        x_studio_categorizacin = record.pop("x_studio_categorizacin", "")
+        if not isinstance(x_studio_categorizacin, str):
+            x_studio_categorizacin = ""
+        
+        record["description"] = description + "\n" + x_studio_categorizacin
         
         _data.append(record)
             
@@ -175,7 +180,7 @@ def _get_map_path_for_model(model: str) -> str:
         else:
             return None    
     
-def migrate_model(model, source_ids=None, batch_size=10, recursion=4, debug=False):
+def migrate_model(model, source_ids=None, batch_size=10, recursion=4, tracking_db=None, debug=False):
     """
     Migrate an Odoo model.
 
@@ -184,6 +189,7 @@ def migrate_model(model, source_ids=None, batch_size=10, recursion=4, debug=Fals
         source_ids (_type_, optional): _description_. Defaults to None.
         batch_size (int, optional): The batch size for the migration (to avoid timeouts). Defaults to 10.
         recursion (int, optional): Recursion level for related models (how deep to go). Defaults to 4.
+        tracking_db (str, optional): The path to a tracking db to reuse it. Defaults to None.
         debug (bool, optional): Debug mode (print/log extra data). Defaults to False.
     """
     
@@ -195,7 +201,7 @@ def migrate_model(model, source_ids=None, batch_size=10, recursion=4, debug=Fals
     ex.migration_map.load_from_file(file_path=file_path)
     
     #: Do the migration.
-    ex.migrate(model, batch_size=batch_size, recursion_level=recursion, source_ids=source_ids)
+    ex.migrate(model, batch_size=batch_size, recursion_level=recursion, source_ids=source_ids, tracking_db=tracking_db)
 
 def make_a_map(model_name: str, recursion_level: int, debug=False):
     """
@@ -294,21 +300,32 @@ def _parse_args():
     
     # create the parser for the "migrate" command
     parser_migrate = subparsers.add_parser('migrate', help='Migrate an odoo model')
-    parser_migrate.add_argument('--model', type=str, required=True, help='The model to work with')
-    parser_migrate.add_argument('--ids', type=int, nargs='+', required=False, default=None, help='IDs to migrate. The whole model is migrated if no ids provided (optional, integers space separated)')
-    parser_migrate.add_argument('--batch-size', type=int, required=False, default=10, help='The batch size for the migration (optional, integer, default 10)')
-    parser_migrate.add_argument('--recursion', type=int, required=False, default=4, help='The recursion level for the migration (optional, integer, default 4)')
-
+    parser_migrate.add_argument('--model', type=str, required=True,
+                                help='The model to work with')
+    parser_migrate.add_argument('--ids', type=int, nargs='+', required=False,
+                                default=None, help='IDs to migrate. The whole model is migrated if no ids provided (optional, integers space separated)')
+    parser_migrate.add_argument('--batch-size', type=int, required=False,
+                                default=10, help='The batch size for the migration (optional, integer, default 10)')
+    parser_migrate.add_argument('--recursion', type=int, required=False,
+                                default=4, help='The recursion level for the migration (optional, integer, default 4)')
+    parser_migrate.add_argument('--tracking-db', type=str, required=False,
+                                default=None, help='The path to a tracking db to reuse it (optional, string)')
 
     # create the parser for the "make-map" command
-    parser_make_map = subparsers.add_parser('make-map', help='Generate a migration map for the model')
-    parser_make_map.add_argument('--model', type=str, required=True, help='The model to work with')
-    parser_make_map.add_argument('--recursion', type=int, required=False, default=4, help='The recursion level to use (optional, integer, default 4)')
+    parser_make_map = subparsers.add_parser('make-map', 
+                                            help='Generate a migration map for the model')
+    parser_make_map.add_argument('--model', type=str, required=True,
+                                 help='The model to work with')
+    parser_make_map.add_argument('--recursion', type=int, required=False,
+                                 default=4, help='The recursion level to use (optional, integer, default 4)')
 
     # create the parser for the "make-tree" command
-    parser_nake_tree = subparsers.add_parser('make-tree', help='Generates a relations tree for the model (useful to understand relations)')
-    parser_nake_tree.add_argument('--model', type=str, required=True, help='The model to work with')
-    parser_nake_tree.add_argument('--recursion', type=int, required=False, default=4, help='The recursion level to use (optional, integer, default 4)')
+    parser_nake_tree = subparsers.add_parser('make-tree',
+                                             help='Generates a relations tree for the model (useful to understand relations)')
+    parser_nake_tree.add_argument('--model', type=str, required=True,
+                                  help='The model to work with')
+    parser_nake_tree.add_argument('--recursion', type=int, required=False,
+                                  default=4, help='The recursion level to use (optional, integer, default 4)')
     
     args = parser.parse_args()
     
@@ -322,7 +339,8 @@ if __name__ == "__main__":
         test_instances(debug=args.debug)
     elif args.subcommand == 'migrate':
         migration_map = _get_map_path_for_model(model=args.model)
-        migrate_model(model=args.model, source_ids=args.ids, batch_size=args.batch_size, recursion=args.recursion, debug=args.debug)
+        migrate_model(model=args.model, source_ids=args.ids, batch_size=args.batch_size,
+                      recursion=args.recursion, tracking_db=args.tracking_db, debug=args.debug)
     elif args.subcommand == 'make-map':
         make_a_map(model_name=args.model, recursion_level=args.recursion, debug=args.debug)
     elif args.subcommand == 'make-tree':
