@@ -103,18 +103,12 @@ class Executor(object):
         
         self.run_id = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
         
-        default_path = os.getcwd()
+        working_dir = os.getcwd()
         
         # set log and tracking db file and path
         log_file_name = "%s.log" % self.run_id
-        self.log_path = os.path.join(default_path, log_file_name)
+        self.log_path = os.path.join(working_dir, log_file_name)
         
-        db_file_name = "%s.db" % self.run_id
-        self.db_path = os.path.join(default_path, db_file_name)
-        
-        # get a db connection and initialize it
-        self.ids_tracking_db = sqlite3.connect(self.db_path)
-        self._init_ids_tracking_db()
 
     def _init_ids_tracking_db(self):
         """
@@ -132,7 +126,6 @@ class Executor(object):
                         )
                         ''')
         self.ids_tracking_db.commit()
-
 
     @property
     def debug(self):
@@ -314,7 +307,7 @@ class Executor(object):
         record = cursor.fetchone()
         return record if record else []
     
-    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None) -> bool:
+    def migrate(self, model_name: str, migration_map: Union[dict, list]=None, recursion_level: int=0, batch_size=50, source_ids: list=None, tracking_db=None) -> bool:
         """
         Migrate data from source to target
 
@@ -324,6 +317,7 @@ class Executor(object):
             recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
             batch_size (int): The batch size to use when migrating a large dataset. Defaults to 100.
             source_ids (list): A list of source ids to migrate. If present it will migrate only the provided ids. Defaults to None.
+            tracking_db (str): A tracking database file path to reuse it. Defaults to None (creates a new one).
         """
         
         if migration_map is None and self.migration_map.map is None:
@@ -332,7 +326,17 @@ class Executor(object):
         elif migration_map is not None:
             self.migration_map.normalice_fields(migration_map)
         
+        # get or initialize the tracking db
+        working_dir = os.getcwd()
+        if not tracking_db:
+            db_file_name = "%s.db" % self.run_id
+            db_path = os.path.join(working_dir, db_file_name)
         
+            # get a db connection and initialize it
+            self.ids_tracking_db = sqlite3.connect(db_path)
+            self._init_ids_tracking_db()
+        else:
+            self.ids_tracking_db = sqlite3.connect(tracking_db)
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
@@ -542,7 +546,10 @@ class Executor(object):
         # get the search keys
         search_keys = self.migration_map.get_search_keys(model_name)
         
-        if relation_type == 'one2many' or relation_type == 'many2many':
+        # if model has a decoupled relation, handle it like row by row
+        has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
+        
+        if relation_type == 'many2many' or (relation_type == 'one2many' and has_a_decoupled_relation):
             
             _data = []
             
@@ -554,7 +561,7 @@ class Executor(object):
             for record in related_source_data:
                 record_id = record['id']
                 
-                #first search in the tracking db
+                # first search in the tracking db
                 _found = self.search_in_tracking_db(model_name, record_id)
                 
                 if _found:
@@ -575,15 +582,29 @@ class Executor(object):
                         _new_data = self._format_data(model_name=model_name, 
                                                     data=record, 
                                                     recursion_level=recursion_level - 1)
+                        
+                        
                         _id = target_model.create(_new_data)
                         _data.append(_id[0])
-                        
+                    
                         # tracking
-                        has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
                         self._track_ids(source_model_name=model_name, source_ids=[record_id], 
                                         target_model_name=target_model_name, target_ids=[_id[0]],
                                         has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
+                                                        
+        elif relation_type == 'one2many':
+            _data = []
             
+            # get the source data
+            related_source_ids = data # Ex: [33, 34, 35] 
+            related_source_recordset = source_model.browse(related_source_ids)
+            related_source_data = related_source_recordset.read(model_field_list)
+
+            # data may contain new relations, so we have to format them
+            _new_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)    
+            _data = [(0, 0, e) for e in _new_data]
+            
+            #: TODO how to do tracking in this case?
 
         elif relation_type == 'many2one':
             
