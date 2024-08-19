@@ -110,23 +110,6 @@ class Executor(object):
         self.log_path = os.path.join(working_dir, log_file_name)
         
 
-    def _init_ids_tracking_db(self):
-        """
-        Initialize the ids tracking database
-        """
-        cursor = self.ids_tracking_db.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS ids_tracking
-                        (
-                            source_model_name TEXT,
-                            source_id INTEGER, 
-                            target_model_name TEXT,
-                            target_id INTEGER,
-                            has_decoupled_relation BOOLEAN DEFAULT FALSE,
-                            update_required BOOLEAN DEFAULT FALSE
-                        )
-                        ''')
-        self.ids_tracking_db.commit()
-
     @property
     def debug(self):
         """
@@ -303,7 +286,7 @@ class Executor(object):
         Returns:
             list: A list with the target_model_name and target_id if found, an empty list otherwise.
         """
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         cursor.execute('SELECT target_model_name, target_id FROM ids_tracking WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
         record = cursor.fetchone()
         return record if record else []
@@ -698,6 +681,23 @@ class Executor(object):
                 Pretty.log(message, self.log_path, overwrite=True, mode='a')
                 print(message)
 
+    def _init_tracking_db(self):
+        """
+        Initialize the ids tracking database
+        """
+        cursor = self.tracking_db.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS ids_tracking
+                        (
+                            source_model_name TEXT,
+                            source_id INTEGER, 
+                            target_model_name TEXT,
+                            target_id INTEGER,
+                            has_decoupled_relation BOOLEAN DEFAULT FALSE,
+                            update_required BOOLEAN DEFAULT FALSE
+                        )
+                        ''')
+        self.tracking_db.commit()
+
     def _get_tracking_db(self, tracking_db: str=None) -> None:
         # get or initialize the tracking db
         working_dir = os.getcwd()
@@ -729,14 +729,14 @@ class Executor(object):
             update_required (bool): If an update is required in the target instance. Defaults to False.
         """
        
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         
         for idx, source_id in enumerate(source_ids):
             try:
                 target_id = target_ids[idx]
                 cursor.execute('INSERT INTO ids_tracking VALUES (?, ?, ?, ?, ?, ?)', 
                                         (source_model_name, source_id, target_model_name, target_id, has_decoupled_relation, update_required))
-                self.ids_tracking_db.commit()
+                self.tracking_db.commit()
             except Exception as e:
                 Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
                 message = "Error tracking ids. %s.id=%s --> %s.id=%s" % (source_model_name, source_ids, target_model_name, target_ids)
