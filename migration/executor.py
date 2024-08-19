@@ -638,7 +638,7 @@ class Executor(object):
         decoupled_relation_fields = ["model", "res_id"]
         
         # get records with decoupled relations requiring an update
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE has_decoupled_relation = 1 AND update_required = 1')
         records = cursor.fetchall()
         for rec in records:
@@ -670,7 +670,7 @@ class Executor(object):
                     
                     # update the ids_tracking db
                     cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
-                    self.ids_tracking_db.commit()
+                    self.tracking_db.commit()
                 else:
                     message = "Decoupled relation not updated. Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
                     Pretty.log(message, self.log_path, overwrite=True, mode='a')
