@@ -12,6 +12,12 @@ class UnsupportedRelationException(Exception):
     """
     pass
 
+class UnexpectedRelationTypeException(Exception):
+    """
+    Raised when we encounter an unexpected relation type.
+    """
+    pass
+
 class MissingModelMappingException(Exception):
     """
     Raised when, in the map, we encounter a field/relation to a model that is not mapped.
