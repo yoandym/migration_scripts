@@ -266,12 +266,12 @@ class Executor(object):
         source_recordset = source_model.browse(source_id)
         source_data = source_recordset[0]
         
-        _found = False
         _data = False
         
         # search in target model by every search key
         for s_key, t_key in search_keys.items():
-            if t_key == 'id':
+            _found = False
+            if t_key.lower() == 'id':
                 _found = target_model.search_count([['id', '=', source_id]])
                 if _found:
                     recordset = target_model.browse(source_id)
@@ -283,10 +283,11 @@ class Executor(object):
             
             else:
                 source_key_value = getattr(source_data, s_key) 
-                _found = target_model.search([[t_key, '=', source_key_value]])
-                if _found:
-                    _data = _found
-                    break
+                if source_key_value:
+                    _found = target_model.search([[t_key, '=', source_key_value]])
+                    if _found:
+                        _data = _found
+                        break
         
         return _data
  
