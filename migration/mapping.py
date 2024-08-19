@@ -302,7 +302,7 @@ class MigrationMap:
             dict: The fields map loaded from the file.
         """
         
-        print("Reading file map from %s" % file_path)
+        print("Reading migration map from file: %s" % file_path)
         
         _d = None
         with open(file_path, 'r') as file:
