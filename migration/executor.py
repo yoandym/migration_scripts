@@ -19,7 +19,7 @@ import sqlite3
 
 from tools import Pretty
 from mapping import MigrationMap
-from exceptions import TooDeepException, UnsupportedRelationException
+from exceptions import TooDeepException, UnsupportedRelationException, UnexpectedRelationTypeException
 
 
 class Executor(object):
@@ -80,7 +80,7 @@ class Executor(object):
                 "bd": os.environ["SOURCE_DB"],
                 "protocol": os.environ.get("SOURCE_PROTOCOL", 'jsonrpc'),
                 "user": os.environ["SOURCE_DB_USER"],
-                "password": os.environ["SOURCE_DB_PASSWORD"],
+                "password": os.environ["SOURCE_DB_PASSWORD"],            
             }
 
         if target is None:
@@ -109,12 +109,11 @@ class Executor(object):
         log_file_name = "%s.log" % self.run_id
         self.log_path = os.path.join(working_dir, log_file_name)
         
-
-    def _init_ids_tracking_db(self):
+    def _init_tracking_db(self):
         """
         Initialize the ids tracking database
         """
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         cursor.execute('''CREATE TABLE IF NOT EXISTS ids_tracking
                         (
                             source_model_name TEXT,
@@ -125,7 +124,17 @@ class Executor(object):
                             update_required BOOLEAN DEFAULT FALSE
                         )
                         ''')
-        self.ids_tracking_db.commit()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS rels_tracking
+                        (
+                            source_model_name TEXT,
+                            source_id INTEGER, 
+                            source_field_name TEXT,
+                            rel_type TEXT,
+                            target_model_name TEXT,
+                            processed BOOLEAN DEFAULT FALSE
+                        )
+                        ''')
+        self.tracking_db.commit()
 
     @property
     def debug(self):
@@ -266,11 +275,11 @@ class Executor(object):
         source_recordset = source_model.browse(source_id)
         source_data = source_recordset[0]
         
-        _found = False
         _data = False
         
         # search in target model by every search key
         for s_key, t_key in search_keys.items():
+            _found = False
             if t_key == 'id':
                 _found = target_model.search_count([['id', '=', source_id]])
                 if _found:
@@ -283,10 +292,11 @@ class Executor(object):
             
             else:
                 source_key_value = getattr(source_data, s_key) 
-                _found = target_model.search([[t_key, '=', source_key_value]])
-                if _found:
-                    _data = _found
-                    break
+                if source_key_value:
+                    _found = target_model.search([[t_key, '=', source_key_value]])
+                    if _found:
+                        _data = _found
+                        break
         
         return _data
  
@@ -302,7 +312,7 @@ class Executor(object):
         Returns:
             list: A list with the target_model_name and target_id if found, an empty list otherwise.
         """
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         cursor.execute('SELECT target_model_name, target_id FROM ids_tracking WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
         record = cursor.fetchone()
         return record if record else []
@@ -327,16 +337,7 @@ class Executor(object):
             self.migration_map.normalice_fields(migration_map)
         
         # get or initialize the tracking db
-        working_dir = os.getcwd()
-        if not tracking_db:
-            db_file_name = "%s.db" % self.run_id
-            db_path = os.path.join(working_dir, db_file_name)
-        
-            # get a db connection and initialize it
-            self.ids_tracking_db = sqlite3.connect(db_path)
-            self._init_ids_tracking_db()
-        else:
-            self.ids_tracking_db = sqlite3.connect(tracking_db)
+        self._get_tracking_db(tracking_db)
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
@@ -363,43 +364,97 @@ class Executor(object):
         if len(ids) > batch_size:
             batches = self._split_into_batches(ids, batch_size)
             
-        for batch in batches:
-            data = []
-            
-            try:
-                # get data from source instance
-                recordset = self.source_model.browse(batch)
-                data = recordset.read(source_fields)
-                
-                # format it to be feed in the target instance
-                data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
+        for batch in batches:            
+            # migrate primary model
+            res = self._migrate_model(src_odoo_model=self.source_model, source_ids=batch, source_fields=source_fields, tgt_odoo_model=self.target_model, recursion_level=recursion_level)
+            if res:
+                # process the x2many relational fields
+                _message = "Processing x_2many relations ..."
+                print(_message)
 
-                # creates the records at target instance
-                res = self.target_model.create(data)
-                
-                self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
-                
-                self._process_decoupled_relations(model_name)
-                
-                # print the results
-                batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
-                result_message = '%s %s migrated successfully: %s' % (len(res), model_name, batch_ids)
-                
-                print(result_message)
-                
-            except Exception as e:
-                batch_ids = batch
-                result_message = 'Batch processing error. Source instance ids: %s' % batch_ids
-                
-                Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
-                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
+                self._migrate_2many_relations()
 
-                if self.debug:
-                    Pretty.log(data, self.log_path, overwrite=True, mode='a')
-                
-                print(result_message)
-                    
+                # process the x2many relational fields
+                _message = "Processing decoupled relations ..."
+                print(_message)
+
+                self._process_decoupled_relations()
+
         return True
+    
+    def _migrate_model(self, src_odoo_model: odoorpc.models.Model, source_ids: list, tgt_odoo_model: odoorpc.models.Model, recursion_level: int) -> int:
+        src_data = []
+        tgt_data = []
+        
+        try:
+            
+            model_fields_map = self.migration_map.get_mapping(src_odoo_model._name)["fields"]
+        
+            source_fields = list(model_fields_map.keys())
+
+            # get data from source instance
+            recordset = src_odoo_model.browse(source_ids)
+            src_data = recordset.read(source_fields)
+            
+            # format it to be feed in the target instance
+            tgt_data = self._format_data(model_name=src_odoo_model._name, data=src_data, recursion_level=recursion_level)
+
+            # creates the records at target instance
+            tgt_ids = tgt_odoo_model.create(tgt_data)
+            
+            self._track_ids(src_odoo_model._name, source_ids, tgt_odoo_model._name, tgt_ids)
+            
+            # print the results
+            _message = 'Model %s IDs migrated: %s' % (src_odoo_model._name, source_ids)
+            print(_message)
+            
+            return True
+
+        except Exception as e:
+            result_message = 'Processing error for model % s. Source IDs: %s' % (src_odoo_model._name, source_ids)
+            
+            l = {"msg": result_message, "error": repr(e)}
+            if self.debug:
+                l.update({"source_data": src_data, "target_data": tgt_data})
+            Pretty.log(l, self.log_path, overwrite=True, mode='a')
+            
+            print(result_message)
+            
+            return False
+        
+    def _migrate_2many_relations(self) -> bool:
+        
+        # get records ids with x2many relations to process from the tracking db
+        cursor = self.tracking_db.cursor()
+        cursor.execute('SELECT source_model_name, source_id, source_field_name, rel_type  FROM rels_tracking WHERE processed = 0')
+        records = cursor.fetchall()
+        for rec in records:
+            source_model_name, source_id, source_field_name, rel_type = rec
+                                                            
+            # gets the source model to sync from
+            source_model = self.source_odoo.env[source_model_name]
+        
+            # get the source field metadata
+            field_metadata = source_model.fields_get([source_field_name])
+
+            # get the related model and fields to sync to
+            related_model_name = field_metadata['relation']
+            related_model = self.source_model.env[related_model_name]
+            related_model_fields_map = self.migration_map.get_mapping(related_model_name)['fields']
+            related_model_field_list = list(related_model_fields_map.keys())
+        
+            # get the search keys
+            search_keys = self.migration_map.get_search_keys(related_model_name)
+        
+            # detect if model has a decoupled relation
+            has_a_decoupled_relation = self._has_decoupled_relation(related_model_field_list)
+            
+            # get the mode.field value(s)
+            source_recordset = source_model.browse(source_id)
+            related_model_ids = getattr(source_recordset, source_field_name)
+            
+            self._process_field_2many(parent_model_name=source_model_name, parent_id=source_id, child_model_name=related_model_name, child_data=related_model_ids)
+        
     
     def _format_data(self, model_name: str, data: Union[dict, list], recursion_level: int = 0) -> dict:
         """
@@ -436,8 +491,12 @@ class Executor(object):
             
             for column_name in fields:
                 
+                # dont drop nor process the ID column
+                if column_name.lower() == 'id':
+                    continue
+                
                 # drop decoupled relations fields, will be processed later
-                if column_name in ["model", "res_id"] and has_a_decoupled_relation:
+                if column_name.lower() in ["model", "res_id"] and has_a_decoupled_relation:
                     record.pop(column_name)
                     continue
                 
@@ -447,6 +506,7 @@ class Executor(object):
                     continue
                 
                 field_type = model_fields_metadata[column_name]["type"]
+                field_type = field_type.lower()
                 
                 # drop empty fields. Case 1: A relation without data
                 if field_type in self.relation_types and record[column_name] in [False, None, '', []]:
@@ -457,32 +517,30 @@ class Executor(object):
                 if field_type != "bool" and record[column_name] != 0 and record[column_name] in [False, None, '', []]:
                     record.pop(column_name)
                     continue
-                                
-                # test for and process relational fields
+                
+                if recursion_level <= 0 and field_type in self.relation_types:
+                    print('Removing %s.%s from migration because of recursion level.' % (model_name, column_name))
+                    record.pop(column_name)
+                    continue
+                              
+                # test for and process many 2 one relational fields
                 try:
-                    if field_type in self.relation_types:
+                    if field_type == 'many2one':
                         new_source_model_name = model_fields_metadata[column_name]['relation']
-                        if recursion_level > 0:
-                            col_value = self._process_relation(model_name=new_source_model_name, 
-                                                            relation_type=field_type, 
-                                                            field_name=column_name,
-                                                            data=record[column_name], 
-                                                            recursion_level=recursion_level)
-                            record[column_name] = col_value
-                        elif self.recursion_mode == 'w':
-                            print('Removing %s.%s --> %s from migration because of recursion level.' % (model_name, column_name, new_source_model_name))
-                            record.pop(column_name)
-                            continue
-                        else:
-                            raise TooDeepException('Can´t traverse relational field %s to model %s, either remove it from map or increase recursion level' % (column_name, model_name))
-                    elif 'relation' in model_fields_metadata[column_name]:
-                        new_source_model_name = model_fields_metadata[column_name]['relation']
-                        if self.recursion_mode == 'w':
-                            print('Removing %s.%s --> %s from migration because relation type not supported.' % (model_name, column_name, new_source_model_name))
-                            record.pop(column_name)
-                            continue
-                        else:
-                            raise UnsupportedRelationException('Relation type %s is not supported yet' % field_type)
+                        col_value = self._process_rel_2one(model_name=new_source_model_name, 
+                                                        relation_type=field_type, 
+                                                        field_name=column_name,
+                                                        data=record[column_name], 
+                                                        recursion_level=recursion_level)
+                        record[column_name] = col_value
+
+                    elif field_type in self.relation_types: # Track and Remove the field, it will be processed later (after main record creation)
+                        #: TODO track relational field for later processing
+                        self._trac_rel_field(model_name, record['id'], column_name, field_type)
+                        
+                        record.pop(column_name)
+                        continue
+                
                 except Exception as e:
                     Pretty.log('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name), self.log_path, overwrite=True, mode='a')
                     raise e
@@ -507,9 +565,9 @@ class Executor(object):
             
         return _data
     
-    def _process_relation(self, model_name: str, relation_type: str, field_name: str, data: Union[dict, list], recursion_level: int = 0) -> Union[int, list]:
+    def _process_field_2one(self, model_name: str, relation_type: str, field_name: str, data: Union[dict, list], recursion_level: int = 0) -> Union[int, list]:
         """
-        Process / traverses the relational fields in data
+        Process / traverses many 2 one relational fields
 
         Args:
             model_name (str): The model name to process relations for.
@@ -549,64 +607,7 @@ class Executor(object):
         # if model has a decoupled relation, handle it like row by row
         has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
         
-        if relation_type == 'many2many' or (relation_type == 'one2many' and has_a_decoupled_relation):
-            
-            _data = []
-            
-            # get the source data
-            related_source_ids = data # Ex: [33, 34, 35] 
-            related_source_recordset = source_model.browse(related_source_ids)
-            related_source_data = related_source_recordset.read(model_field_list)
-                               
-            for record in related_source_data:
-                record_id = record['id']
-                
-                # first search in the tracking db
-                _found = self.search_in_tracking_db(model_name, record_id)
-                
-                if _found:
-                    _data.append(_found[1])
-                else:
-                    # the search remote
-                    _found = self.search_in_target(model_name=model_name, 
-                                                    source_id=record_id, 
-                                                    search_keys=search_keys, 
-                                                    target_model_name=target_model_name)
-                    if _found:
-                        _data.append(_found[0])
-                        
-                        # tracking
-                        self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
-                    else:
-                        # data may contain new relations, so we have to format them
-                        _new_data = self._format_data(model_name=model_name, 
-                                                    data=record, 
-                                                    recursion_level=recursion_level - 1)
-                        
-                        
-                        _id = target_model.create(_new_data)
-                        _data.append(_id[0])
-                    
-                        # tracking
-                        self._track_ids(source_model_name=model_name, source_ids=[record_id], 
-                                        target_model_name=target_model_name, target_ids=[_id[0]],
-                                        has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
-                                                        
-        elif relation_type == 'one2many':
-            _data = []
-            
-            # get the source data
-            related_source_ids = data # Ex: [33, 34, 35] 
-            related_source_recordset = source_model.browse(related_source_ids)
-            related_source_data = related_source_recordset.read(model_field_list)
-
-            # data may contain new relations, so we have to format them
-            _new_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)    
-            _data = [(0, 0, e) for e in _new_data]
-            
-            #: TODO how to do tracking in this case?
-
-        elif relation_type == 'many2one':
+        if relation_type == 'many2one':
             
             # get the source data
             related_source_id, related_source_display_name = data # Ex: [33, 'MXN']                            
@@ -645,11 +646,123 @@ class Executor(object):
                                 has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
         
         else:
+            raise UnexpectedRelationTypeException('%s relations are not supported yet', relation_type)
+          
+        return _data
+
+    def _process_field_2many(self, parent_model_name: str, parent_id: int, child_model_name: str,child_data: Union[dict, list], recursion_level: int = 0) -> Union[int, list]:
+        """
+        Process / traverses ``one2many`` and ``many2many`` relational fields
+
+        Args:
+            model_name (str): The model name to process relations for.
+            relation_type (str): The type of relation to process.
+            field_name (str): The field name to process.
+            data (Union[dict, list]): The data to process.
+            recursion_level (int): The recursion level to apply. Relational field deeper than recursion_level wont be considered/formatted. Defaults to 0.
+        
+        Returns:
+            data (Union[int, list]): The data for the relational field ready to feed into the target instance.
+        
+        Exceptions:
+            TooDeepException: If the recursion level is not enough to process the relational field, and recursion_mode is set to Halt.
+            UnsupportedRelationException: If the relation type is not supported, and recursion_mode is set to Halt.
+            
+            .. important:: If recursion_mode is set to ``Warn``, no exception is throw and the field is removed from data
+        """
+        
+        relation_type = relation_type.lower()
+        
+        # get records ids with x2many relations to process from the tracking db
+        cursor = self.tracking_db.cursor()
+        cursor.execute('SELECT source_model_name, source_id, source_field_name, rel_type  FROM rels_tracking WHERE processed = 0')
+        records = cursor.fetchall()
+        for rec in records:
+            source_model_name, source_id, source_field_name, rel_type = rec
+                                                        
+            # gets the fields mapping for the model
+            # model_fields_map = self.migration_map.get_mapping(source_model_name)['fields']
+    
+            # gets the source model to sync from
+            source_model = self.source_odoo.env[source_model_name]
+        
+            # get the source field metadata
+            field_metadata = source_model.fields_get([source_field_name])
+
+            # get the related model and fields to sync to
+            related_model_name = field_metadata['relation']
+            related_model = self.source_model.env[related_model_name]
+            related_model_fields_map = self.migration_map.get_mapping(related_model_name)['fields']
+            related_model_field_list = list(related_model_fields_map.keys())
+        
+            # get the search keys
+            search_keys = self.migration_map.get_search_keys(related_model_name)
+        
+            # detect if model has a decoupled relation
+            has_a_decoupled_relation = self._has_decoupled_relation(related_model_field_list)
+        
+            if relation_type == 'many2many' or (relation_type == 'one2many' and has_a_decoupled_relation):
+                
+                _data = []
+                
+                # get the source data
+                source_recordset = source_model.browse(source_id)
+                source_data = source_recordset.read(model_field_list)
+                                
+                for record in related_source_data:
+                    record_id = record['id']
+                    
+                    # first search in the tracking db
+                    _found = self.search_in_tracking_db(model_name, record_id)
+                    
+                    if _found:
+                        _data.append(_found[1])
+                    else:
+                        # the search remote
+                        _found = self.search_in_target(model_name=model_name, 
+                                                        source_id=record_id, 
+                                                        search_keys=search_keys, 
+                                                        target_model_name=target_model_name)
+                        if _found:
+                            _data.append(_found[0])
+                            
+                            # tracking
+                            self._track_ids(model_name, [record_id], target_model_name, [_found[0]])
+                        else:
+                            # data may contain new relations, so we have to format them
+                            _new_data = self._format_data(model_name=model_name, 
+                                                        data=record, 
+                                                        recursion_level=recursion_level - 1)
+                            
+                            
+                            _id = target_model.create(_new_data)
+                            _data.append(_id[0])
+                        
+                            # tracking
+                            self._track_ids(source_model_name=model_name, source_ids=[record_id], 
+                                            target_model_name=target_model_name, target_ids=[_id[0]],
+                                            has_decoupled_relation=has_a_decoupled_relation, update_required=has_a_decoupled_relation)
+                                                            
+            elif relation_type == 'one2many':
+                _data = []
+                
+                # get the source data
+                related_source_ids = data # Ex: [33, 34, 35] 
+                related_source_recordset = source_model.browse(related_source_ids)
+                related_source_data = related_source_recordset.read(model_field_list)
+
+                # data may contain new relations, so we have to format them
+                _new_data = self._format_data(model_name=model_name, data=related_source_data, recursion_level=recursion_level - 1)    
+                _data = [(0, 0, e) for e in _new_data]
+                
+                #: TODO how to do tracking in this case?
+
+            else:
             raise UnsupportedRelationException('%s relations are not supported yet', relation_type)
           
         return _data
 
-    def _process_decoupled_relations(self, model_name: str):
+    def _process_decoupled_relations(self):
         """
         Process / updates records with special fields used to make a decoupled relation to other models.
         This are fields that points to another record using a ``model``and ``res_id`` schema. 
@@ -659,14 +772,12 @@ class Executor(object):
             - Models with a messages_ids field, pointing to a mail.message which in turn has the fields ``model`` and ``res_id``
               that points back to a parent/associated model
 
-        Args:
-            model_name (str): _description_
         """
         
         decoupled_relation_fields = ["model", "res_id"]
         
         # get records with decoupled relations requiring an update
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE has_decoupled_relation = 1 AND update_required = 1')
         records = cursor.fetchall()
         for rec in records:
@@ -698,7 +809,7 @@ class Executor(object):
                     
                     # update the ids_tracking db
                     cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
-                    self.ids_tracking_db.commit()
+                    self.tracking_db.commit()
                 else:
                     message = "Decoupled relation not updated. Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
                     Pretty.log(message, self.log_path, overwrite=True, mode='a')
@@ -708,6 +819,19 @@ class Executor(object):
                 message = "Error processing decoupled relations. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
                 Pretty.log(message, self.log_path, overwrite=True, mode='a')
                 print(message)
+
+    def _get_tracking_db(self, tracking_db: str=None) -> None:
+        # get or initialize the tracking db
+        working_dir = os.getcwd()
+        if not tracking_db:
+            db_file_name = "%s.db" % self.run_id
+            db_path = os.path.join(working_dir, db_file_name)
+        
+            # get a db connection and initialize it
+            self.tracking_db = sqlite3.connect(db_path)
+            self._init_tracking_db()
+        else:
+            self.tracking_db = sqlite3.connect(tracking_db)
 
     def _track_ids(self, source_model_name: str, source_ids: list, target_model_name: str, target_ids: list, has_decoupled_relation: bool=False, update_required:bool=False) -> None:
         """
@@ -727,19 +851,34 @@ class Executor(object):
             update_required (bool): If an update is required in the target instance. Defaults to False.
         """
        
-        cursor = self.ids_tracking_db.cursor()
+        cursor = self.tracking_db.cursor()
         
         for idx, source_id in enumerate(source_ids):
             try:
                 target_id = target_ids[idx]
                 cursor.execute('INSERT INTO ids_tracking VALUES (?, ?, ?, ?, ?, ?)', 
                                         (source_model_name, source_id, target_model_name, target_id, has_decoupled_relation, update_required))
-                self.ids_tracking_db.commit()
+                self.tracking_db.commit()
             except Exception as e:
                 Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
                 message = "Error tracking ids. %s.id=%s --> %s.id=%s" % (source_model_name, source_ids, target_model_name, target_ids)
                 Pretty.log(message, self.log_path, overwrite=True, mode='a')
                 print(message)
+
+    def _trac_rel_field(self, source_model_name: str, source_id: int, source_field_name: str, source_field_type: str) -> None:
+        """
+        Track relational fields in the tracking db, so it can be effiently processed later.
+
+        Args:
+            source_model_name (str): The source model name.
+            source_id (int): The source id.
+            source_field_name (str): The source column/field name.
+            source_field_type (str): The source field/relation type.
+        """
+        cursor = self.tracking_db.cursor()
+        cursor.execute('INSERT INTO rels_tracking VALUES (?, ?, ?, ?, ?)', 
+                                (source_model_name, source_id, source_field_name, source_field_type, False))
+        self.tracking_db.commit()
 
     def _remove_implicit_fields(self, fields):
         """
@@ -833,3 +972,22 @@ class Executor(object):
             return True
         
         return False
+    
+    def _has_inverse_relation(self, field_name: str, fields_metadata: dict) -> bool:
+        """
+        Check if there is an inverse relation in the model
+
+        Args:
+            model_name (str): The model name to check.
+            fields_metadata (dict): The fields metadata to check.
+
+        Returns:
+            bool: True if the model has an inverse relation, False otherwise.
+        """
+        
+        metadata = fields_metadata[field_name]
+        if "type" in metadata and metadata['type'] in ['one2many', 'many2many'] and "relation_field" in metadata:
+            return True
+        
+        return False
+    
