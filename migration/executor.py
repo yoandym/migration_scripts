@@ -328,16 +328,7 @@ class Executor(object):
             self.migration_map.normalice_fields(migration_map)
         
         # get or initialize the tracking db
-        working_dir = os.getcwd()
-        if not tracking_db:
-            db_file_name = "%s.db" % self.run_id
-            db_path = os.path.join(working_dir, db_file_name)
-        
-            # get a db connection and initialize it
-            self.ids_tracking_db = sqlite3.connect(db_path)
-            self._init_ids_tracking_db()
-        else:
-            self.ids_tracking_db = sqlite3.connect(tracking_db)
+        self._get_tracking_db(tracking_db)
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
@@ -365,38 +356,35 @@ class Executor(object):
             batches = self._split_into_batches(ids, batch_size)
             
         for batch in batches:
-            data = []
+            src_data = []
+            tgt_data = []
             
             try:
                 # get data from source instance
                 recordset = self.source_model.browse(batch)
-                data = recordset.read(source_fields)
+                src_data = recordset.read(source_fields)
                 
                 # format it to be feed in the target instance
-                data = self._format_data(model_name=model_name, data=data, recursion_level=recursion_level)
+                tgt_data = self._format_data(model_name=model_name, data=src_data, recursion_level=recursion_level)
 
                 # creates the records at target instance
-                res = self.target_model.create(data)
+                res = self.target_model.create(tgt_data)
                 
                 self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
                 
                 self._process_decoupled_relations(model_name)
                 
                 # print the results
-                batch_ids = [rec["name"] if "name" in rec else "No Name" for rec in data]
-                result_message = '%s %s migrated successfully: %s' % (len(res), model_name, batch_ids)
-                
-                print(result_message)
+                _message = 'Model %s IDs migrated: %s' % (model_name, batch)                
+                print(_message)
                 
             except Exception as e:
-                batch_ids = batch
-                result_message = 'Batch processing error. Source instance ids: %s' % batch_ids
+                result_message = 'Processing error for model % s. Source IDs: %s' % (model_name, batch)
                 
-                Pretty.log(result_message, self.log_path, overwrite=True, mode='a')
-                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
-
+                l = {"msg": result_message, "error": repr(e)}
                 if self.debug:
-                    Pretty.log(data, self.log_path, overwrite=True, mode='a')
+                    l.update({"source_data": src_data, "target_data": tgt_data})
+                Pretty.log(l, self.log_path, overwrite=True, mode='a')
                 
                 print(result_message)
                     
@@ -709,6 +697,19 @@ class Executor(object):
                 message = "Error processing decoupled relations. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
                 Pretty.log(message, self.log_path, overwrite=True, mode='a')
                 print(message)
+
+    def _get_tracking_db(self, tracking_db: str=None) -> None:
+        # get or initialize the tracking db
+        working_dir = os.getcwd()
+        if not tracking_db:
+            db_file_name = "%s.db" % self.run_id
+            db_path = os.path.join(working_dir, db_file_name)
+        
+            # get a db connection and initialize it
+            self.tracking_db = sqlite3.connect(db_path)
+            self._init_tracking_db()
+        else:
+            self.tracking_db = sqlite3.connect(tracking_db)
 
     def _track_ids(self, source_model_name: str, source_ids: list, target_model_name: str, target_ids: list, has_decoupled_relation: bool=False, update_required:bool=False) -> None:
         """
