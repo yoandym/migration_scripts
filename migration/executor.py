@@ -7,7 +7,7 @@ This module provides the necessary classes and methods for data migration betwee
 import os, sys
 import copy
 from datetime import datetime
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 from typing import Union
 
@@ -66,8 +66,8 @@ class Executor(object):
                 - h: Halt, if cant traverse a relation because of recursion level
                 - w: Warn, and wipe the field from map, if cant traverse a relation because of recursion level
         """
-        
-        load_dotenv()
+        env_path = find_dotenv(usecwd=True)
+        load_dotenv(dotenv_path=env_path)
                 
         self.debug = debug
                 
