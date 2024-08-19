@@ -180,7 +180,7 @@ def _get_map_path_for_model(model: str) -> str:
         else:
             return None    
     
-def migrate_model(model, source_ids=None, batch_size=10, recursion=4, tracking_db=None, debug=False):
+def migrate_model(model, source_ids=None, batch_size=10, recursion=4, tracking_db=None, migration_map=None, debug=False):
     """
     Migrate an Odoo model.
 
@@ -190,6 +190,7 @@ def migrate_model(model, source_ids=None, batch_size=10, recursion=4, tracking_d
         batch_size (int, optional): The batch size for the migration (to avoid timeouts). Defaults to 10.
         recursion (int, optional): Recursion level for related models (how deep to go). Defaults to 4.
         tracking_db (str, optional): The path to a tracking db to reuse it. Defaults to None.
+        migration_map (str, optional): The path to a file migration map to use. Defaults to None.
         debug (bool, optional): Debug mode (print/log extra data). Defaults to False.
     """
     
@@ -197,7 +198,7 @@ def migrate_model(model, source_ids=None, batch_size=10, recursion=4, tracking_d
     ex = Executor(debug=debug)
     
     #: Load the customized field map from the file
-    file_path = _get_map_path_for_model(model)
+    file_path = migration_map or _get_map_path_for_model(model)
     ex.migration_map.load_from_file(file_path=file_path)
     
     #: Do the migration.
@@ -310,6 +311,8 @@ def _parse_args():
                                 default=4, help='The recursion level for the migration (optional, integer, default 4)')
     parser_migrate.add_argument('--tracking-db', type=str, required=False,
                                 default=None, help='The path to a tracking db to reuse it (optional, string)')
+    parser_migrate.add_argument('--migration-map', type=str, required=False,
+                                default=None, help='The path to a file migration map to use (optional, string, default: search for a map file with the same model name to migrate)')
 
     # create the parser for the "make-map" command
     parser_make_map = subparsers.add_parser('make-map', 
@@ -338,9 +341,9 @@ if __name__ == "__main__":
     if args.subcommand == 'test':
         test_instances(debug=args.debug)
     elif args.subcommand == 'migrate':
-        migration_map = _get_map_path_for_model(model=args.model)
         migrate_model(model=args.model, source_ids=args.ids, batch_size=args.batch_size,
-                      recursion=args.recursion, tracking_db=args.tracking_db, debug=args.debug)
+                      recursion=args.recursion, tracking_db=args.tracking_db,
+                      migration_map=args.migration_map, debug=args.debug)
     elif args.subcommand == 'make-map':
         make_a_map(model_name=args.model, recursion_level=args.recursion, debug=args.debug)
     elif args.subcommand == 'make-tree':
