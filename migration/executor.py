@@ -526,7 +526,14 @@ class Executor(object):
             _data = []
             
             # get the source data
-            related_source_ids = data # Ex: [33, 34, 35] 
+            # data Ex: [35, 33, 34] Note the order is unknown/random 
+            related_source_ids = data
+            
+            # turns outs that not every model has the automatic field create_date
+            # if create_date is present, order by it, because its important for example for messages
+            if "create_date" in model_fields_metadata.keys():
+                related_source_ids = source_model.search([['id', 'in', data]], order='create_date ASC')
+                
             related_source_recordset = source_model.browse(related_source_ids)
             related_source_data = related_source_recordset.read(model_field_list)
                                
@@ -568,7 +575,14 @@ class Executor(object):
             _data = []
             
             # get the source data
-            related_source_ids = data # Ex: [33, 34, 35] 
+            # data Ex: [35, 33, 34] Note the order is unknown/random 
+            related_source_ids = data
+            
+            # turns outs that not every model has the automatic field create_date
+            # if create_date is present, order by it, because its important for example for messages
+            if "create_date" in model_fields_metadata.keys():
+                related_source_ids = source_model.search([['id', 'in', data]], order='create_date ASC')
+                
             related_source_recordset = source_model.browse(related_source_ids)
             related_source_data = related_source_recordset.read(model_field_list)
 
