@@ -19,7 +19,7 @@ import sqlite3
 
 from tools import Pretty
 from mapping import MigrationMap
-from exceptions import TooDeepException, UnsupportedRelationException
+from exceptions import TooDeepException, UnsupportedRelationException, NoDecoupledRelationException
 
 
 class Executor(object):
@@ -355,7 +355,7 @@ class Executor(object):
                 
                 self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
                 
-                self._process_decoupled_relations(model_name)
+                self._process_decoupled_relations()
                 
                 # print the results
                 _message = 'Model %s IDs migrated: %s' % (model_name, batch)                
@@ -409,7 +409,7 @@ class Executor(object):
             for column_name in fields:
                 
                 # drop decoupled relations fields, will be processed later
-                if column_name in ["model", "res_id"] and has_a_decoupled_relation:
+                if column_name in ["res_id"] and has_a_decoupled_relation:
                     record.pop(column_name)
                     continue
                 
@@ -635,7 +635,34 @@ class Executor(object):
           
         return _data
 
-    def _process_decoupled_relations(self, model_name: str):
+    def _get_decoupled_relation_fields(self, model_name: str) -> list:
+        """
+        Get the fields names of the decoupled relation schema used in the model.
+        
+        Args:
+            model_name (str): The model name to get the decoupled relation fields from.
+        
+        Returns:
+            list: The fields names of the decoupled relation schema used in the model (model_field, id_field)
+        """
+        decoupled_relation_fields_v1 = ["model", "res_id"]
+        decoupled_relation_fields_v2 = ["res_model", "res_id"]
+        
+        decoupled_relation_fields = None
+        
+        model_map = self.migration_map.get_mapping(model_name)
+        field_list = model_map['fields'].keys()
+        # if both fields are present in version, use it
+        if all([field in field_list for field in decoupled_relation_fields_v1]):
+            decoupled_relation_fields = decoupled_relation_fields_v1
+        elif all([field in field_list for field in decoupled_relation_fields_v2]):
+            decoupled_relation_fields = decoupled_relation_fields_v2
+        else:
+            raise NoDecoupledRelationException('No decoupled relation found in model %s' % model_name)
+        
+        return decoupled_relation_fields
+
+    def _process_decoupled_relations(self):
         """
         Process / updates records with special fields used to make a decoupled relation to other models.
         This are fields that points to another record using a ``model``and ``res_id`` schema. 
@@ -645,54 +672,53 @@ class Executor(object):
             - Models with a messages_ids field, pointing to a mail.message which in turn has the fields ``model`` and ``res_id``
               that points back to a parent/associated model
 
-        Args:
-            model_name (str): _description_
         """
-        
-        decoupled_relation_fields = ["model", "res_id"]
-        
+                
         # get records with decoupled relations requiring an update
         cursor = self.tracking_db.cursor()
         cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE has_decoupled_relation = 1 AND update_required = 1')
         records = cursor.fetchall()
+        
         for rec in records:
             try:
                 source_model_name, source_id, target_model_name, target_id = rec
                 source_model = self.source_odoo.env[source_model_name]
                 target_model = self.target_odoo.env[target_model_name] 
                 
+                # Some models use a ``model`` field name while others use a ``res_model`` field name :|
+                model_field, id_field = self._get_decoupled_relation_fields(source_model_name)
+                decoupled_relation_fields = [model_field, id_field]
+                
                 source_recordset = source_model.browse(source_id)
                 source_data = source_recordset.read(decoupled_relation_fields)
                 source_data = source_data[0]
                 
-                related_model_name = source_data['model']
-                related_id = source_data['res_id']
+                related_model_name = source_data[model_field]
+                related_id = source_data[id_field]
                 
                 # search in the ids_tracking db for the related record
                 cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE source_model_name = ? AND source_id = ?', (related_model_name, related_id))
                 related_rec = cursor.fetchone()
                 if related_rec:
                     related_source_model_name, related_source_id, related_target_model_name, related_target_id = related_rec
-                    
-                    # update the target record model and res_id
-                    target_recordset = target_model.browse(target_id)
-                    target_data = target_recordset.read(decoupled_relation_fields)
-                    target_data = target_data[0]
-                    target_data['model'] = related_target_model_name
-                    target_data['res_id'] = related_target_id
-                    target_recordset.write(target_data)
-                    
+                                        
+                    target_model.write([target_id], {model_field: related_target_model_name, id_field: related_target_id})
+                                        
                     # update the ids_tracking db
                     cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
                     self.tracking_db.commit()
                 else:
-                    message = "Decoupled relation not updated. Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
-                    Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                    message = "Could not process decoupled relation. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
+                    error = "Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
+                    log_entry = {'message': message, 'error': error}
+                    Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
                     print(message)
             except Exception as e:
-                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
-                message = "Error processing decoupled relations. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
-                Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                
+                message = "Could not process decoupled relation. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
+                log_entry = {'message': message, 'error': repr(e)}
+                
+                Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
                 print(message)
 
     def _init_tracking_db(self):
@@ -845,7 +871,8 @@ class Executor(object):
             bool: True if the model has a decoupled relation, False otherwise.
         """
         
-        if "model" in fields and "res_id" in fields:
+        if ("model" in fields and "res_id" in fields) or \
+            ("res_model" in fields and "res_id" in fields): # Yes! some models use a model field while others use a res_model field :|
             return True
         
         return False

@@ -29,3 +29,9 @@ class BadFieldMappingException(Exception):
     Raised when we encounter a bad format in the field mapping.
     """
     pass
+
+class NoDecoupledRelationException(Exception):
+    """
+    Raised when a decoupled relation is expected but none was found.
+    """
+    pass
