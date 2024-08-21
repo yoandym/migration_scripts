@@ -259,7 +259,8 @@ def test_instances(debug: bool=False):
     import os
     import dotenv
     
-    dotenv.load_dotenv()
+    env_path = dotenv.find_dotenv(usecwd=True)
+    dotenv.load_dotenv(dotenv_path=env_path)
     
     source = {
         "host": os.environ["SOURCE_HOST"],
