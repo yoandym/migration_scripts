@@ -873,14 +873,57 @@
             "is_active": "is_active"
         },
         "removed": [
-            "partner_id",
             "channel_id",
             "subtype_ids",
             "__last_update"
         ],
         "new": [
-            "partner_id",
             "subtype_ids"
+        ]
+    },
+    "ir.attachment": {
+        "target_model": "ir.attachment",
+        "search_keys": {
+            "name": "name"
+        },
+        "fields": {
+            "name": "name",
+            "description": "description",
+            "res_name": "res_name",
+            "res_model": "res_model",
+            "res_field": "res_field",
+            "res_id": "res_id",
+            "type": "type",
+            "url": "url",
+            "public": "public",
+            "access_token": "access_token",
+            "store_fname": "store_fname",
+            "file_size": "file_size",
+            "checksum": "checksum",
+            "mimetype": "mimetype",
+            "index_content": "index_content",
+            "local_url": "local_url",
+            "image_src": "image_src",
+            "image_width": "image_width",
+            "image_height": "image_height",
+            "key": "key"
+        },
+        "too_deep": [
+            "company_id",
+            "original_id",
+            "website_id",
+            "theme_template_id",
+            "create_uid",
+            "write_uid"
+        ],
+        "removed": [
+            "website_url",
+            "__last_update"
+        ],
+        "new": [
+            "voice_ids",
+            "document_type_id",
+            "document_ids"
         ]
     },
     "mail.message": {
@@ -897,10 +940,10 @@
             "author_avatar": "author_avatar",
             "model": "model",
             "res_id": "res_id",
-            "partner_ids": "partner_ids",
             "starred": "starred",
             "message_id": "message_id",
             "attachment_ids": "attachment_ids",
+            "tracking_value_ids": "tracking_value_ids",
             "reply_to": "reply_to",
             "message_type": "message_type",
             "create_date": "create_date"
@@ -926,6 +969,44 @@
             "pinned_at",
             "reply_to_force_new",
             "email_add_signature"
+        ]
+    },
+    "mail.tracking.value": {
+        "target_model": "mail.tracking.value",
+        "search_keys": {
+            "name": "name"
+        },
+        "fields": {
+            "field_groups": "field_groups",
+            "old_value_integer": "old_value_integer",
+            "old_value_float": "old_value_float",
+            "old_value_char": "old_value_char",
+            "old_value_text": "old_value_text",
+            "old_value_datetime": "old_value_datetime",
+            "new_value_integer": "new_value_integer",
+            "new_value_float": "new_value_float",
+            "new_value_char": "new_value_char",
+            "new_value_text": "new_value_text",
+            "new_value_datetime": "new_value_datetime"
+        },
+        "too_deep": [
+            "mail_message_id",
+            "create_uid",
+            "write_uid"
+        ],
+        "removed": [
+            "field",
+            "field_desc",
+            "field_type",
+            "old_value_monetary",
+            "new_value_monetary",
+            "tracking_sequence",
+            "__last_update"
+        ],
+        "new": [
+            "field_id",
+            "field_info",
+            "currency_id"
         ]
     },
     "sale.order": {
@@ -957,8 +1038,6 @@
             "amount_tax": "amount_tax",
             "amount_total": "amount_total",
             "currency_rate": "currency_rate",
-            "message_follower_ids": "message_follower_ids",
-            "message_partner_ids": "message_partner_ids",
             "message_ids": "message_ids",
             "website_message_ids": "website_message_ids",
             "signature": "signature",
