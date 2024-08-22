@@ -11,11 +11,14 @@ from dotenv import load_dotenv, find_dotenv
 
 from typing import Union
 
+import traceback
+
 from colorama import Fore, Back, Style
 from unidecode import unidecode
 
 import odoorpc
 import sqlite3
+from sqlite3 import Connection as SQLite3Connection
 
 from tools import Pretty
 from mapping import MigrationMap
@@ -109,7 +112,6 @@ class Executor(object):
         log_file_name = "%s.log" % self.run_id
         self.log_path = os.path.join(working_dir, log_file_name)
         
-
     @property
     def debug(self):
         """
@@ -311,7 +313,7 @@ class Executor(object):
             self.migration_map.normalice_fields(migration_map)
         
         # get or initialize the tracking db
-        self._get_tracking_db(tracking_db)
+        self.get_tracking_db(tracking_db)
         
         # match target context with source context to avoid translation and datetimes problems
         self._match_context()
@@ -355,7 +357,7 @@ class Executor(object):
                 
                 self._track_ids(model_name, batch, self.migration_map.get_target_model(model_name), res)
                 
-                self._process_decoupled_relations()
+                self.process_decoupled_relations()
                 
                 # print the results
                 _message = 'Model %s IDs migrated: %s' % (model_name, batch)                
@@ -366,7 +368,8 @@ class Executor(object):
                 
                 l = {"msg": result_message, "error": repr(e)}
                 if self.debug:
-                    l.update({"source_data": src_data, "target_data": tgt_data})
+                    stack_trace = traceback.format_exc()
+                    l.update({"stack_trace": stack_trace, "source_data": src_data, "target_data": tgt_data})
                 Pretty.log(l, self.log_path, overwrite=True, mode='a')
                 
                 print(result_message)
@@ -457,7 +460,7 @@ class Executor(object):
                             raise UnsupportedRelationException('Relation type %s is not supported yet' % field_type)
                 except Exception as e:
                     Pretty.log('Error processing %s.%s --> %s' % (model_name, column_name, new_source_model_name), self.log_path, overwrite=True, mode='a')
-                    raise e
+                    raise
                 
                 # test for and do field name changes / transformations with callables
                 field_mapping_value = model_fields_map[column_name]
@@ -662,7 +665,7 @@ class Executor(object):
         
         return decoupled_relation_fields
 
-    def _process_decoupled_relations(self):
+    def process_decoupled_relations(self):
         """
         Process / updates records with special fields used to make a decoupled relation to other models.
         This are fields that points to another record using a ``model``and ``res_id`` schema. 
@@ -671,6 +674,9 @@ class Executor(object):
         Example:
             - Models with a messages_ids field, pointing to a mail.message which in turn has the fields ``model`` and ``res_id``
               that points back to a parent/associated model
+        
+        Returns:
+            dict: A dictionary with model names and the number of records updated per model
 
         """
                 
@@ -678,6 +684,8 @@ class Executor(object):
         cursor = self.tracking_db.cursor()
         cursor.execute('SELECT source_model_name, source_id, target_model_name, target_id FROM ids_tracking WHERE has_decoupled_relation = 1 AND update_required = 1')
         records = cursor.fetchall()
+        
+        result = {}
         
         for rec in records:
             try:
@@ -702,24 +710,53 @@ class Executor(object):
                 if related_rec:
                     related_source_model_name, related_source_id, related_target_model_name, related_target_id = related_rec
                                         
-                    target_model.write([target_id], {model_field: related_target_model_name, id_field: related_target_id})
+                    res = target_model.write([target_id], {model_field: related_target_model_name, id_field: related_target_id})
                                         
                     # update the ids_tracking db
-                    cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
+                    uc = cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
                     self.tracking_db.commit()
+                    
+                    if target_model_name in result:
+                        result[target_model_name] += uc.rowcount
+                    else:
+                        result[target_model_name] = uc.rowcount
+                    
                 else:
-                    message = "Could not process decoupled relation. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
-                    error = "Record not found in ids_tracking db. %s.id=%s" % (related_model_name, related_id)
-                    log_entry = {'message': message, 'error': error}
-                    Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
-                    print(message)
+                    
+                    # search the record in the target instance
+                    related_target_model_name = self.migration_map.get_target_model(related_model_name)
+                    res = self.search_in_target(model_name=related_model_name, source_id=related_id, target_model_name=related_target_model_name)
+                    if res:
+                        target_model.write([target_id], {model_field: related_target_model_name, id_field: res[0]})
+                                        
+                        # update the ids_tracking db
+                        uc = cursor.execute('UPDATE ids_tracking SET update_required = 0 WHERE source_model_name = ? AND source_id = ?', (source_model_name, source_id))
+                        self.tracking_db.commit()
+                        
+                        if target_model_name in result:
+                            result[target_model_name] += uc.rowcount
+                        else:
+                            result[target_model_name] = uc.rowcount
+
+                    else:
+                        message = "Could not process decoupled relation. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
+                        error = "Record not found in ids_tracking db nor in target instance model %s.id=%s" % (related_model_name, related_id)
+                        log_entry = {'message': message, 'error': error}
+                        Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
+                        print(message)
             except Exception as e:
                 
                 message = "Could not process decoupled relation. %s.id=%s --> %s.id=%s" % (source_model_name, source_id, target_model_name, target_id)
                 log_entry = {'message': message, 'error': repr(e)}
                 
+                if self.debug:
+                    stack_trace = traceback.format_exc()
+                    log_entry.update({"stack_trace": stack_trace})
+                
                 Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
                 print(message)
+            
+        return result
 
     def _init_tracking_db(self):
         """
@@ -738,7 +775,14 @@ class Executor(object):
                         ''')
         self.tracking_db.commit()
 
-    def _get_tracking_db(self, tracking_db: str=None) -> None:
+    def get_tracking_db(self, tracking_db: str=None) -> SQLite3Connection:
+        """ Get or initialize a tracking db
+
+        Args:
+            tracking_db (str, optional): Path to the tracking db file. Defaults to None. (creates a new one)
+        
+        Return: SQLite3Connection
+        """
         # get or initialize the tracking db
         working_dir = os.getcwd()
         if not tracking_db:
@@ -750,6 +794,8 @@ class Executor(object):
             self._init_tracking_db()
         else:
             self.tracking_db = sqlite3.connect(tracking_db)
+        
+        return self.tracking_db
 
     def _track_ids(self, source_model_name: str, source_ids: list, target_model_name: str, target_ids: list, has_decoupled_relation: bool=False, update_required:bool=False) -> None:
         """
@@ -778,10 +824,60 @@ class Executor(object):
                                         (source_model_name, source_id, target_model_name, target_id, has_decoupled_relation, update_required))
                 self.tracking_db.commit()
             except Exception as e:
-                Pretty.log(repr(e), self.log_path, overwrite=True, mode='a')
                 message = "Error tracking ids. %s.id=%s --> %s.id=%s" % (source_model_name, source_ids, target_model_name, target_ids)
-                Pretty.log(message, self.log_path, overwrite=True, mode='a')
+                log_entry = {'message': message, 'error': repr(e)}
+                
+                if self.debug:
+                    stack_trace = traceback.format_exc()
+                    log_entry.update({"stack_trace": stack_trace})
+                
+                Pretty.log(log_entry, self.log_path, overwrite=True, mode='a')
                 print(message)
+
+    def remove_phantom_ids(self, model_name: str, tracking_db: str=None) -> None:
+        """
+        Remove phantom target instance ids from the tracking database.
+        Phantom ids are ids that were tracked but somehow dont actually exists in the target instance.
+
+        Args:
+            model_name (str): The model name to remove phantom ids from.
+            tracking_db (str): The tracking database file path to use. Defaults to None.
+        
+        Returns:
+            None
+        """
+        
+        # get or initialize the tracking db
+        self.get_tracking_db(tracking_db)
+        cursor = self.tracking_db.cursor()
+        
+        if model_name:
+            cursor.execute('SELECT target_model_name, target_id FROM ids_tracking WHERE source_model_name = ?', (model_name,))
+        else:
+            cursor.execute('SELECT target_model_name, target_id FROM ids_tracking')
+        target_ids = cursor.fetchall()
+        
+        result = {}
+        
+        for rec in target_ids:
+            target_model_name, target_id = rec
+            
+            # get the target odoo model
+            target_model = self.target_odoo.env[target_model_name]
+            
+            # do a search by id in the target instance
+            # if not found, remove it from the tracking db
+            if not target_model.search_count([['id', '=', target_id]]):
+                res = cursor.execute('DELETE FROM ids_tracking WHERE target_model_name = ? and target_id = ?', (target_model_name, target_id))
+                self.tracking_db.commit()
+                
+                # track the removed ids count per model
+                if target_model_name in result:
+                    result[target_model_name] += res.rowcount
+                else:
+                    result[target_model_name] = res.rowcount
+                    
+        return result
 
     def _remove_implicit_fields(self, fields):
         """

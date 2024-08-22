@@ -105,43 +105,53 @@ def _crm_lead_categorizacin_transformer(executor: Executor, data: list) -> dict:
             
     return _data
 
-def migrate_crm_team():
+def remove_phantoms(tracking_db, model=None) -> None:
     """
-    A simple data migration for model crm.team model from odoo v14 to v17.
-    """
+    Remove records that dont exists in the target instance.
     
-    #: No parameter given to Executor so connection data is loaded from .env file
-    ex = Executor()
-
-    #: Model name to migrate
-    model = 'crm.team'
-    
-    #: This is a simple migration so no need to make a full fields map, a simple list will do.
-    fields = ['name', 'sequence', 'active', 'is_favorite', 'color', 'alias_name', 'alias_contact', 'invoiced_target']
-
-    #: Do the migration
-    ex.migrate(model, fields)
-
-def migrate_payment_terms():
-    """
-    Migrate account.payment.term model from odoo v14 to v17.
+    Args:
+        tracking_db (str): The path to a tracking db to use.
+        model (str, optional): The model to work with. Defaults to None (remove phantoms for all models)
     """
     
     #: No parameter given to Executor so connection data is loaded from .env file
     ex = Executor()
 
-    #: Model name to migrate
-    model = 'account.payment.term'
+    #: Do the thing
+    result = ex.remove_phantom_ids(model, tracking_db)
     
-    #: This is a more advanced migration case so we use a full fields map.
-    #: The model account.payment.term.lines needs some work: 
-    #:  - field value can be only fixed or in percentage. We use a transformer function to fix this.
-    #:    See account_payment_term_line_value_transformer function.
-    #:  - field days renamed to nb_days. We use a field mapping to rename it.
-    fields = ['name', 'active', 'note', {'line_ids': _account_payment_term_line_value_transformer}]
+    if result:
+        Pretty.print("Phantom ids removed from tracking db:")
+        Pretty.print(result)
+    elif model:
+        Pretty.print("No phantom ids found in tracking db for model %s" % model)
+    else:
+        Pretty.print("No phantom ids found in tracking db")
 
+
+def process_decoupled(tracking_db: str, migration_map: str) -> None:
+    """
+    Process decoupled records from tracking db.
+    
+    Args:
+        tracking_db (str): The path to a tracking db to use.
+        migration_map (str): The path to a file migration map to use.
+    """
+    
+    #: No parameter given to Executor so connection data is loaded from .env file
+    ex = Executor()
+    
     #: Do the migration
-    ex.migrate(model, fields)
+    ex.get_tracking_db(tracking_db)
+    ex.migration_map.load_from_file(migration_map)
+    result = ex.process_decoupled_relations()
+    
+    if result:
+        Pretty.print("Records processed from tracking db:")
+        Pretty.print(result)
+    else:
+        Pretty.print("0 records updated.")
+
 
 def _get_map_path_for_model(model: str) -> str:
     """
@@ -324,12 +334,29 @@ def _parse_args():
                                  default=4, help='The recursion level to use (optional, integer, default 4)')
 
     # create the parser for the "make-tree" command
-    parser_nake_tree = subparsers.add_parser('make-tree',
+    parser_make_tree = subparsers.add_parser('make-tree',
                                              help='Generates a relations tree for the model (useful to understand relations)')
-    parser_nake_tree.add_argument('--model', type=str, required=True,
+    parser_make_tree.add_argument('--model', type=str, required=True,
                                   help='The model to work with')
-    parser_nake_tree.add_argument('--recursion', type=int, required=False,
+    parser_make_tree.add_argument('--recursion', type=int, required=False,
                                   default=4, help='The recursion level to use (optional, integer, default 4)')
+    
+    
+    # create the parser for the "remove-phantoms" command
+    parser_phantoms = subparsers.add_parser('remove-phantoms',
+                                             help='Removes records that dont exists in the target instance')
+    parser_phantoms.add_argument('--model', type=str, required=False, default=None,
+                                  help='The model to work with (optional, string, default: removes phantoms for all models)')
+    parser_phantoms.add_argument('--tracking-db', type=str, required=False,
+                                default=None, help='The path to a tracking db to use (optional, string)')
+ 
+    # create the parser for the "process-decoupled" command
+    parser_decoupled = subparsers.add_parser('process-decoupled',
+                                             help='Removes records that dont exists in the target instance')
+    parser_decoupled.add_argument('--tracking-db', type=str, required=True,
+                                help='The path to a tracking db to use (string)')
+    parser_decoupled.add_argument('--migration-map', type=str, required=True,
+                                help='The path to a file migration map to use (string)')
     
     args = parser.parse_args()
     
@@ -349,4 +376,8 @@ if __name__ == "__main__":
         make_a_map(model_name=args.model, recursion_level=args.recursion, debug=args.debug)
     elif args.subcommand == 'make-tree':
         make_a_tree(model_name=args.model, recursion_level=args.recursion)
+    elif args.subcommand == 'remove-phantoms':
+        remove_phantoms(model=args.model, tracking_db=args.tracking_db)
+    elif args.subcommand == 'process-decoupled':
+        process_decoupled(tracking_db=args.tracking_db, migration_map=args.migration_map)
 
