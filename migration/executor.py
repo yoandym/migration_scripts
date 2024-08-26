@@ -524,6 +524,10 @@ class Executor(object):
         # if model has a decoupled relation, handle it like row by row
         has_a_decoupled_relation = self._has_decoupled_relation(model_field_list)
         
+        # some one2many related model may have a reverse relation, 
+        # so we have to check if the target model has a field pointing back to the source model
+        # if so, we have to create the parent and current records using the special command [(0, 0, {data})] 
+        # that way the reverse relation is created automatically
         if relation_type == 'many2many' or (relation_type == 'one2many' and has_a_decoupled_relation):
             
             _data = []

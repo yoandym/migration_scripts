@@ -1051,7 +1051,7 @@
             "access_url": "access_url",
             "access_token": "access_token",
             "access_warning": "access_warning",
-            "write_date": "write_date"
+            "opportunity_id": "opportunity_id"
         },
         "too_deep": [
             "partner_invoice_id",
@@ -1064,7 +1064,6 @@
             "tag_ids",
             "sale_order_template_id",
             "sale_order_option_ids",
-            "opportunity_id",
             "tasks_ids",
             "project_id",
             "project_ids",
@@ -1571,7 +1570,6 @@
             "contact_name": "contact_name",
             "partner_name": "partner_name",
             "function": "function",
-            "title": "title",
             "email_from": "email_from",
             "message_ids": "message_ids",
             "website_message_ids": "website_message_ids",
@@ -1591,7 +1589,6 @@
             "automated_probability": "automated_probability",
             "is_automated_probability": "is_automated_probability",
             "sale_amount_total": "sale_amount_total",
-            "order_ids": "order_ids",
             "create_date": "create_date",
             "x_studio_categorizacin": "@_crm_lead_categorizacin_transformer"
         },
